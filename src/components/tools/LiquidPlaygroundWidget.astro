@@ -1,0 +1,651 @@
+---
+// LiquidPlaygroundWidget.astro
+// Beginner-friendly Shopify Liquid playground: Liquid + CSS + JS + mock Shopify data,
+// rendered live via LiquidJS. 20 premade section patterns via dropdown.
+// Requires: npm install liquidjs
+---
+
+<div data-liquid-playground-widget class="w-full">
+  <!-- Section picker -->
+  <div class="mb-4 flex flex-wrap items-center gap-3">
+    <label class="text-sm font-medium text-gray-700">Load a premade section:</label>
+    <select data-section-select class="flex-1 min-w-[220px] border border-gray-300 rounded-md px-3 py-2 text-sm bg-white">
+      <option value="">— Choose a section —</option>
+      <option value="announcement-bar">Announcement bar</option>
+      <option value="header-nav">Header / navigation</option>
+      <option value="hero-banner">Hero banner</option>
+      <option value="featured-product">Featured product</option>
+      <option value="product-card">Product card (snippet pattern)</option>
+      <option value="product-grid">Product grid (collection)</option>
+      <option value="variant-picker">Variant picker</option>
+      <option value="add-to-cart-form">Add to cart form</option>
+      <option value="image-with-text">Image with text</option>
+      <option value="rich-text-block">Rich text block</option>
+      <option value="faq-accordion">FAQ accordion</option>
+      <option value="testimonials">Testimonials</option>
+      <option value="newsletter-signup">Newsletter signup</option>
+      <option value="collection-list">Collection list</option>
+      <option value="cart-drawer">Cart drawer / mini-cart</option>
+      <option value="blog-grid">Blog post grid</option>
+      <option value="sale-countdown">Sale countdown banner</option>
+      <option value="logo-list">Logo list ("as seen in")</option>
+      <option value="footer">Footer</option>
+      <option value="video-section">Video section</option>
+    </select>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Editors -->
+    <div class="border border-gray-200 rounded-lg overflow-hidden">
+      <div class="flex border-b border-gray-200 bg-gray-50 overflow-x-auto">
+        <button type="button" data-tab-btn="liquid" class="flex-1 min-w-[80px] px-3 py-2 text-sm font-medium text-emerald-700 border-b-2 border-emerald-600 bg-white whitespace-nowrap">Liquid</button>
+        <button type="button" data-tab-btn="css" class="flex-1 min-w-[80px] px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">CSS</button>
+        <button type="button" data-tab-btn="js" class="flex-1 min-w-[80px] px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">JS</button>
+        <button type="button" data-tab-btn="data" class="flex-1 min-w-[80px] px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 whitespace-nowrap">Data (JSON)</button>
+      </div>
+      <div data-tab-panel="liquid" class="block">
+        <textarea data-liquid-input spellcheck="false" class="w-full h-80 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Write Liquid here..."></textarea>
+      </div>
+      <div data-tab-panel="css" class="hidden">
+        <textarea data-css-input spellcheck="false" class="w-full h-80 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Write CSS here..."></textarea>
+      </div>
+      <div data-tab-panel="js" class="hidden">
+        <textarea data-js-input spellcheck="false" class="w-full h-80 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Write JS here..."></textarea>
+      </div>
+      <div data-tab-panel="data" class="hidden">
+        <textarea data-data-input spellcheck="false" class="w-full h-80 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Mock Shopify data as JSON..."></textarea>
+      </div>
+      <div data-error-banner class="hidden px-3 py-2 text-xs font-mono text-red-700 bg-red-50 border-t border-red-200 whitespace-pre-wrap"></div>
+    </div>
+
+    <!-- Preview -->
+    <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
+        <span class="text-sm font-medium text-gray-700">Live Preview</span>
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-1.5 text-xs text-gray-500">
+            <input type="checkbox" data-auto-run checked class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
+            Auto-run
+          </label>
+          <button type="button" data-run-btn class="px-3 py-1 text-xs font-medium rounded-md bg-emerald-600 text-white hover:bg-emerald-700 transition">Run &#9654;</button>
+        </div>
+      </div>
+      <iframe data-preview title="Live preview" class="w-full h-80 bg-white" sandbox="allow-scripts"></iframe>
+    </div>
+  </div>
+
+  <!-- Reference / Shopify objects cheat sheet -->
+  <details class="mt-4 border border-gray-200 rounded-lg">
+    <summary class="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer bg-gray-50">Available mock objects</summary>
+    <div class="px-4 py-3 text-xs font-mono text-gray-600 space-y-1">
+      <p>shop.name, shop.currency</p>
+      <p>product.title, product.price, product.compare_at_price, product.images, product.featured_image, product.options, product.variants, product.tags, product.available, product.vendor, product.type, product.description</p>
+      <p>collection.title, collection.products</p>
+      <p>cart.item_count, cart.total_price, cart.items</p>
+      <p>customer (null by default)</p>
+      <p>menu, faqs, testimonials, blog_posts, logos — plain arrays for loop practice</p>
+      <p class="text-gray-400">Filters available: money, money_with_currency, img_url, handle, asset_url, pluralize, json, plus everything built into LiquidJS (for, if, assign, capture, case, date, where, map, sort, etc).</p>
+    </div>
+  </details>
+
+  <!-- Action buttons -->
+  <div class="flex flex-wrap items-center gap-2 mt-4">
+    <button type="button" data-copy-btn="liquid" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      <span data-copy-label="liquid">Copy Liquid</span>
+    </button>
+    <button type="button" data-copy-btn="css" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      <span data-copy-label="css">Copy CSS</span>
+    </button>
+    <button type="button" data-copy-btn="js" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      <span data-copy-label="js">Copy JS</span>
+    </button>
+    <button type="button" data-download-btn class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      Download section.liquid
+    </button>
+    <button type="button" data-reset-btn class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-red-600 hover:bg-red-50 transition ml-auto">
+      Reset
+    </button>
+  </div>
+</div>
+
+<script>
+  import { Liquid } from 'liquidjs';
+
+  function initLiquidPlayground(root: HTMLElement) {
+    const liquidInput = root.querySelector<HTMLTextAreaElement>('[data-liquid-input]')!;
+    const cssInput = root.querySelector<HTMLTextAreaElement>('[data-css-input]')!;
+    const jsInput = root.querySelector<HTMLTextAreaElement>('[data-js-input]')!;
+    const dataInput = root.querySelector<HTMLTextAreaElement>('[data-data-input]')!;
+    const preview = root.querySelector<HTMLIFrameElement>('[data-preview]')!;
+    const autoRun = root.querySelector<HTMLInputElement>('[data-auto-run]')!;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run-btn]')!;
+    const errorBanner = root.querySelector<HTMLElement>('[data-error-banner]')!;
+    const sectionSelect = root.querySelector<HTMLSelectElement>('[data-section-select]')!;
+
+    // --- LiquidJS engine + Shopify-style custom filters ---
+    const engine = new Liquid();
+    engine.registerFilter('money', (v: number) => `$${(Number(v) / 100).toFixed(2)}`);
+    engine.registerFilter('money_with_currency', (v: number) => `$${(Number(v) / 100).toFixed(2)} USD`);
+    engine.registerFilter('img_url', (v: string) => v || 'https://picsum.photos/seed/placeholder/600/600');
+    engine.registerFilter('handle', (v: string) =>
+      String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    );
+    engine.registerFilter('asset_url', (v: string) => `/assets/${v}`);
+    engine.registerFilter('pluralize', (count: number, singular: string, plural: string) =>
+      Number(count) === 1 ? singular : plural
+    );
+    engine.registerFilter('json', (v: unknown) => JSON.stringify(v));
+
+    // --- Default mock Shopify data ---
+    const defaultData = {
+      shop: { name: 'Pixel Threads', currency: 'USD' },
+      product: {
+        title: 'Classic Canvas Tote',
+        handle: 'classic-canvas-tote',
+        description: 'A durable, everyday canvas tote with reinforced stitching and an interior pocket.',
+        vendor: 'Pixel Threads',
+        type: 'Bags',
+        tags: ['bestseller', 'canvas', 'eco-friendly'],
+        available: true,
+        price: 3600,
+        compare_at_price: 4500,
+        featured_image: 'https://picsum.photos/seed/tote1/600/600',
+        images: [
+          'https://picsum.photos/seed/tote1/600/600',
+          'https://picsum.photos/seed/tote2/600/600',
+          'https://picsum.photos/seed/tote3/600/600'
+        ],
+        options: [
+          { name: 'Color', values: ['Natural', 'Black', 'Navy'] },
+          { name: 'Size', values: ['Small', 'Large'] }
+        ],
+        variants: [
+          { id: 1, title: 'Natural / Small', price: 3600, compare_at_price: 4500, available: true, option1: 'Natural', option2: 'Small' },
+          { id: 2, title: 'Natural / Large', price: 3800, compare_at_price: 4700, available: true, option1: 'Natural', option2: 'Large' },
+          { id: 3, title: 'Black / Small', price: 3600, compare_at_price: 4500, available: true, option1: 'Black', option2: 'Small' },
+          { id: 4, title: 'Black / Large', price: 3800, compare_at_price: 4700, available: false, option1: 'Black', option2: 'Large' },
+          { id: 5, title: 'Navy / Small', price: 3600, compare_at_price: 4500, available: true, option1: 'Navy', option2: 'Small' },
+          { id: 6, title: 'Navy / Large', price: 3800, compare_at_price: 4700, available: true, option1: 'Navy', option2: 'Large' }
+        ]
+      },
+      collection: {
+        title: 'Best Sellers',
+        handle: 'best-sellers',
+        products: [
+          { title: 'Classic Canvas Tote', price: 3600, image: 'https://picsum.photos/seed/tote1/400/400', handle: 'classic-canvas-tote', available: true },
+          { title: 'Recycled Wool Beanie', price: 2200, image: 'https://picsum.photos/seed/beanie/400/400', handle: 'recycled-wool-beanie', available: true },
+          { title: 'Waxed Canvas Belt', price: 2800, image: 'https://picsum.photos/seed/belt/400/400', handle: 'waxed-canvas-belt', available: true },
+          { title: 'Enamel Camp Mug', price: 1400, image: 'https://picsum.photos/seed/mug/400/400', handle: 'enamel-camp-mug', available: false }
+        ]
+      },
+      cart: {
+        item_count: 2,
+        total_price: 5800,
+        items: [
+          { title: 'Classic Canvas Tote', quantity: 1, image: 'https://picsum.photos/seed/tote1/200/200', line_price: 3600 },
+          { title: 'Recycled Wool Beanie', quantity: 1, image: 'https://picsum.photos/seed/beanie/200/200', line_price: 2200 }
+        ]
+      },
+      customer: null,
+      menu: [
+        { title: 'Home', url: '#' },
+        { title: 'Shop', url: '#' },
+        { title: 'About', url: '#' },
+        { title: 'Contact', url: '#' }
+      ],
+      faqs: [
+        { question: 'How long does shipping take?', answer: '3-5 business days within the US, 7-14 days internationally.' },
+        { question: 'What is your return policy?', answer: 'Free returns within 30 days of delivery, no questions asked.' },
+        { question: 'Are your materials sustainable?', answer: 'Yes, all our canvas and wool is sourced from certified sustainable suppliers.' },
+        { question: 'Do you ship internationally?', answer: 'Yes, we ship to over 40 countries.' },
+        { question: 'Can I change my order after placing it?', answer: 'Contact us within 1 hour of ordering and we will do our best to help.' }
+      ],
+      testimonials: [
+        { author: 'Jamie R.', quote: 'The quality is incredible, this bag has held up to two years of daily use.', rating: 5 },
+        { author: 'Sam T.', quote: 'Fast shipping and beautiful packaging. Will buy again.', rating: 5 },
+        { author: 'Alex P.', quote: 'Exactly as described, love the color options.', rating: 4 }
+      ],
+      blog_posts: [
+        { title: 'How We Source Our Canvas', excerpt: 'A look inside our supply chain.', image: 'https://picsum.photos/seed/blog1/400/250', date: '2026-05-01', url: '#' },
+        { title: 'Caring for Waxed Canvas', excerpt: 'Keep your gear looking new for years.', image: 'https://picsum.photos/seed/blog2/400/250', date: '2026-04-12', url: '#' },
+        { title: 'Meet Our Makers', excerpt: 'The artisans behind every stitch.', image: 'https://picsum.photos/seed/blog3/400/250', date: '2026-03-20', url: '#' }
+      ],
+      logos: [{ name: 'Vogue' }, { name: 'TechCrunch' }, { name: 'Forbes' }, { name: 'Kinfolk' }]
+    };
+
+    const starterLiquid = `<section class="max-w-2xl mx-auto px-6 py-12 text-center">
+  <h1 class="text-2xl font-bold mb-2">{{ shop.name }}</h1>
+  <p class="text-gray-600">{{ product.title }} — {{ product.price | money }}</p>
+</section>`;
+    const starterCss = `/* Tailwind CDN is preloaded in the preview, so utility classes work here.
+   Add custom rules for anything Tailwind doesn't cover. */`;
+    const starterJs = `// Optional interactivity for the section above`;
+    const starterData = JSON.stringify(defaultData, null, 2);
+
+    liquidInput.value = starterLiquid;
+    cssInput.value = starterCss;
+    jsInput.value = starterJs;
+    dataInput.value = starterData;
+
+    // --- Premade sections (Liquid + optional CSS/JS, data stays the same for all) ---
+    const sections: Record<string, { liquid: string; css?: string; js?: string }> = {
+      'announcement-bar': {
+        liquid: `<div class="bg-emerald-700 text-white text-center text-sm py-2 px-4">
+  Free shipping on orders over {{ 5000000 | money }} — Use code {{ "welcome10" | upcase }}
+</div>`
+      },
+      'header-nav': {
+        liquid: `<header class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+  <a href="/" class="text-xl font-bold">{{ shop.name }}</a>
+  <nav class="hidden md:flex gap-6">
+    {% for link in menu %}
+      <a href="{{ link.url }}" class="text-sm font-medium text-gray-700 hover:text-emerald-700">{{ link.title }}</a>
+    {% endfor %}
+  </nav>
+  <div class="text-sm">Cart ({{ cart.item_count }})</div>
+</header>`
+      },
+      'hero-banner': {
+        liquid: `<section class="relative bg-gray-900 text-white text-center py-24 px-6">
+  <h1 class="text-4xl md:text-5xl font-bold mb-4">Built for Everyday Adventure</h1>
+  <p class="text-gray-300 max-w-xl mx-auto mb-6">Durable, sustainable goods made to last. From {{ shop.name }}.</p>
+  <a href="#" class="inline-block bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-md font-semibold">Shop Now</a>
+</section>`
+      },
+      'featured-product': {
+        liquid: `<section class="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 px-6 py-12">
+  <img src="{{ product.featured_image | img_url }}" alt="{{ product.title }}" class="w-full rounded-lg object-cover">
+  <div>
+    <h2 class="text-2xl font-bold mb-2">{{ product.title }}</h2>
+    <p class="text-gray-600 mb-4">{{ product.description }}</p>
+    <div class="mb-4">
+      {% if product.compare_at_price > product.price %}
+        <span class="text-lg font-bold text-emerald-700">{{ product.price | money }}</span>
+        <span class="text-gray-400 line-through ml-2">{{ product.compare_at_price | money }}</span>
+      {% else %}
+        <span class="text-lg font-bold">{{ product.price | money }}</span>
+      {% endif %}
+    </div>
+    {% if product.available %}
+      <button class="bg-gray-900 text-white px-6 py-3 rounded-md font-semibold">Add to Cart</button>
+    {% else %}
+      <button class="bg-gray-300 text-gray-500 px-6 py-3 rounded-md font-semibold" disabled>Sold Out</button>
+    {% endif %}
+  </div>
+</section>`
+      },
+      'product-card': {
+        liquid: `<div class="max-w-xs border border-gray-200 rounded-lg overflow-hidden">
+  <img src="{{ product.featured_image | img_url }}" alt="{{ product.title }}" class="w-full aspect-square object-cover">
+  <div class="p-4">
+    <h3 class="font-semibold text-sm mb-1">{{ product.title }}</h3>
+    <p class="text-sm text-gray-500">{{ product.price | money }}</p>
+  </div>
+</div>`
+      },
+      'product-grid': {
+        liquid: `<section class="max-w-6xl mx-auto px-6 py-12">
+  <h2 class="text-2xl font-bold mb-6">{{ collection.title }}</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    {% for item in collection.products %}
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <img src="{{ item.image | img_url }}" alt="{{ item.title }}" class="w-full aspect-square object-cover">
+        <div class="p-3">
+          <h3 class="text-sm font-semibold mb-1">{{ item.title }}</h3>
+          <p class="text-sm text-gray-500">{{ item.price | money }}</p>
+        </div>
+      </div>
+    {% else %}
+      <p class="text-gray-500 col-span-full">No products in this collection yet.</p>
+    {% endfor %}
+  </div>
+</section>`
+      },
+      'variant-picker': {
+        liquid: `<section class="max-w-md mx-auto px-6 py-12">
+  <h2 class="text-xl font-bold mb-4">{{ product.title }}</h2>
+  <p data-variant-price class="text-lg font-semibold mb-4">{{ product.price | money }}</p>
+  {% for option in product.options %}
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-1">{{ option.name }}</label>
+      <select data-option-index="{{ forloop.index0 }}" class="border border-gray-300 rounded-md px-3 py-2 w-full">
+        {% for value in option.values %}
+          <option value="{{ value }}">{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endfor %}
+  <script type="application/json" data-variants>{{ product.variants | json }}<\/script>
+  <button class="bg-gray-900 text-white px-6 py-3 rounded-md font-semibold w-full">Add to Cart</button>
+</section>`,
+        js: `function updateVariant() {
+  const selects = document.querySelectorAll('[data-option-index]');
+  const chosen = Array.from(selects).map((s) => s.value);
+  const variants = JSON.parse(document.querySelector('[data-variants]').textContent);
+  const match = variants.find((v) => chosen.every((val, i) => v['option' + (i + 1)] === val));
+  const priceEl = document.querySelector('[data-variant-price]');
+  if (match) priceEl.textContent = '$' + (match.price / 100).toFixed(2) + (match.available ? '' : ' (Sold out)');
+}
+document.querySelectorAll('[data-option-index]').forEach((sel) => sel.addEventListener('change', updateVariant));`
+      },
+      'add-to-cart-form': {
+        liquid: `<section class="max-w-sm mx-auto px-6 py-12 text-center">
+  <h2 class="text-xl font-bold mb-4">{{ product.title }}</h2>
+  <div class="flex items-center justify-center gap-3 mb-4">
+    <button data-qty-decrease class="w-8 h-8 border border-gray-300 rounded">-</button>
+    <span data-qty class="w-8 text-center inline-block">1</span>
+    <button data-qty-increase class="w-8 h-8 border border-gray-300 rounded">+</button>
+  </div>
+  <button data-add-to-cart class="bg-emerald-700 text-white px-6 py-3 rounded-md font-semibold w-full">Add to Cart — {{ product.price | money }}</button>
+  <p data-cart-msg class="text-sm text-emerald-700 mt-3 hidden">Added to cart!</p>
+</section>`,
+        js: `let qty = 1;
+const qtyEl = document.querySelector('[data-qty]');
+document.querySelector('[data-qty-increase]').addEventListener('click', () => { qty++; qtyEl.textContent = qty; });
+document.querySelector('[data-qty-decrease]').addEventListener('click', () => { qty = Math.max(1, qty - 1); qtyEl.textContent = qty; });
+document.querySelector('[data-add-to-cart]').addEventListener('click', () => {
+  document.querySelector('[data-cart-msg]').classList.remove('hidden');
+});`
+      },
+      'image-with-text': {
+        liquid: `<section class="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 items-center px-6 py-12">
+  <img src="https://picsum.photos/seed/craft/600/500" class="rounded-lg w-full" alt="">
+  <div>
+    <h2 class="text-2xl font-bold mb-3">Handcrafted, Not Mass-Produced</h2>
+    <p class="text-gray-600">Every piece in our collection is made in small batches by artisans who care about quality over speed.</p>
+  </div>
+</section>`
+      },
+      'rich-text-block': {
+        liquid: `<section class="max-w-2xl mx-auto px-6 py-16 text-center">
+  <h2 class="text-2xl font-bold mb-4">Our Story</h2>
+  <p class="text-gray-600 leading-relaxed">{{ shop.name }} started in a small workshop with one goal: build things that last. Today we're still doing the same thing, just with better coffee.</p>
+</section>`
+      },
+      'faq-accordion': {
+        liquid: `<section class="max-w-2xl mx-auto px-6 py-12">
+  <h2 class="text-2xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
+  <div class="space-y-2">
+    {% for faq in faqs %}
+      <div class="border border-gray-200 rounded-lg">
+        <button data-faq-toggle class="w-full text-left px-4 py-3 font-medium flex justify-between items-center">
+          {{ faq.question }}
+          <span data-faq-icon>+</span>
+        </button>
+        <div data-faq-answer class="px-4 pb-3 text-gray-600 hidden">{{ faq.answer }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>`,
+        js: `document.querySelectorAll('[data-faq-toggle]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const answer = btn.nextElementSibling;
+    const icon = btn.querySelector('[data-faq-icon]');
+    const isOpen = !answer.classList.contains('hidden');
+    answer.classList.toggle('hidden');
+    icon.textContent = isOpen ? '+' : '\u2212';
+  });
+});`
+      },
+      testimonials: {
+        liquid: `<section class="max-w-5xl mx-auto px-6 py-12">
+  <h2 class="text-2xl font-bold mb-6 text-center">What Customers Say</h2>
+  <div class="grid md:grid-cols-3 gap-6">
+    {% for t in testimonials %}
+      <div class="border border-gray-200 rounded-lg p-5">
+        <div class="text-amber-500 mb-2">{% for i in (1..t.rating) %}\u2605{% endfor %}</div>
+        <p class="text-gray-600 text-sm mb-3">"{{ t.quote }}"</p>
+        <p class="text-sm font-semibold">{{ t.author }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>`
+      },
+      'newsletter-signup': {
+        liquid: `<section class="bg-gray-900 text-white text-center px-6 py-16">
+  <h2 class="text-2xl font-bold mb-2">Join the list</h2>
+  <p class="text-gray-300 mb-6">Get 10% off your first order.</p>
+  <form data-newsletter-form class="flex max-w-sm mx-auto gap-2">
+    <input type="email" required placeholder="you@example.com" class="flex-1 px-4 py-3 rounded-md text-gray-900">
+    <button class="bg-emerald-600 hover:bg-emerald-700 px-5 py-3 rounded-md font-semibold">Join</button>
+  </form>
+  <p data-newsletter-msg class="text-sm text-emerald-400 mt-3 hidden">Thanks for subscribing!</p>
+</section>`,
+        js: `document.querySelector('[data-newsletter-form]').addEventListener('submit', (e) => {
+  e.preventDefault();
+  document.querySelector('[data-newsletter-msg]').classList.remove('hidden');
+});`
+      },
+      'collection-list': {
+        liquid: `<section class="max-w-6xl mx-auto px-6 py-12">
+  <h2 class="text-2xl font-bold mb-6">Shop by Category</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {% assign categories = "Bags,Apparel,Accessories,Home" | split: "," %}
+    {% for c in categories %}
+      <a href="#" class="relative rounded-lg overflow-hidden block">
+        <img src="https://picsum.photos/seed/{{ c | handle }}/300/300" class="w-full aspect-square object-cover">
+        <span class="absolute inset-0 bg-black/30 flex items-center justify-center text-white font-semibold">{{ c }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>`
+      },
+      'cart-drawer': {
+        liquid: `<aside class="max-w-sm mx-auto border border-gray-200 rounded-lg p-5">
+  <h2 class="font-bold mb-4">Your Cart ({{ cart.item_count }})</h2>
+  {% for item in cart.items %}
+    <div class="flex items-center gap-3 mb-3">
+      <img src="{{ item.image | img_url }}" class="w-14 h-14 rounded object-cover">
+      <div class="flex-1">
+        <p class="text-sm font-medium">{{ item.title }}</p>
+        <p class="text-xs text-gray-500">Qty {{ item.quantity }}</p>
+      </div>
+      <p class="text-sm font-semibold">{{ item.line_price | money }}</p>
+    </div>
+  {% else %}
+    <p class="text-gray-500 text-sm">Your cart is empty.</p>
+  {% endfor %}
+  <div class="border-t border-gray-200 mt-4 pt-4 flex justify-between font-semibold">
+    <span>Total</span>
+    <span>{{ cart.total_price | money }}</span>
+  </div>
+</aside>`
+      },
+      'blog-grid': {
+        liquid: `<section class="max-w-5xl mx-auto px-6 py-12">
+  <h2 class="text-2xl font-bold mb-6">From the Journal</h2>
+  <div class="grid md:grid-cols-3 gap-6">
+    {% for post in blog_posts %}
+      <a href="{{ post.url }}" class="block">
+        <img src="{{ post.image | img_url }}" class="w-full aspect-video object-cover rounded-lg mb-3">
+        <p class="text-xs text-gray-400 mb-1">{{ post.date | date: "%B %d, %Y" }}</p>
+        <h3 class="font-semibold mb-1">{{ post.title }}</h3>
+        <p class="text-sm text-gray-600">{{ post.excerpt }}</p>
+      </a>
+    {% endfor %}
+  </div>
+</section>`
+      },
+      'sale-countdown': {
+        liquid: `<section class="bg-red-600 text-white text-center px-6 py-8">
+  <h2 class="text-xl font-bold mb-2">Summer Sale Ends In:</h2>
+  <div data-countdown class="text-3xl font-mono font-bold">00:00:00:00</div>
+</section>`,
+        js: `const end = Date.now() + 1000 * 60 * 60 * 24;
+function tick() {
+  const diff = Math.max(0, end - Date.now());
+  const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+  const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+  const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+  document.querySelector('[data-countdown]').textContent = h + ':' + m + ':' + s;
+}
+tick();
+setInterval(tick, 1000);`
+      },
+      'logo-list': {
+        liquid: `<section class="px-6 py-10 border-y border-gray-200">
+  <p class="text-center text-sm text-gray-400 mb-6">As seen in</p>
+  <div class="flex flex-wrap justify-center gap-10">
+    {% for logo in logos %}
+      <span class="text-gray-400 font-semibold text-lg">{{ logo.name }}</span>
+    {% endfor %}
+  </div>
+</section>`
+      },
+      footer: {
+        liquid: `<footer class="bg-gray-900 text-gray-300 px-6 py-10 text-sm">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-6">
+    <div>
+      <p class="text-white font-bold mb-2">{{ shop.name }}</p>
+      <p>&copy; {{ "now" | date: "%Y" }} {{ shop.name }}. All rights reserved.</p>
+    </div>
+    <div class="flex gap-6">
+      {% for link in menu %}
+        <a href="{{ link.url }}" class="hover:text-white">{{ link.title }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</footer>`
+      },
+      'video-section': {
+        liquid: `<section class="max-w-4xl mx-auto px-6 py-12 text-center">
+  <h2 class="text-2xl font-bold mb-6">See It In Action</h2>
+  <div class="aspect-video bg-gray-900 rounded-lg flex items-center justify-center text-white">
+    <span>\u25b6 Video placeholder (a real Shopify video asset can't be embedded in this playground)</span>
+  </div>
+</section>`
+      }
+    };
+
+    sectionSelect.addEventListener('change', () => {
+      const key = sectionSelect.value;
+      if (!key || !sections[key]) return;
+      const s = sections[key];
+      liquidInput.value = s.liquid;
+      cssInput.value = s.css || '/* No custom CSS needed \u2014 Tailwind utility classes cover this section. */';
+      jsInput.value = s.js || '// No JS needed for this section';
+      renderPreview();
+    });
+
+    // --- Tabs ---
+    const tabBtns = root.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+    const tabPanels = root.querySelectorAll<HTMLElement>('[data-tab-panel]');
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tabBtn;
+        tabBtns.forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('text-emerald-700', active);
+          b.classList.toggle('border-b-2', active);
+          b.classList.toggle('border-emerald-600', active);
+          b.classList.toggle('bg-white', active);
+          b.classList.toggle('text-gray-500', !active);
+        });
+        tabPanels.forEach((p) => {
+          const isMatch = p.dataset.tabPanel === tab;
+          p.classList.toggle('hidden', !isMatch);
+          p.classList.toggle('block', isMatch);
+        });
+      });
+    });
+
+    // --- Render pipeline ---
+    function buildDoc(bodyHtml: string) {
+      return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.tailwindcss.com"><\/script>
+<style>${cssInput.value}</style>
+</head>
+<body>
+${bodyHtml}
+<script>${jsInput.value}<\/script>
+</body>
+</html>`;
+    }
+
+    function showError(msg: string) {
+      errorBanner.textContent = msg;
+      errorBanner.classList.remove('hidden');
+    }
+    function clearError() {
+      errorBanner.classList.add('hidden');
+      errorBanner.textContent = '';
+    }
+
+    async function renderPreview() {
+      let data: unknown;
+      try {
+        data = JSON.parse(dataInput.value);
+      } catch (e) {
+        showError('Data JSON error: ' + (e as Error).message);
+        return;
+      }
+      try {
+        const html = await engine.parseAndRender(liquidInput.value, data as object);
+        preview.srcdoc = buildDoc(html);
+        clearError();
+      } catch (e) {
+        showError('Liquid error: ' + (e as Error).message);
+      }
+    }
+
+    let debounceTimer: number | undefined;
+    function scheduleRun() {
+      if (!autoRun.checked) return;
+      window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(renderPreview, 500);
+    }
+    [liquidInput, cssInput, jsInput, dataInput].forEach((el) => el.addEventListener('input', scheduleRun));
+    runBtn.addEventListener('click', renderPreview);
+
+    // --- Copy buttons ---
+    const sources: Record<string, HTMLTextAreaElement> = { liquid: liquidInput, css: cssInput, js: jsInput };
+    root.querySelectorAll<HTMLButtonElement>('[data-copy-btn]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const key = btn.dataset.copyBtn!;
+        await navigator.clipboard.writeText(sources[key].value);
+        const label = root.querySelector<HTMLElement>(`[data-copy-label="${key}"]`)!;
+        const original = label.textContent;
+        label.textContent = 'Copied!';
+        window.setTimeout(() => { label.textContent = original; }, 1500);
+      });
+    });
+
+    // --- Download as .liquid (mirrors real Shopify section file structure) ---
+    root.querySelector<HTMLButtonElement>('[data-download-btn]')!.addEventListener('click', () => {
+      const bundle = `${liquidInput.value}
+
+<style>
+${cssInput.value}
+</style>
+
+<script>
+${jsInput.value}
+<\/script>`;
+      const blob = new Blob([bundle], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'section.liquid';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // --- Reset ---
+    root.querySelector<HTMLButtonElement>('[data-reset-btn]')!.addEventListener('click', () => {
+      if (!confirm('Reset all panels, including the mock data, back to the starting point?')) return;
+      liquidInput.value = starterLiquid;
+      cssInput.value = starterCss;
+      jsInput.value = starterJs;
+      dataInput.value = starterData;
+      sectionSelect.value = '';
+      renderPreview();
+    });
+
+    renderPreview();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-liquid-playground-widget]').forEach(initLiquidPlayground);
+</script>

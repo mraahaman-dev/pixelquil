@@ -1,0 +1,251 @@
+---
+// HtmlCssJsEditorWidget.astro
+// Beginner-friendly HTML/CSS/JS editor with live preview + prebuilt section snippets.
+---
+
+<div data-html-editor-widget class="w-full">
+  <!-- Prebuilt sections toolbar -->
+  <div class="mb-4">
+    <p class="text-sm font-medium text-gray-700 mb-2">Insert a prebuilt section:</p>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" data-insert-section="header" class="px-3 py-1.5 text-sm rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition">+ Header</button>
+      <button type="button" data-insert-section="navbar" class="px-3 py-1.5 text-sm rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition">+ Navbar</button>
+      <button type="button" data-insert-section="hero" class="px-3 py-1.5 text-sm rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition">+ Hero</button>
+      <button type="button" data-insert-section="features" class="px-3 py-1.5 text-sm rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition">+ Features</button>
+      <button type="button" data-insert-section="card" class="px-3 py-1.5 text-sm rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition">+ Card</button>
+      <button type="button" data-insert-section="contact" class="px-3 py-1.5 text-sm rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition">+ Contact Form</button>
+      <button type="button" data-insert-section="footer" class="px-3 py-1.5 text-sm rounded-full border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 transition">+ Footer</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Editors -->
+    <div class="border border-gray-200 rounded-lg overflow-hidden">
+      <div class="flex border-b border-gray-200 bg-gray-50">
+        <button type="button" data-tab-btn="html" class="flex-1 px-4 py-2 text-sm font-medium text-cyan-700 border-b-2 border-cyan-600 bg-white">HTML</button>
+        <button type="button" data-tab-btn="css" class="flex-1 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">CSS</button>
+        <button type="button" data-tab-btn="js" class="flex-1 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">JS</button>
+      </div>
+      <div data-tab-panel="html" class="block">
+        <textarea data-html-input spellcheck="false" class="w-full h-80 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Write your HTML here..."></textarea>
+      </div>
+      <div data-tab-panel="css" class="hidden">
+        <textarea data-css-input spellcheck="false" class="w-full h-80 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Write your CSS here..."></textarea>
+      </div>
+      <div data-tab-panel="js" class="hidden">
+        <textarea data-js-input spellcheck="false" class="w-full h-80 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Write your JS here..."></textarea>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
+        <span class="text-sm font-medium text-gray-700">Live Preview</span>
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-1.5 text-xs text-gray-500">
+            <input type="checkbox" data-auto-run checked class="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500" />
+            Auto-run
+          </label>
+          <button type="button" data-run-btn class="px-3 py-1 text-xs font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-700 transition">Run &#9654;</button>
+        </div>
+      </div>
+      <iframe data-preview title="Live preview" class="w-full h-80 bg-white" sandbox="allow-scripts"></iframe>
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="flex flex-wrap items-center gap-2 mt-4">
+    <button type="button" data-copy-btn="html" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <span data-copy-label="html">Copy HTML</span>
+    </button>
+    <button type="button" data-copy-btn="css" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <span data-copy-label="css">Copy CSS</span>
+    </button>
+    <button type="button" data-copy-btn="js" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <span data-copy-label="js">Copy JS</span>
+    </button>
+    <button type="button" data-download-btn class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Download index.html
+    </button>
+    <button type="button" data-reset-btn class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md border border-gray-200 text-red-600 hover:bg-red-50 transition ml-auto">
+      Reset
+    </button>
+  </div>
+</div>
+
+<script>
+  function initHtmlEditor(root: HTMLElement) {
+    const htmlInput = root.querySelector<HTMLTextAreaElement>('[data-html-input]')!;
+    const cssInput = root.querySelector<HTMLTextAreaElement>('[data-css-input]')!;
+    const jsInput = root.querySelector<HTMLTextAreaElement>('[data-js-input]')!;
+    const preview = root.querySelector<HTMLIFrameElement>('[data-preview]')!;
+    const autoRun = root.querySelector<HTMLInputElement>('[data-auto-run]')!;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run-btn]')!;
+
+    // Starter defaults — set via JS, never as literal template content (Astro parses {} in markup as JS)
+    const starterHtml = `<header class="site-header">
+  <h1>My Website</h1>
+</header>
+
+<main>
+  <p>Start editing the HTML, CSS, or JS panels — or click a prebuilt section above to insert one.</p>
+</main>`;
+
+    const starterCss = `body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 1.5rem;
+  color: #1f2937;
+}
+
+.site-header {
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}`;
+
+    const starterJs = `console.log("Your JavaScript runs here.");`;
+
+    htmlInput.value = starterHtml;
+    cssInput.value = starterCss;
+    jsInput.value = starterJs;
+
+    function buildDoc() {
+      return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>${cssInput.value}</style>
+</head>
+<body>
+${htmlInput.value}
+<script>${jsInput.value}<\/script>
+</body>
+</html>`;
+    }
+
+    function runPreview() {
+      preview.srcdoc = buildDoc();
+    }
+
+    let debounceTimer: number | undefined;
+    function scheduleRun() {
+      if (!autoRun.checked) return;
+      window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(runPreview, 400);
+    }
+
+    [htmlInput, cssInput, jsInput].forEach((el) => {
+      el.addEventListener('input', scheduleRun);
+    });
+    runBtn.addEventListener('click', runPreview);
+
+    // Tabs
+    const tabBtns = root.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+    const tabPanels = root.querySelectorAll<HTMLElement>('[data-tab-panel]');
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tabBtn;
+        tabBtns.forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('text-cyan-700', active);
+          b.classList.toggle('border-b-2', active);
+          b.classList.toggle('border-cyan-600', active);
+          b.classList.toggle('bg-white', active);
+          b.classList.toggle('text-gray-500', !active);
+        });
+        tabPanels.forEach((p) => {
+          const isMatch = p.dataset.tabPanel === tab;
+          p.classList.toggle('hidden', !isMatch);
+          p.classList.toggle('block', isMatch);
+        });
+      });
+    });
+
+    // Copy buttons
+    const sources: Record<string, HTMLTextAreaElement> = { html: htmlInput, css: cssInput, js: jsInput };
+    root.querySelectorAll<HTMLButtonElement>('[data-copy-btn]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const key = btn.dataset.copyBtn!;
+        await navigator.clipboard.writeText(sources[key].value);
+        const label = root.querySelector<HTMLElement>(`[data-copy-label="${key}"]`)!;
+        const original = label.textContent;
+        label.textContent = 'Copied!';
+        window.setTimeout(() => { label.textContent = original; }, 1500);
+      });
+    });
+
+    // Download as a single index.html file
+    root.querySelector<HTMLButtonElement>('[data-download-btn]')!.addEventListener('click', () => {
+      const blob = new Blob([buildDoc()], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Reset to starter template
+    root.querySelector<HTMLButtonElement>('[data-reset-btn]')!.addEventListener('click', () => {
+      if (!confirm('Reset all three panels to the starter template?')) return;
+      htmlInput.value = starterHtml;
+      cssInput.value = starterCss;
+      jsInput.value = starterJs;
+      runPreview();
+    });
+
+    // Prebuilt section snippets
+    const sectionSnippets: Record<string, { html: string; css: string }> = {
+      header: {
+        html: `\n<header class="site-header">\n  <h1>Site Name</h1>\n  <p>A short tagline goes here</p>\n</header>`,
+        css: `\n.site-header {\n  padding: 2rem 1rem;\n  text-align: center;\n  background: #0891b2;\n  color: #fff;\n}`
+      },
+      navbar: {
+        html: `\n<nav class="navbar">\n  <div class="navbar-brand">Brand</div>\n  <ul class="navbar-links">\n    <li><a href="#">Home</a></li>\n    <li><a href="#">About</a></li>\n    <li><a href="#">Contact</a></li>\n  </ul>\n</nav>`,
+        css: `\n.navbar {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1rem 1.5rem;\n  background: #fff;\n  border-bottom: 1px solid #e5e7eb;\n}\n.navbar-links {\n  display: flex;\n  gap: 1.5rem;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n.navbar-links a {\n  text-decoration: none;\n  color: #1f2937;\n  font-weight: 500;\n}`
+      },
+      hero: {
+        html: `\n<section class="hero">\n  <h2>Build something great</h2>\n  <p>A short, punchy line about what you offer.</p>\n  <a href="#" class="hero-btn">Get Started</a>\n</section>`,
+        css: `\n.hero {\n  text-align: center;\n  padding: 4rem 1.5rem;\n  background: linear-gradient(135deg, #06b6d4, #0891b2);\n  color: #fff;\n  border-radius: 0.5rem;\n}\n.hero-btn {\n  display: inline-block;\n  margin-top: 1rem;\n  padding: 0.75rem 1.5rem;\n  background: #fff;\n  color: #0891b2;\n  border-radius: 0.375rem;\n  text-decoration: none;\n  font-weight: 600;\n}`
+      },
+      features: {
+        html: `\n<section class="features">\n  <div class="feature-card">\n    <h3>Fast</h3>\n    <p>Loads quickly on any device.</p>\n  </div>\n  <div class="feature-card">\n    <h3>Simple</h3>\n    <p>Easy to understand and edit.</p>\n  </div>\n  <div class="feature-card">\n    <h3>Flexible</h3>\n    <p>Customize it however you like.</p>\n  </div>\n</section>`,
+        css: `\n.features {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));\n  gap: 1rem;\n  padding: 2rem 0;\n}\n.feature-card {\n  padding: 1.25rem;\n  border: 1px solid #e5e7eb;\n  border-radius: 0.5rem;\n}`
+      },
+      card: {
+        html: `\n<div class="card">\n  <h3>Card Title</h3>\n  <p>Some short supporting text for this card.</p>\n  <a href="#">Learn more &rarr;</a>\n</div>`,
+        css: `\n.card {\n  max-width: 320px;\n  padding: 1.25rem;\n  border: 1px solid #e5e7eb;\n  border-radius: 0.5rem;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.05);\n}`
+      },
+      contact: {
+        html: `\n<form class="contact-form">\n  <label>Name<input type="text" name="name" required></label>\n  <label>Email<input type="email" name="email" required></label>\n  <label>Message<textarea name="message" rows="4" required></textarea></label>\n  <button type="submit">Send</button>\n</form>`,
+        css: `\n.contact-form {\n  display: flex;\n  flex-direction: column;\n  gap: 0.75rem;\n  max-width: 400px;\n}\n.contact-form label {\n  display: flex;\n  flex-direction: column;\n  gap: 0.25rem;\n  font-size: 0.875rem;\n  font-weight: 500;\n}\n.contact-form input,\n.contact-form textarea {\n  padding: 0.5rem;\n  border: 1px solid #d1d5db;\n  border-radius: 0.375rem;\n  font: inherit;\n}\n.contact-form button {\n  padding: 0.6rem;\n  background: #0891b2;\n  color: #fff;\n  border: none;\n  border-radius: 0.375rem;\n  font-weight: 600;\n  cursor: pointer;\n}`
+      },
+      footer: {
+        html: `\n<footer class="site-footer">\n  <p>&copy; 2026 Site Name. All rights reserved.</p>\n</footer>`,
+        css: `\n.site-footer {\n  padding: 1.5rem;\n  text-align: center;\n  color: #6b7280;\n  border-top: 1px solid #e5e7eb;\n  margin-top: 2rem;\n}`
+      }
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-insert-section]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.insertSection as keyof typeof sectionSnippets;
+        const snippet = sectionSnippets[key];
+        if (!snippet) return;
+        htmlInput.value += snippet.html;
+        const selector = snippet.css.trim().split('{')[0].trim();
+        if (selector && !cssInput.value.includes(selector)) {
+          cssInput.value += snippet.css;
+        }
+        runPreview();
+      });
+    });
+
+    runPreview();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-html-editor-widget]').forEach(initHtmlEditor);
+</script>

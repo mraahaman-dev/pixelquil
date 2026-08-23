@@ -62,7 +62,10 @@ import SlugGeneratorWidget from '../../components/tools/SlugGeneratorWidget.astr
 import TextHtmlRatioWidget from '../../components/tools/TextHtmlRatioWidget.astro';
 import AltTextAuditorWidget from '../../components/tools/AltTextAuditorWidget.astro';
 import MetaTagExtractorWidget from '../../components/tools/MetaTagExtractorWidget.astro';
-
+import HtmlCssJsEditorWidget from '../../components/tools/HtmlCssJsEditorWidget.astro';
+import LiquidPlaygroundWidget from '../../components/tools/LiquidPlaygroundWidget.astro';
+import SectionSchemaBuilderWidget from '../../components/tools/SectionSchemaBuilderWidget.astro';
+import MetafieldLiquidGeneratorWidget from '../../components/tools/MetafieldLiquidGeneratorWidget.astro';
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -136,6 +139,10 @@ const widgets: Record<string, any> = {
    "text-to-html-ratio-checker": TextHtmlRatioWidget,
    "image-alt-text-auditor": AltTextAuditorWidget,
    "meta-tag-extractor": MetaTagExtractorWidget,
+    "html-css-js-editor": HtmlCssJsEditorWidget,
+    "liquid-playground": LiquidPlaygroundWidget,
+    "section-schema-builder": SectionSchemaBuilderWidget,
+    "metafield-liquid-generator": MetafieldLiquidGeneratorWidget,
 };
 
 const Widget = widgets[tool.slug] ?? ComingSoonWidget;

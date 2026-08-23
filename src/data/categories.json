@@ -39,5 +39,19 @@
       "<h3 class=\"text-lg font-semibold text-slate-900\">Why technical SEO gets missed</h3><p class=\"mt-2 leading-relaxed text-slate-600\">Technical SEO problems are often invisible until they cost a site real rankings. A missing canonical tag, a broken redirect chain, or a robots.txt file that accidentally blocks search engines from crawling important pages can undo months of content work without any obvious symptom pointing to the cause.</p>",
       "<h3 class=\"mt-8 text-lg font-semibold text-slate-900\">What this collection will cover</h3><p class=\"mt-2 leading-relaxed text-slate-600\">Tools here will let you check the technical details search engines actually rely on, directly from your browser, so problems get caught before they affect search performance. This collection is launching alongside our <a href=\"/svg-tools/\" class=\"text-brand-600 hover:underline\">SVG & Design Tools</a> and <a href=\"/developer-tools/\" class=\"text-brand-600 hover:underline\">Developer Utilities</a>, with new SEO checks added as they are built.</p>"
     ]
-  }
+  },
+      {
+      "slug": "shopify-tools",
+      "title": "Shopify Tools",
+      "description": "Practice Shopify Liquid and theme development, entirely in your browser.",
+      "metaTitle": "Free Shopify Developer Tools | Pixelquil",
+      "metaDescription": "Practice Shopify Liquid and other Shopify development tools, free and browser-based. No dev store or theme setup required.",
+      "badgeColor": "emerald",
+      "iconPath": "M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0",
+      "intro": [
+        "<h3 class=\"text-lg font-semibold text-slate-900\">Learn Liquid without a dev store</h3><p class=\"mt-2 leading-relaxed text-slate-600\">Shopify Tools is a growing collection built for people learning or working with Shopify theme development, starting with a <a href=\"/shopify-tools/liquid-playground/\" class=\"text-brand-600 hover:underline\">Liquid Playground</a> that renders real Shopify templating syntax entirely in your browser.</p>",
+        "<h3 class=\"mt-8 text-lg font-semibold text-slate-900\">No dev store, no deploy step</h3><p class=\"mt-2 leading-relaxed text-slate-600\">Unlike most Shopify learning resources, nothing here requires a dev store, a paid theme, or a deploy step. Mock product, cart, and collection data stands in for a real store, so you can see exactly how a piece of Liquid behaves in seconds rather than minutes.</p>",
+        "<h3 class=\"mt-8 text-lg font-semibold text-slate-900\">Privacy first, every time</h3><p class=\"mt-2 leading-relaxed text-slate-600\">As with every tool on Pixelquil, everything runs client-side: no signup, no uploads, and nothing about what you write is stored or sent to a server.</p>"
+      ]
+    }
 ]

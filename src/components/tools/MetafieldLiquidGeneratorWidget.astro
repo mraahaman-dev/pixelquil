@@ -1,0 +1,350 @@
+---
+// MetafieldLiquidGeneratorWidget.astro
+// Pick a Shopify metafield's owner resource, namespace/key, and type,
+// get back the exact correct Liquid to read it.
+---
+
+<div data-metafield-generator-widget class="w-full">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left: config -->
+    <div class="border border-gray-200 rounded-lg p-4 space-y-4">
+      <div>
+        <p class="text-xs font-medium text-gray-500 mb-1.5">Quick picks</p>
+        <div class="flex flex-wrap gap-1.5">
+          <button type="button" data-preset data-preset-type="single_line_text_field" data-preset-list="false" class="preset-btn">Text field</button>
+          <button type="button" data-preset data-preset-type="rich_text_field" data-preset-list="false" class="preset-btn">Rich text</button>
+          <button type="button" data-preset data-preset-type="number_integer" data-preset-list="false" class="preset-btn">Number</button>
+          <button type="button" data-preset data-preset-type="boolean" data-preset-list="false" class="preset-btn">Boolean</button>
+          <button type="button" data-preset data-preset-type="money" data-preset-list="false" class="preset-btn">Money</button>
+          <button type="button" data-preset data-preset-type="date" data-preset-list="false" class="preset-btn">Date</button>
+          <button type="button" data-preset data-preset-type="product_reference" data-preset-list="false" class="preset-btn">Product reference</button>
+          <button type="button" data-preset data-preset-type="product_reference" data-preset-list="true" class="preset-btn">List of products</button>
+          <button type="button" data-preset data-preset-type="file_reference" data-preset-list="false" class="preset-btn">File / image</button>
+          <button type="button" data-preset data-preset-type="metaobject_reference" data-preset-list="false" class="preset-btn">Metaobject reference</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Owner resource</label>
+          <select data-owner class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+            <option value="product">Product</option>
+            <option value="variant">Variant</option>
+            <option value="collection">Collection</option>
+            <option value="page">Page</option>
+            <option value="blog">Blog</option>
+            <option value="article">Article</option>
+            <option value="shop">Shop</option>
+            <option value="customer">Customer</option>
+            <option value="order">Order</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Metafield type</label>
+          <select data-type class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+            <optgroup label="Text">
+              <option value="single_line_text_field">Single line text</option>
+              <option value="multi_line_text_field">Multi line text</option>
+              <option value="rich_text_field">Rich text</option>
+            </optgroup>
+            <optgroup label="Number">
+              <option value="number_integer">Integer</option>
+              <option value="number_decimal">Decimal</option>
+            </optgroup>
+            <optgroup label="Date">
+              <option value="date">Date</option>
+              <option value="date_time">Date and time</option>
+            </optgroup>
+            <optgroup label="Other scalar">
+              <option value="boolean">Boolean (true/false)</option>
+              <option value="money">Money</option>
+              <option value="rating">Rating</option>
+              <option value="url">URL</option>
+              <option value="color">Color</option>
+              <option value="json">JSON</option>
+            </optgroup>
+            <optgroup label="Dimension">
+              <option value="weight">Weight</option>
+              <option value="volume">Volume</option>
+              <option value="dimension">Dimension (length)</option>
+            </optgroup>
+            <optgroup label="Reference">
+              <option value="product_reference">Product reference</option>
+              <option value="variant_reference">Variant reference</option>
+              <option value="collection_reference">Collection reference</option>
+              <option value="page_reference">Page reference</option>
+              <option value="file_reference">File reference</option>
+              <option value="metaobject_reference">Metaobject reference</option>
+              <option value="mixed_reference">Mixed reference</option>
+            </optgroup>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Namespace</label>
+          <input data-namespace type="text" value="custom" class="w-full text-sm font-mono border border-gray-300 rounded-md px-2 py-1.5">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Key</label>
+          <input data-key type="text" value="my_field" class="w-full text-sm font-mono border border-gray-300 rounded-md px-2 py-1.5">
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" data-is-list class="rounded border-gray-300 text-sky-600 focus:ring-sky-500">
+        This is a list metafield
+      </label>
+      <p class="text-xs text-gray-400 -mt-2">Not every type can be stored as a list \u2014 this only affects the generated Liquid, check your metafield definition in Shopify admin for what's actually available.</p>
+
+      <div data-metaobject-field-wrap class="hidden">
+        <label class="block text-xs font-medium text-gray-500 mb-1">Metaobject field key to display</label>
+        <input data-metaobject-field type="text" value="title" class="w-full text-sm font-mono border border-gray-300 rounded-md px-2 py-1.5">
+      </div>
+    </div>
+
+    <!-- Right: output -->
+    <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
+        <span data-stored-as class="text-xs text-gray-500"></span>
+        <button type="button" data-copy-btn class="px-3 py-1 text-xs font-medium rounded-md border border-gray-200 hover:bg-gray-50">Copy</button>
+      </div>
+      <div data-caveat class="hidden px-4 py-2 text-xs text-amber-700 bg-amber-50 border-b border-amber-200"></div>
+      <pre data-output class="flex-1 m-0 p-4 text-sm font-mono text-gray-800 overflow-auto whitespace-pre-wrap"></pre>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-metafield-generator-widget] .preset-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid #bae6fd;
+    background-color: #f0f9ff;
+    color: #0369a1;
+    cursor: pointer;
+  }
+  [data-metafield-generator-widget] .preset-btn:hover {
+    background-color: #e0f2fe;
+  }
+  [data-metafield-generator-widget] button,
+  [data-metafield-generator-widget] label {
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  type TypeDef = {
+    label: string;
+    storedAs: string;
+    caveat?: string;
+    single: (prefix: string, fieldKey: string) => string;
+    listItem: (item: string, fieldKey: string) => string;
+  };
+
+  const REF_LINK = (item: string) => `<a href="{{ ${item}.url }}">{{ ${item}.title }}</a>`;
+
+  const TYPES: Record<string, TypeDef> = {
+    single_line_text_field: {
+      label: 'Single line text', storedAs: 'A plain string.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p}.value }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} }}`
+    },
+    multi_line_text_field: {
+      label: 'Multi line text', storedAs: 'A plain string with line breaks preserved.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p}.value | newline_to_br }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} | newline_to_br }}`
+    },
+    rich_text_field: {
+      label: 'Rich text', storedAs: "Shopify's own rich text JSON schema, not plain HTML.",
+      caveat: 'Always use the metafield_tag filter for rich text, don\u2019t access .value directly, it returns raw structured JSON, not renderable HTML. A list of rich text fields isn\u2019t handled well by metafield_tag per item; check Shopify\u2019s current docs if you hit this combination.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p} | metafield_tag }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} }} {% comment %} raw JSON per item, see caveat above {% endcomment %}`
+    },
+    number_integer: {
+      label: 'Integer', storedAs: 'A plain integer.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p}.value }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} }}`
+    },
+    number_decimal: {
+      label: 'Decimal', storedAs: 'A plain decimal number.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p}.value }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} }}`
+    },
+    date: {
+      label: 'Date', storedAs: 'A date string, use the date filter to format it.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p}.value | date: "%B %d, %Y" }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} | date: "%B %d, %Y" }}`
+    },
+    date_time: {
+      label: 'Date and time', storedAs: 'A date and time string, use the date filter to format it.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p}.value | date: "%B %d, %Y %I:%M %p" }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} | date: "%B %d, %Y %I:%M %p" }}`
+    },
+    boolean: {
+      label: 'Boolean', storedAs: 'true or false.',
+      single: (p) => `{% if ${p}.value %}\n  <!-- true -->\n{% else %}\n  <!-- false or not set -->\n{% endif %}`,
+      listItem: (i) => `{% if ${i} %}Yes{% else %}No{% endif %}`
+    },
+    money: {
+      label: 'Money', storedAs: 'A JSON object: { amount, currency_code }. The money filter reads it directly.',
+      single: (p) => `{% if ${p} != blank %}\n  {{ ${p}.value | money }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i} | money }}`
+    },
+    rating: {
+      label: 'Rating', storedAs: 'A JSON object: { value, scale_min, scale_max }.',
+      single: (p) => `{% assign rating = ${p}.value %}\n{% if rating %}\n  {{ rating.value }} out of {{ rating.scale_max }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i}.value }} / {{ ${i}.scale_max }}`
+    },
+    url: {
+      label: 'URL', storedAs: 'A plain URL string.',
+      single: (p) => `{% if ${p} != blank %}\n  <a href="{{ ${p}.value }}">Link</a>\n{% endif %}`,
+      listItem: (i) => `<a href="{{ ${i} }}">Link</a>`
+    },
+    color: {
+      label: 'Color', storedAs: 'A hex color string, e.g. #ff0000.',
+      single: (p) => `{% if ${p} != blank %}\n  <span style="background-color: {{ ${p}.value }}"></span>\n{% endif %}`,
+      listItem: (i) => `<span style="background-color: {{ ${i} }}"></span>`
+    },
+    json: {
+      label: 'JSON', storedAs: 'Arbitrary JSON you define \u2014 structure depends entirely on what you store.',
+      single: (p) => `{% assign data = ${p}.value %}\n{% if data %}\n  {{ data.some_key }} {% comment %} replace with your actual key {% endcomment %}\n{% endif %}`,
+      listItem: (i) => `{{ ${i}.some_key }}`
+    },
+    weight: {
+      label: 'Weight', storedAs: 'A JSON object: { value, unit }.',
+      single: (p) => `{% assign m = ${p}.value %}\n{% if m %}\n  {{ m.value }} {{ m.unit }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i}.value }} {{ ${i}.unit }}`
+    },
+    volume: {
+      label: 'Volume', storedAs: 'A JSON object: { value, unit }.',
+      single: (p) => `{% assign m = ${p}.value %}\n{% if m %}\n  {{ m.value }} {{ m.unit }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i}.value }} {{ ${i}.unit }}`
+    },
+    dimension: {
+      label: 'Dimension', storedAs: 'A JSON object: { value, unit }.',
+      single: (p) => `{% assign m = ${p}.value %}\n{% if m %}\n  {{ m.value }} {{ m.unit }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i}.value }} {{ ${i}.unit }}`
+    },
+    product_reference: {
+      label: 'Product reference', storedAs: 'A full product object.',
+      single: (p) => `{% assign ref = ${p}.value %}\n{% if ref %}\n  ${REF_LINK('ref')}\n{% endif %}`,
+      listItem: (i) => REF_LINK(i)
+    },
+    variant_reference: {
+      label: 'Variant reference', storedAs: 'A full variant object.',
+      single: (p) => `{% assign ref = ${p}.value %}\n{% if ref %}\n  {{ ref.product.title }} \u2014 {{ ref.title }} ({{ ref.price | money }})\n{% endif %}`,
+      listItem: (i) => `{{ ${i}.product.title }} \u2014 {{ ${i}.title }}`
+    },
+    collection_reference: {
+      label: 'Collection reference', storedAs: 'A full collection object.',
+      single: (p) => `{% assign ref = ${p}.value %}\n{% if ref %}\n  ${REF_LINK('ref')}\n{% endif %}`,
+      listItem: (i) => REF_LINK(i)
+    },
+    page_reference: {
+      label: 'Page reference', storedAs: 'A full page object.',
+      single: (p) => `{% assign ref = ${p}.value %}\n{% if ref %}\n  <h3>{{ ref.title }}</h3>\n  {{ ref.content }}\n{% endif %}`,
+      listItem: (i) => `<a href="{{ ${i}.url }}">{{ ${i}.title }}</a>`
+    },
+    file_reference: {
+      label: 'File reference', storedAs: 'A generic_file, image, or video object depending on what was uploaded.',
+      single: (p) => `{% assign file = ${p}.value %}\n{% if file %}\n  {% if file.media_type == "image" %}\n    <img src="{{ file | image_url: width: 600 }}" alt="{{ file.alt }}">\n  {% elsif file.media_type == "video" %}\n    {{ file | media_tag }}\n  {% else %}\n    <a href="{{ file.url }}">Download file</a>\n  {% endif %}\n{% endif %}`,
+      listItem: (i) => `{% if ${i}.media_type == "image" %}<img src="{{ ${i} | image_url: width: 600 }}" alt="{{ ${i}.alt }}">{% else %}<a href="{{ ${i}.url }}">Download</a>{% endif %}`
+    },
+    metaobject_reference: {
+      label: 'Metaobject reference', storedAs: 'A metaobject, whose own fields you access by their field key.',
+      caveat: 'Metaobjects use their own field system, not metafields \u2014 replace the field key below with an actual field key from your metaobject definition.',
+      single: (p, fk) => `{% assign obj = ${p}.value %}\n{% if obj %}\n  {{ obj.${fk || 'title'}.value }}\n{% endif %}`,
+      listItem: (i, fk) => `{{ ${i}.${fk || 'title'}.value }}`
+    },
+    mixed_reference: {
+      label: 'Mixed reference', storedAs: 'A reference that can resolve to more than one resource type (e.g. product, collection, or page).',
+      caveat: 'The exact resolved object depends on what was selected in the admin. Verify field access against Shopify\u2019s current docs for your specific case.',
+      single: (p) => `{% assign ref = ${p}.value %}\n{% if ref %}\n  {{ ref.title }}\n{% endif %}`,
+      listItem: (i) => `{{ ${i}.title }}`
+    }
+  };
+
+  const OWNER_PREFIX: Record<string, string> = {
+    product: 'product',
+    variant: 'product.selected_or_first_available_variant',
+    collection: 'collection',
+    page: 'page',
+    blog: 'blog',
+    article: 'article',
+    shop: 'shop',
+    customer: 'customer',
+    order: 'order'
+  };
+
+  function initMetafieldGenerator(root: HTMLElement) {
+    const ownerSel = root.querySelector<HTMLSelectElement>('[data-owner]')!;
+    const typeSel = root.querySelector<HTMLSelectElement>('[data-type]')!;
+    const nsInput = root.querySelector<HTMLInputElement>('[data-namespace]')!;
+    const keyInput = root.querySelector<HTMLInputElement>('[data-key]')!;
+    const listCheckbox = root.querySelector<HTMLInputElement>('[data-is-list]')!;
+    const metaobjectWrap = root.querySelector<HTMLElement>('[data-metaobject-field-wrap]')!;
+    const metaobjectField = root.querySelector<HTMLInputElement>('[data-metaobject-field]')!;
+    const output = root.querySelector<HTMLElement>('[data-output]')!;
+    const storedAsEl = root.querySelector<HTMLElement>('[data-stored-as]')!;
+    const caveatEl = root.querySelector<HTMLElement>('[data-caveat]')!;
+
+    function indent(str: string): string {
+      return str.split('\n').map((l) => '    ' + l).join('\n');
+    }
+
+    function render() {
+      const owner = ownerSel.value;
+      const typeKey = typeSel.value;
+      const def = TYPES[typeKey];
+      const namespace = nsInput.value.trim() || 'custom';
+      const key = keyInput.value.trim() || 'my_field';
+      const prefix = `${OWNER_PREFIX[owner]}.metafields.${namespace}.${key}`;
+      const isList = listCheckbox.checked;
+      const fieldKey = metaobjectField.value.trim() || 'title';
+
+      metaobjectWrap.classList.toggle('hidden', typeKey !== 'metaobject_reference');
+
+      let code: string;
+      if (isList) {
+        code = `{% assign items = ${prefix}.value %}\n{% if items != blank %}\n  {% for item in items %}\n${indent(def.listItem('item', fieldKey))}\n  {% endfor %}\n{% endif %}`;
+      } else {
+        code = def.single(prefix, fieldKey);
+      }
+
+      output.textContent = code;
+      storedAsEl.textContent = 'Stored as: ' + def.storedAs;
+      if (def.caveat) {
+        caveatEl.classList.remove('hidden');
+        caveatEl.textContent = '\u26a0 ' + def.caveat;
+      } else {
+        caveatEl.classList.add('hidden');
+        caveatEl.textContent = '';
+      }
+    }
+
+    [ownerSel, typeSel, nsInput, keyInput, listCheckbox, metaobjectField].forEach((el) => {
+      el.addEventListener('input', render);
+      el.addEventListener('change', render);
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        typeSel.value = btn.dataset.presetType!;
+        listCheckbox.checked = btn.dataset.presetList === 'true';
+        render();
+      });
+    });
+
+    root.querySelector('[data-copy-btn]')!.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(output.textContent || '');
+      const btn = root.querySelector('[data-copy-btn]') as HTMLElement;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      window.setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-metafield-generator-widget]').forEach(initMetafieldGenerator);
+</script>

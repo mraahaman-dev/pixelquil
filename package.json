@@ -19,6 +19,7 @@
     "astro": "^7.1.6",
     "imagetracerjs": "^1.2.6",
     "jszip": "^3.10.1",
+    "liquidjs": "^10.29.0",
     "opentype.js": "^2.0.0",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.3.3",

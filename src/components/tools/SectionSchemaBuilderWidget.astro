@@ -1,0 +1,806 @@
+---
+// SectionSchemaBuilderWidget.astro
+// Visual builder for Shopify section {% schema %} JSON: settings, blocks, presets,
+// plus a live matching Liquid snippet and a paste-and-validate mode.
+---
+
+<div data-schema-builder-widget class="w-full">
+  <!-- Mode toggle + clear -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div class="inline-flex rounded-md border border-gray-200 overflow-hidden">
+      <button type="button" data-mode-btn="build" class="px-4 py-2 text-sm font-medium bg-violet-600 text-white">Build</button>
+      <button type="button" data-mode-btn="validate" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">Validate existing schema</button>
+    </div>
+    <button type="button" data-clear-all class="text-sm text-red-600 hover:underline">Clear all</button>
+  </div>
+
+  <!-- ============ BUILD MODE ============ -->
+  <div data-mode-panel="build" class="block">
+    <div class="grid grid-cols-1 lg:grid-cols-[220px_1fr_1fr] gap-4">
+
+      <!-- Sidebar: add setting -->
+      <div class="border border-gray-200 rounded-lg p-3">
+        <p data-adding-to class="text-xs font-medium text-gray-500 mb-2">Adding to: Section</p>
+        <input data-type-search type="text" placeholder="Search types..." class="w-full mb-3 px-3 py-1.5 text-sm border border-gray-300 rounded-md" />
+
+        <div class="space-y-4 max-h-[32rem] overflow-y-auto pr-1">
+          <div data-type-group>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Text</p>
+            <button type="button" data-add-type="text" class="type-btn">Text</button>
+            <button type="button" data-add-type="textarea" class="type-btn">Textarea</button>
+            <button type="button" data-add-type="richtext" class="type-btn">Rich Text</button>
+            <button type="button" data-add-type="inline_richtext" class="type-btn">Inline Rich Text</button>
+            <button type="button" data-add-type="html" class="type-btn">HTML</button>
+            <button type="button" data-add-type="liquid" class="type-btn">Liquid</button>
+          </div>
+          <div data-type-group>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Numeric</p>
+            <button type="button" data-add-type="number" class="type-btn">Number</button>
+            <button type="button" data-add-type="range" class="type-btn">Range</button>
+          </div>
+          <div data-type-group>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Choice</p>
+            <button type="button" data-add-type="checkbox" class="type-btn">Checkbox</button>
+            <button type="button" data-add-type="radio" class="type-btn">Radio</button>
+            <button type="button" data-add-type="select" class="type-btn">Select</button>
+          </div>
+          <div data-type-group>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Visual</p>
+            <button type="button" data-add-type="color" class="type-btn">Color</button>
+            <button type="button" data-add-type="color_background" class="type-btn">Color Background</button>
+            <button type="button" data-add-type="color_scheme" class="type-btn">Color Scheme</button>
+            <button type="button" data-add-type="font_picker" class="type-btn">Font Picker</button>
+            <button type="button" data-add-type="text_alignment" class="type-btn">Text Alignment</button>
+          </div>
+          <div data-type-group>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Media</p>
+            <button type="button" data-add-type="image_picker" class="type-btn">Image Picker</button>
+            <button type="button" data-add-type="video" class="type-btn">Video</button>
+            <button type="button" data-add-type="video_url" class="type-btn">Video URL</button>
+          </div>
+          <div data-type-group>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Resource</p>
+            <button type="button" data-add-type="url" class="type-btn">URL</button>
+            <button type="button" data-add-type="article" class="type-btn">Article</button>
+            <button type="button" data-add-type="blog" class="type-btn">Blog</button>
+            <button type="button" data-add-type="collection" class="type-btn">Collection</button>
+            <button type="button" data-add-type="collection_list" class="type-btn">Collection List</button>
+            <button type="button" data-add-type="product" class="type-btn">Product</button>
+            <button type="button" data-add-type="product_list" class="type-btn">Product List</button>
+            <button type="button" data-add-type="page" class="type-btn">Page</button>
+            <button type="button" data-add-type="link_list" class="type-btn">Menu (Link List)</button>
+          </div>
+          <div data-type-group>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Content</p>
+            <button type="button" data-add-type="header" class="type-btn">Header</button>
+            <button type="button" data-add-type="paragraph" class="type-btn">Paragraph</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle: tabs + forms -->
+      <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+        <div data-main-tabs class="flex items-center gap-1 border-b border-gray-200 bg-gray-50 px-2 py-1.5 overflow-x-auto"></div>
+        <div data-main-panel class="p-4 max-h-[36rem] overflow-y-auto"></div>
+      </div>
+
+      <!-- Right: output -->
+      <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+        <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-2 py-1.5">
+          <div class="flex gap-1">
+            <button type="button" data-output-tab="schema" class="px-3 py-1.5 text-sm font-medium rounded-md bg-violet-600 text-white">Schema</button>
+            <button type="button" data-output-tab="liquid" class="px-3 py-1.5 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100">Liquid</button>
+          </div>
+          <button type="button" data-copy-output class="px-3 py-1 text-xs font-medium rounded-md border border-gray-200 hover:bg-gray-50">Copy</button>
+        </div>
+        <div data-warnings class="hidden px-3 py-2 text-xs text-amber-700 bg-amber-50 border-b border-amber-200 space-y-1"></div>
+        <pre data-output-schema class="flex-1 m-0 p-3 text-xs font-mono text-gray-800 overflow-auto whitespace-pre-wrap max-h-[34rem]"></pre>
+        <pre data-output-liquid class="hidden flex-1 m-0 p-3 text-xs font-mono text-gray-800 overflow-auto whitespace-pre-wrap max-h-[34rem]"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VALIDATE MODE ============ -->
+  <div data-mode-panel="validate" class="hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border-b border-gray-200">Paste schema JSON, or a full .liquid file</div>
+        <textarea data-validate-input spellcheck="false" class="w-full h-96 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder='{% schema %} ... {% endschema %} or raw JSON'></textarea>
+      </div>
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border-b border-gray-200">Validation report</div>
+        <div data-validate-report class="p-3 text-sm space-y-2 max-h-96 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-schema-builder-widget] .type-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8125rem;
+    border-radius: 0.375rem;
+    color: #374151;
+  }
+  [data-schema-builder-widget] .type-btn:hover {
+    background-color: #f3f4f6;
+  }
+</style>
+
+<script>
+  type SettingDef = {
+    cat: string;
+    label: string;
+    needsId: boolean;
+    needsLabel: boolean;
+    defaultKind?: 'text' | 'number' | 'boolean' | 'color' | 'select';
+    placeholder?: boolean;
+    needsOptions?: boolean;
+    fixedOptions?: { value: string; label: string }[];
+    needsRange?: boolean;
+    needsLimit?: boolean;
+    needsAccept?: boolean;
+    needsContent?: boolean;
+  };
+
+  const TYPE_DEFS: Record<string, SettingDef> = {
+    text: { cat: 'Text', label: 'Text', needsId: true, needsLabel: true, defaultKind: 'text', placeholder: true },
+    textarea: { cat: 'Text', label: 'Textarea', needsId: true, needsLabel: true, defaultKind: 'text', placeholder: true },
+    richtext: { cat: 'Text', label: 'Rich Text', needsId: true, needsLabel: true, defaultKind: 'text' },
+    inline_richtext: { cat: 'Text', label: 'Inline Rich Text', needsId: true, needsLabel: true, defaultKind: 'text' },
+    html: { cat: 'Text', label: 'HTML', needsId: true, needsLabel: true, defaultKind: 'text' },
+    liquid: { cat: 'Text', label: 'Liquid', needsId: true, needsLabel: true, defaultKind: 'text' },
+    number: { cat: 'Numeric', label: 'Number', needsId: true, needsLabel: true, defaultKind: 'number', placeholder: true },
+    range: { cat: 'Numeric', label: 'Range', needsId: true, needsLabel: true, defaultKind: 'number', needsRange: true },
+    checkbox: { cat: 'Choice', label: 'Checkbox', needsId: true, needsLabel: true, defaultKind: 'boolean' },
+    radio: { cat: 'Choice', label: 'Radio', needsId: true, needsLabel: true, defaultKind: 'select', needsOptions: true },
+    select: { cat: 'Choice', label: 'Select', needsId: true, needsLabel: true, defaultKind: 'select', needsOptions: true },
+    color: { cat: 'Visual', label: 'Color', needsId: true, needsLabel: true, defaultKind: 'color' },
+    color_background: { cat: 'Visual', label: 'Color Background', needsId: true, needsLabel: true, defaultKind: 'text' },
+    color_scheme: { cat: 'Visual', label: 'Color Scheme', needsId: true, needsLabel: true, defaultKind: 'text' },
+    font_picker: { cat: 'Visual', label: 'Font Picker', needsId: true, needsLabel: true, defaultKind: 'text' },
+    text_alignment: { cat: 'Visual', label: 'Text Alignment', needsId: true, needsLabel: true, defaultKind: 'select', fixedOptions: [{ value: 'left', label: 'Left' }, { value: 'center', label: 'Center' }, { value: 'right', label: 'Right' }] },
+    image_picker: { cat: 'Media', label: 'Image Picker', needsId: true, needsLabel: true },
+    video: { cat: 'Media', label: 'Video', needsId: true, needsLabel: true },
+    video_url: { cat: 'Media', label: 'Video URL', needsId: true, needsLabel: true, needsAccept: true },
+    url: { cat: 'Resource', label: 'URL', needsId: true, needsLabel: true, defaultKind: 'text' },
+    article: { cat: 'Resource', label: 'Article', needsId: true, needsLabel: true },
+    blog: { cat: 'Resource', label: 'Blog', needsId: true, needsLabel: true },
+    collection: { cat: 'Resource', label: 'Collection', needsId: true, needsLabel: true },
+    collection_list: { cat: 'Resource', label: 'Collection List', needsId: true, needsLabel: true, needsLimit: true },
+    product: { cat: 'Resource', label: 'Product', needsId: true, needsLabel: true },
+    product_list: { cat: 'Resource', label: 'Product List', needsId: true, needsLabel: true, needsLimit: true },
+    page: { cat: 'Resource', label: 'Page', needsId: true, needsLabel: true },
+    link_list: { cat: 'Resource', label: 'Menu (Link List)', needsId: true, needsLabel: true },
+    header: { cat: 'Content', label: 'Header', needsId: false, needsLabel: false, needsContent: true },
+    paragraph: { cat: 'Content', label: 'Paragraph', needsId: false, needsLabel: false, needsContent: true }
+  };
+
+  let idCounter = 0;
+  function nextInternalId() { return 'i' + (++idCounter); }
+  function slugify(str: string) {
+    return String(str || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '') || 'setting';
+  }
+
+  type SettingState = {
+    _key: string;
+    type: string;
+    id?: string;
+    idManual?: boolean;
+    label?: string;
+    default?: any;
+    info?: string;
+    placeholder?: string;
+    options?: { value: string; label: string }[];
+    min?: number; max?: number; step?: number; unit?: string;
+    limit?: number;
+    accept?: string[];
+    content?: string;
+  };
+  type BlockState = { _key: string; name: string; type: string; typeManual?: boolean; limit?: number | null; settings: SettingState[] };
+  type PresetState = { _key: string; name: string; includeBlockTypes: string[] };
+
+  function initSchemaBuilder(root: HTMLElement) {
+    const state = {
+      section: { name: 'Custom Section', tag: '', cssClass: '', maxBlocks: null as number | null, templates: [] as string[] },
+      settings: [] as SettingState[],
+      blocks: [] as BlockState[],
+      presets: [] as PresetState[]
+    };
+    let activeTab: string = 'section'; // 'section' | block._key | 'presets'
+
+    const addingToLabel = root.querySelector<HTMLElement>('[data-adding-to]')!;
+    const mainTabsEl = root.querySelector<HTMLElement>('[data-main-tabs]')!;
+    const mainPanelEl = root.querySelector<HTMLElement>('[data-main-panel]')!;
+    const schemaOut = root.querySelector<HTMLElement>('[data-output-schema]')!;
+    const liquidOut = root.querySelector<HTMLElement>('[data-output-liquid]')!;
+    const warningsEl = root.querySelector<HTMLElement>('[data-warnings]')!;
+
+    function currentTargetArray(): SettingState[] {
+      if (activeTab === 'section') return state.settings;
+      const block = state.blocks.find((b) => b._key === activeTab);
+      return block ? block.settings : state.settings;
+    }
+    function currentTargetLabel(): string {
+      if (activeTab === 'section') return 'Section';
+      if (activeTab === 'presets') return 'Presets';
+      const block = state.blocks.find((b) => b._key === activeTab);
+      return block ? `Block: ${block.name || 'Untitled'}` : 'Section';
+    }
+
+    // ---------- schema + liquid generation ----------
+    function toSchemaSetting(s: SettingState): any {
+      const def = TYPE_DEFS[s.type];
+      if (!def) return null;
+      const out: any = { type: s.type };
+      if (def.needsContent) {
+        out.content = s.content || '';
+        if (s.info) out.info = s.info;
+        return out;
+      }
+      if (def.needsId) out.id = s.id || 'setting';
+      if (def.needsLabel) out.label = s.label || 'Setting';
+      if (def.needsRange) {
+        out.min = s.min ?? 0;
+        out.max = s.max ?? 100;
+        out.step = s.step ?? 1;
+        if (s.unit) out.unit = s.unit;
+      }
+      if (def.needsOptions) {
+        out.options = (s.options && s.options.length ? s.options : [{ value: 'value_1', label: 'Option 1' }]).map((o) => ({ value: o.value, label: o.label }));
+      }
+      if (def.fixedOptions) out.options = def.fixedOptions;
+      if (def.needsLimit && s.limit) out.limit = s.limit;
+      if (def.needsAccept) out.accept = s.accept && s.accept.length ? s.accept : ['youtube', 'vimeo'];
+      if (s.placeholder && def.placeholder) out.placeholder = s.placeholder;
+      if (s.default !== undefined && s.default !== '' && s.default !== null) {
+        if (def.defaultKind === 'number') out.default = Number(s.default);
+        else if (def.defaultKind === 'boolean') out.default = !!s.default;
+        else out.default = s.default;
+      }
+      if (s.info) out.info = s.info;
+      return out;
+    }
+
+    function buildSchemaObject(): any {
+      const schema: any = { name: state.section.name || 'Custom Section' };
+      if (state.section.tag) schema.tag = state.section.tag;
+      if (state.section.cssClass) schema.class = state.section.cssClass;
+      if (state.section.maxBlocks) schema.max_blocks = state.section.maxBlocks;
+      schema.settings = state.settings.map(toSchemaSetting).filter(Boolean);
+      if (state.blocks.length) {
+        schema.blocks = state.blocks.map((b) => {
+          const out: any = { type: b.type || 'block', name: b.name || 'Block' };
+          if (b.limit) out.limit = b.limit;
+          out.settings = b.settings.map(toSchemaSetting).filter(Boolean);
+          return out;
+        });
+      }
+      if (state.presets.length) {
+        schema.presets = state.presets.map((p) => {
+          const out: any = { name: p.name || 'Default' };
+          if (p.includeBlockTypes.length) out.blocks = p.includeBlockTypes.map((t) => ({ type: t }));
+          return out;
+        });
+      }
+      if (state.section.templates.length) schema.enabled_on = { templates: state.section.templates };
+      return schema;
+    }
+
+    function buildLiquidSnippet(): string {
+      const lines: string[] = ['<div {{ section.shopify_attributes }}>'];
+      state.settings.forEach((s) => {
+        const def = TYPE_DEFS[s.type];
+        if (!def) return;
+        if (def.needsContent) { lines.push(`  <!-- ${s.type}: ${s.content || ''} -->`); return; }
+        const id = s.id || 'setting';
+        if (s.type === 'richtext' || s.type === 'html' || s.type === 'liquid') lines.push(`  {{ section.settings.${id} }}`);
+        else if (s.type === 'image_picker') lines.push(`  {% if section.settings.${id} %}<img src="{{ section.settings.${id} | img_url: '600x' }}">{% endif %}`);
+        else lines.push(`  <p>{{ section.settings.${id} }}</p>`);
+      });
+      if (state.blocks.length) {
+        lines.push('', '  {% for block in section.blocks %}', '    {% case block.type %}');
+        state.blocks.forEach((b) => {
+          lines.push(`      {% when '${b.type || 'block'}' %}`, '        <div {{ block.shopify_attributes }}>');
+          b.settings.forEach((s) => {
+            const def = TYPE_DEFS[s.type];
+            if (!def || def.needsContent) return;
+            lines.push(`          <p>{{ block.settings.${s.id || 'setting'} }}</p>`);
+          });
+          lines.push('        </div>');
+        });
+        lines.push('    {% endcase %}', '  {% endfor %}');
+      }
+      lines.push('</div>', '', '{% schema %}', JSON.stringify(buildSchemaObject(), null, 2), '{% endschema %}');
+      return lines.join('\n');
+    }
+
+    function computeWarnings(): string[] {
+      const warnings: string[] = [];
+      const allIdSettings: { id: string; scope: string }[] = [];
+      state.settings.forEach((s) => { if (TYPE_DEFS[s.type]?.needsId) allIdSettings.push({ id: s.id || '', scope: 'Section' }); });
+      state.blocks.forEach((b) => {
+        b.settings.forEach((s) => { if (TYPE_DEFS[s.type]?.needsId) allIdSettings.push({ id: s.id || '', scope: `Block "${b.name}"` }); });
+      });
+      const seen: Record<string, string[]> = {};
+      allIdSettings.forEach(({ id, scope }) => { (seen[scope + '::' + id] = seen[scope + '::' + id] || []).push(id); });
+      const scopeIdCount: Record<string, number> = {};
+      allIdSettings.forEach(({ id, scope }) => { const key = scope + '::' + id; scopeIdCount[key] = (scopeIdCount[key] || 0) + 1; });
+      Object.entries(scopeIdCount).forEach(([key, count]) => {
+        if (count > 1) { const [scope, id] = key.split('::'); warnings.push(`Duplicate setting id "${id}" in ${scope} \u2014 only one will work in the theme editor.`); }
+      });
+      state.settings.forEach((s) => {
+        if (s.type === 'range') {
+          const steps = ((s.max ?? 100) - (s.min ?? 0)) / (s.step || 1);
+          if (steps > 101) warnings.push(`Range "${s.id}": (max\u2212min)/step is ${Math.round(steps)}, over Shopify's 101-step limit.`);
+        }
+      });
+      const blockTypes: Record<string, number> = {};
+      state.blocks.forEach((b) => { blockTypes[b.type] = (blockTypes[b.type] || 0) + 1; });
+      Object.entries(blockTypes).forEach(([t, c]) => { if (c > 1) warnings.push(`Duplicate block type "${t}" \u2014 block types must be unique.`); });
+      if (!state.section.name.trim()) warnings.push('Section name is required.');
+      return warnings;
+    }
+
+    function updateOutputs() {
+      const schema = buildSchemaObject();
+      schemaOut.textContent = JSON.stringify(schema, null, 2);
+      liquidOut.textContent = buildLiquidSnippet();
+      const warnings = computeWarnings();
+      if (warnings.length) {
+        warningsEl.classList.remove('hidden');
+        warningsEl.innerHTML = warnings.map((w) => `<p>\u26a0 ${w}</p>`).join('');
+      } else {
+        warningsEl.classList.add('hidden');
+        warningsEl.innerHTML = '';
+      }
+    }
+
+    let debounceTimer: number | undefined;
+    function scheduleUpdate() { window.clearTimeout(debounceTimer); debounceTimer = window.setTimeout(updateOutputs, 250); }
+
+    // ---------- settings list rendering ----------
+    function renderSettingsList(container: HTMLElement, list: SettingState[], onChange: () => void) {
+      container.innerHTML = '';
+      list.forEach((s, idx) => {
+        const def = TYPE_DEFS[s.type];
+        if (!def) return;
+        const row = document.createElement('div');
+        row.className = 'border border-gray-200 rounded-md mb-2';
+        const header = document.createElement('div');
+        header.className = 'flex items-center gap-2 px-3 py-2';
+        header.innerHTML = `
+          <button type="button" data-row-toggle class="text-gray-400">\u25b8</button>
+          <span class="text-[10px] font-semibold uppercase tracking-wide bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">${def.label}</span>
+          <span data-row-title class="text-sm font-medium flex-1 truncate">${def.needsContent ? (s.content || 'Untitled') : (s.label || 'Untitled')}</span>
+          <button type="button" data-row-up class="text-gray-400 hover:text-gray-700" title="Move up">\u2191</button>
+          <button type="button" data-row-down class="text-gray-400 hover:text-gray-700" title="Move down">\u2193</button>
+          <button type="button" data-row-dup class="text-gray-400 hover:text-gray-700" title="Duplicate">\u29c9</button>
+          <button type="button" data-row-del class="text-red-400 hover:text-red-600" title="Delete">\u2715</button>
+        `;
+        const body = document.createElement('div');
+        body.className = 'hidden px-3 pb-3 space-y-2 border-t border-gray-100 pt-2';
+        body.innerHTML = buildRowBody(s, def);
+        row.appendChild(header);
+        row.appendChild(body);
+        container.appendChild(row);
+
+        header.querySelector('[data-row-toggle]')!.addEventListener('click', () => {
+          const isHidden = body.classList.contains('hidden');
+          body.classList.toggle('hidden');
+          (header.querySelector('[data-row-toggle]') as HTMLElement).textContent = isHidden ? '\u25be' : '\u25b8';
+        });
+        header.querySelector('[data-row-del]')!.addEventListener('click', () => { list.splice(idx, 1); renderSettingsList(container, list, onChange); onChange(); });
+        header.querySelector('[data-row-dup]')!.addEventListener('click', () => {
+          const copy: SettingState = JSON.parse(JSON.stringify(s)); copy._key = nextInternalId();
+          if (copy.id) copy.id = copy.id + '_copy';
+          list.splice(idx + 1, 0, copy); renderSettingsList(container, list, onChange); onChange();
+        });
+        header.querySelector('[data-row-up]')!.addEventListener('click', () => {
+          if (idx === 0) return; [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]]; renderSettingsList(container, list, onChange); onChange();
+        });
+        header.querySelector('[data-row-down]')!.addEventListener('click', () => {
+          if (idx === list.length - 1) return; [list[idx + 1], list[idx]] = [list[idx], list[idx + 1]]; renderSettingsList(container, list, onChange); onChange();
+        });
+
+        wireRowBody(body, s, def, () => {
+          (header.querySelector('[data-row-title]') as HTMLElement).textContent = def.needsContent ? (s.content || 'Untitled') : (s.label || 'Untitled');
+          onChange();
+        });
+      });
+    }
+
+    function buildRowBody(s: SettingState, def: SettingDef): string {
+      const parts: string[] = [];
+      if (def.needsContent) {
+        parts.push(field('Content', `<textarea data-f="content" rows="2" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">${escapeHtml(s.content || '')}</textarea>`));
+      } else {
+        parts.push(field('Label', `<input data-f="label" type="text" value="${escapeHtml(s.label || '')}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`));
+        parts.push(field('ID', `<input data-f="id" type="text" value="${escapeHtml(s.id || '')}" class="w-full text-sm font-mono border border-gray-300 rounded-md px-2 py-1">`));
+      }
+      if (def.placeholder) parts.push(field('Placeholder', `<input data-f="placeholder" type="text" value="${escapeHtml(s.placeholder || '')}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`));
+      if (def.needsRange) {
+        parts.push(`<div class="grid grid-cols-4 gap-2">
+          ${field('Min', `<input data-f="min" type="number" value="${s.min ?? 0}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`)}
+          ${field('Max', `<input data-f="max" type="number" value="${s.max ?? 100}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`)}
+          ${field('Step', `<input data-f="step" type="number" value="${s.step ?? 1}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`)}
+          ${field('Unit', `<input data-f="unit" type="text" value="${escapeHtml(s.unit || '')}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`)}
+        </div>`);
+      }
+      if (def.needsLimit) parts.push(field('Limit', `<input data-f="limit" type="number" min="1" max="50" value="${s.limit ?? ''}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`));
+      if (def.needsAccept) {
+        const yt = (s.accept || ['youtube', 'vimeo']).includes('youtube');
+        const vm = (s.accept || ['youtube', 'vimeo']).includes('vimeo');
+        parts.push(`<div class="flex gap-4 text-sm"><label><input type="checkbox" data-f="accept-youtube" ${yt ? 'checked' : ''}> YouTube</label><label><input type="checkbox" data-f="accept-vimeo" ${vm ? 'checked' : ''}> Vimeo</label></div>`);
+      }
+      if (def.needsOptions) {
+        parts.push(`<div data-options-wrap><p class="text-xs font-medium text-gray-500 mb-1">Options</p><div data-options-list class="space-y-1"></div><button type="button" data-add-option class="text-xs text-violet-600 hover:underline mt-1">+ Add option</button></div>`);
+      }
+      if (def.defaultKind === 'number') parts.push(field('Default', `<input data-f="default" type="number" value="${s.default ?? ''}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`));
+      else if (def.defaultKind === 'boolean') parts.push(`<label class="flex items-center gap-2 text-sm"><input type="checkbox" data-f="default-bool" ${s.default ? 'checked' : ''}> Default checked</label>`);
+      else if (def.defaultKind === 'color') parts.push(field('Default', `<input data-f="default" type="text" placeholder="#ffffff" value="${escapeHtml(s.default || '')}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`));
+      else if (def.defaultKind === 'select') { /* handled via options default select, added below */ }
+      else if (def.defaultKind === 'text') parts.push(field('Default', `<input data-f="default" type="text" value="${escapeHtml(s.default || '')}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`));
+      parts.push(field('Info (help text)', `<input data-f="info" type="text" value="${escapeHtml(s.info || '')}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1">`));
+      return parts.join('');
+    }
+
+    function field(label: string, inputHtml: string): string {
+      return `<div><label class="block text-xs font-medium text-gray-500 mb-0.5">${label}</label>${inputHtml}</div>`;
+    }
+    function escapeHtml(v: string): string { return String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string)); }
+
+    function wireRowBody(body: HTMLElement, s: SettingState, def: SettingDef, onChange: () => void) {
+      body.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[data-f]').forEach((el) => {
+        const key = el.getAttribute('data-f')!;
+        const handler = () => {
+          if (key === 'label') { s.label = el.value; if (!s.idManual) { s.id = slugify(el.value); (body.parentElement!.querySelector('[data-f="id"]') as HTMLInputElement).value = s.id; } }
+          else if (key === 'id') { s.id = el.value; s.idManual = true; }
+          else if (key === 'min') s.min = Number(el.value);
+          else if (key === 'max') s.max = Number(el.value);
+          else if (key === 'step') s.step = Number(el.value);
+          else if (key === 'unit') s.unit = el.value;
+          else if (key === 'limit') s.limit = Number(el.value) || undefined;
+          else if (key === 'placeholder') s.placeholder = el.value;
+          else if (key === 'content') s.content = (el as HTMLTextAreaElement).value;
+          else if (key === 'info') s.info = el.value;
+          else if (key === 'default') s.default = el.value;
+          else if (key === 'default-bool') s.default = (el as HTMLInputElement).checked;
+          else if (key === 'accept-youtube' || key === 'accept-vimeo') {
+            const yt = (body.querySelector('[data-f="accept-youtube"]') as HTMLInputElement).checked;
+            const vm = (body.querySelector('[data-f="accept-vimeo"]') as HTMLInputElement).checked;
+            s.accept = [...(yt ? ['youtube'] : []), ...(vm ? ['vimeo'] : [])];
+          }
+          onChange();
+        };
+        el.addEventListener('input', handler);
+        el.addEventListener('change', handler);
+      });
+
+      if (def.needsOptions) {
+        if (!s.options || !s.options.length) s.options = [{ value: 'value_1', label: 'Option 1' }, { value: 'value_2', label: 'Option 2' }];
+        const list = body.querySelector<HTMLElement>('[data-options-list]')!;
+        function renderOptions() {
+          list.innerHTML = '';
+          s.options!.forEach((opt, i) => {
+            const row = document.createElement('div');
+            row.className = 'flex gap-1';
+            row.innerHTML = `<input data-ov type="text" value="${escapeHtml(opt.value)}" placeholder="value" class="w-1/2 text-xs font-mono border border-gray-300 rounded px-1.5 py-1">
+              <input data-ol type="text" value="${escapeHtml(opt.label)}" placeholder="label" class="w-1/2 text-xs border border-gray-300 rounded px-1.5 py-1">
+              <button type="button" data-or class="text-red-400 hover:text-red-600 text-xs px-1">\u2715</button>`;
+            row.querySelector('[data-ov]')!.addEventListener('input', (e) => { opt.value = (e.target as HTMLInputElement).value; onChange(); });
+            row.querySelector('[data-ol]')!.addEventListener('input', (e) => { opt.label = (e.target as HTMLInputElement).value; onChange(); });
+            row.querySelector('[data-or]')!.addEventListener('click', () => { s.options!.splice(i, 1); renderOptions(); onChange(); });
+            list.appendChild(row);
+          });
+        }
+        renderOptions();
+        body.querySelector('[data-add-option]')!.addEventListener('click', () => {
+          s.options!.push({ value: `value_${s.options!.length + 1}`, label: `Option ${s.options!.length + 1}` });
+          renderOptions(); onChange();
+        });
+      }
+    }
+
+    // ---------- main panel per active tab ----------
+    function renderMainPanel() {
+      addingToLabel.textContent = 'Adding to: ' + currentTargetLabel();
+      mainPanelEl.innerHTML = '';
+
+      if (activeTab === 'section') {
+        const info = document.createElement('div');
+        info.className = 'space-y-3 mb-4 pb-4 border-b border-gray-200';
+        info.innerHTML = `
+          <div><label class="block text-xs font-medium text-gray-500 mb-0.5">Section name *</label><input data-sec-name type="text" value="${escapeHtml(state.section.name)}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          <div class="grid grid-cols-3 gap-2">
+            <div><label class="block text-xs font-medium text-gray-500 mb-0.5">Tag</label>
+              <select data-sec-tag class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+                <option value="">(default)</option>
+                <option value="div">div</option><option value="section">section</option><option value="aside">aside</option><option value="header">header</option><option value="footer">footer</option>
+              </select>
+            </div>
+            <div><label class="block text-xs font-medium text-gray-500 mb-0.5">CSS class</label><input data-sec-class type="text" value="${escapeHtml(state.section.cssClass)}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+            <div><label class="block text-xs font-medium text-gray-500 mb-0.5">Max blocks</label><input data-sec-maxblocks type="number" min="0" value="${state.section.maxBlocks ?? ''}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          </div>
+          <div><p class="text-xs font-medium text-gray-500 mb-1">Available on templates (optional)</p>
+            <div class="flex flex-wrap gap-3 text-xs">
+              ${['index','product','collection','page','blog','article','cart','all'].map((t) => `<label class="flex items-center gap-1"><input type="checkbox" data-sec-tpl value="${t}" ${state.section.templates.includes(t) ? 'checked' : ''}> ${t}</label>`).join('')}
+            </div>
+          </div>
+        `;
+        mainPanelEl.appendChild(info);
+        (info.querySelector('[data-sec-name]') as HTMLInputElement).addEventListener('input', (e) => { state.section.name = (e.target as HTMLInputElement).value; scheduleUpdate(); });
+        (info.querySelector('[data-sec-tag]') as HTMLSelectElement).value = state.section.tag;
+        (info.querySelector('[data-sec-tag]') as HTMLSelectElement).addEventListener('change', (e) => { state.section.tag = (e.target as HTMLSelectElement).value; scheduleUpdate(); });
+        (info.querySelector('[data-sec-class]') as HTMLInputElement).addEventListener('input', (e) => { state.section.cssClass = (e.target as HTMLInputElement).value; scheduleUpdate(); });
+        (info.querySelector('[data-sec-maxblocks]') as HTMLInputElement).addEventListener('input', (e) => { state.section.maxBlocks = Number((e.target as HTMLInputElement).value) || null; scheduleUpdate(); });
+        info.querySelectorAll('[data-sec-tpl]').forEach((cb) => cb.addEventListener('change', (e) => {
+          const el = e.target as HTMLInputElement;
+          state.section.templates = el.checked ? [...state.section.templates, el.value] : state.section.templates.filter((t) => t !== el.value);
+          scheduleUpdate();
+        }));
+
+        const listWrap = document.createElement('div');
+        listWrap.innerHTML = '<p class="text-xs font-medium text-gray-500 mb-2">Section settings</p>';
+        const list = document.createElement('div');
+        listWrap.appendChild(list);
+        mainPanelEl.appendChild(listWrap);
+        renderSettingsList(list, state.settings, scheduleUpdate);
+      } else if (activeTab === 'presets') {
+        const wrap = document.createElement('div');
+        wrap.innerHTML = '<p class="text-xs font-medium text-gray-500 mb-2">Presets</p><div data-presets-list class="space-y-3"></div><button type="button" data-add-preset class="text-sm text-violet-600 hover:underline mt-2">+ Add preset</button>';
+        mainPanelEl.appendChild(wrap);
+        const list = wrap.querySelector<HTMLElement>('[data-presets-list]')!;
+        function renderPresets() {
+          list.innerHTML = '';
+          state.presets.forEach((p, i) => {
+            const row = document.createElement('div');
+            row.className = 'border border-gray-200 rounded-md p-3 space-y-2';
+            row.innerHTML = `
+              <div class="flex items-center gap-2">
+                <input data-pn type="text" value="${escapeHtml(p.name)}" placeholder="Preset name" class="flex-1 text-sm border border-gray-300 rounded-md px-2 py-1">
+                <button type="button" data-pd class="text-red-400 hover:text-red-600 text-sm">\u2715</button>
+              </div>
+              ${state.blocks.length ? `<div class="flex flex-wrap gap-3 text-xs">${state.blocks.map((b) => `<label class="flex items-center gap-1"><input type="checkbox" data-pb value="${b.type}" ${p.includeBlockTypes.includes(b.type) ? 'checked' : ''}> ${b.name}</label>`).join('')}</div>` : '<p class="text-xs text-gray-400">No blocks defined yet to include by default.</p>'}
+            `;
+            row.querySelector('[data-pn]')!.addEventListener('input', (e) => { p.name = (e.target as HTMLInputElement).value; scheduleUpdate(); });
+            row.querySelector('[data-pd]')!.addEventListener('click', () => { state.presets.splice(i, 1); renderPresets(); scheduleUpdate(); });
+            row.querySelectorAll('[data-pb]').forEach((cb) => cb.addEventListener('change', (e) => {
+              const el = e.target as HTMLInputElement;
+              p.includeBlockTypes = el.checked ? [...p.includeBlockTypes, el.value] : p.includeBlockTypes.filter((t) => t !== el.value);
+              scheduleUpdate();
+            }));
+            list.appendChild(row);
+          });
+        }
+        renderPresets();
+        wrap.querySelector('[data-add-preset]')!.addEventListener('click', () => {
+          state.presets.push({ _key: nextInternalId(), name: `Preset ${state.presets.length + 1}`, includeBlockTypes: [] });
+          renderPresets(); scheduleUpdate();
+        });
+      } else {
+        const block = state.blocks.find((b) => b._key === activeTab);
+        if (!block) return;
+        const info = document.createElement('div');
+        info.className = 'space-y-3 mb-4 pb-4 border-b border-gray-200';
+        info.innerHTML = `
+          <div class="grid grid-cols-3 gap-2">
+            <div><label class="block text-xs font-medium text-gray-500 mb-0.5">Block name *</label><input data-bl-name type="text" value="${escapeHtml(block.name)}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+            <div><label class="block text-xs font-medium text-gray-500 mb-0.5">Type (id)</label><input data-bl-type type="text" value="${escapeHtml(block.type)}" class="w-full text-sm font-mono border border-gray-300 rounded-md px-2 py-1.5"></div>
+            <div><label class="block text-xs font-medium text-gray-500 mb-0.5">Limit</label><input data-bl-limit type="number" min="1" value="${block.limit ?? ''}" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          </div>
+        `;
+        mainPanelEl.appendChild(info);
+        (info.querySelector('[data-bl-name]') as HTMLInputElement).addEventListener('input', (e) => {
+          block.name = (e.target as HTMLInputElement).value;
+          if (!block.typeManual) { block.type = slugify(block.name); (info.querySelector('[data-bl-type]') as HTMLInputElement).value = block.type; }
+          renderMainTabs(); scheduleUpdate();
+        });
+        (info.querySelector('[data-bl-type]') as HTMLInputElement).addEventListener('input', (e) => { block.type = (e.target as HTMLInputElement).value; block.typeManual = true; scheduleUpdate(); });
+        (info.querySelector('[data-bl-limit]') as HTMLInputElement).addEventListener('input', (e) => { block.limit = Number((e.target as HTMLInputElement).value) || null; scheduleUpdate(); });
+
+        const listWrap = document.createElement('div');
+        listWrap.innerHTML = '<p class="text-xs font-medium text-gray-500 mb-2">Block settings</p>';
+        const list = document.createElement('div');
+        listWrap.appendChild(list);
+        mainPanelEl.appendChild(listWrap);
+        renderSettingsList(list, block.settings, scheduleUpdate);
+      }
+    }
+
+    function renderMainTabs() {
+      mainTabsEl.innerHTML = '';
+      const mk = (key: string, label: string, closable = false) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-3 py-1.5 text-sm font-medium rounded-md whitespace-nowrap flex items-center gap-1 ' + (activeTab === key ? 'bg-violet-600 text-white' : 'text-gray-600 hover:bg-gray-100');
+        btn.innerHTML = closable ? `<span>${label}</span><span data-close class="ml-1 opacity-70 hover:opacity-100">\u2715</span>` : label;
+        btn.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('[data-close]')) return;
+          activeTab = key; renderMainTabs(); renderMainPanel();
+        });
+        if (closable) {
+          btn.querySelector('[data-close]')!.addEventListener('click', () => {
+            state.blocks = state.blocks.filter((b) => b._key !== key);
+            if (activeTab === key) activeTab = 'section';
+            renderMainTabs(); renderMainPanel(); scheduleUpdate();
+          });
+        }
+        mainTabsEl.appendChild(btn);
+      };
+      mk('section', 'Section');
+      state.blocks.forEach((b) => mk(b._key, b.name || 'Block', true));
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'px-3 py-1.5 text-sm font-medium rounded-md border border-dashed border-gray-300 text-gray-500 hover:border-violet-400 hover:text-violet-600 whitespace-nowrap';
+      addBtn.textContent = '+ Block';
+      addBtn.addEventListener('click', () => {
+        const b: BlockState = { _key: nextInternalId(), name: `Block ${state.blocks.length + 1}`, type: `block_${state.blocks.length + 1}`, settings: [] };
+        state.blocks.push(b); activeTab = b._key; renderMainTabs(); renderMainPanel(); scheduleUpdate();
+      });
+      mainTabsEl.appendChild(addBtn);
+      mk('presets', 'Presets');
+    }
+
+    // ---------- sidebar add-type ----------
+    root.querySelectorAll<HTMLButtonElement>('[data-add-type]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.addType!;
+        const def = TYPE_DEFS[type];
+        if (!def) return;
+        const s: SettingState = { _key: nextInternalId(), type, id: def.needsId ? `${type}_1` : undefined, label: def.needsLabel ? def.label : undefined, content: def.needsContent ? def.label : undefined };
+        currentTargetArray().push(s);
+        renderMainPanel();
+        scheduleUpdate();
+      });
+    });
+
+    // sidebar search filter
+    root.querySelector<HTMLInputElement>('[data-type-search]')!.addEventListener('input', (e) => {
+      const q = (e.target as HTMLInputElement).value.toLowerCase();
+      root.querySelectorAll<HTMLElement>('[data-type-group]').forEach((group) => {
+        let anyVisible = false;
+        group.querySelectorAll<HTMLElement>('.type-btn').forEach((btn) => {
+          const match = btn.textContent!.toLowerCase().includes(q);
+          btn.style.display = match ? '' : 'none';
+          if (match) anyVisible = true;
+        });
+        (group as HTMLElement).style.display = anyVisible ? '' : 'none';
+      });
+    });
+
+    // ---------- output tabs / copy / clear ----------
+    let outputTab: 'schema' | 'liquid' = 'schema';
+    root.querySelectorAll<HTMLButtonElement>('[data-output-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        outputTab = btn.dataset.outputTab as 'schema' | 'liquid';
+        root.querySelectorAll('[data-output-tab]').forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('bg-violet-600', active);
+          b.classList.toggle('text-white', active);
+          b.classList.toggle('text-gray-600', !active);
+        });
+        schemaOut.classList.toggle('hidden', outputTab !== 'schema');
+        liquidOut.classList.toggle('hidden', outputTab !== 'liquid');
+      });
+    });
+    root.querySelector('[data-copy-output]')!.addEventListener('click', async () => {
+      const text = outputTab === 'schema' ? schemaOut.textContent! : liquidOut.textContent!;
+      await navigator.clipboard.writeText(text);
+      const btn = root.querySelector('[data-copy-output]') as HTMLElement;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      window.setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+
+    root.querySelector('[data-clear-all]')!.addEventListener('click', () => {
+      if (!confirm('Clear the section, all blocks, and all presets?')) return;
+      state.section = { name: 'Custom Section', tag: '', cssClass: '', maxBlocks: null, templates: [] };
+      state.settings = []; state.blocks = []; state.presets = [];
+      activeTab = 'section';
+      renderMainTabs(); renderMainPanel(); updateOutputs();
+    });
+
+    // ---------- mode toggle ----------
+    root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.modeBtn!;
+        root.querySelectorAll('[data-mode-btn]').forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('bg-violet-600', active);
+          b.classList.toggle('text-white', active);
+          b.classList.toggle('text-gray-600', !active);
+        });
+        root.querySelectorAll('[data-mode-panel]').forEach((p) => {
+          p.classList.toggle('hidden', p.getAttribute('data-mode-panel') !== mode);
+          p.classList.toggle('block', p.getAttribute('data-mode-panel') === mode);
+        });
+      });
+    });
+
+    // ---------- validate mode ----------
+    const validateInput = root.querySelector<HTMLTextAreaElement>('[data-validate-input]')!;
+    const validateReport = root.querySelector<HTMLElement>('[data-validate-report]')!;
+
+    function extractSchemaJson(raw: string): string {
+      const match = raw.match(/{%-?\s*schema\s*-?%}([\s\S]*?){%-?\s*endschema\s*-?%}/);
+      return match ? match[1].trim() : raw.trim();
+    }
+
+    function runValidation() {
+      const raw = validateInput.value.trim();
+      validateReport.innerHTML = '';
+      if (!raw) { validateReport.innerHTML = '<p class="text-gray-400">Paste a schema to see the report.</p>'; return; }
+      const jsonText = extractSchemaJson(raw);
+      const results: { ok: boolean; warn?: boolean; msg: string }[] = [];
+      let schema: any;
+      try {
+        schema = JSON.parse(jsonText);
+        results.push({ ok: true, msg: 'Valid JSON.' });
+      } catch (e) {
+        results.push({ ok: false, msg: 'JSON syntax error: ' + (e as Error).message });
+        renderReport(results);
+        return;
+      }
+
+      if (schema.name && String(schema.name).trim()) results.push({ ok: true, msg: `Has a name: "${schema.name}".` });
+      else results.push({ ok: false, msg: 'Missing required "name" field.' });
+
+      const seenSectionIds = new Set<string>();
+      (schema.settings || []).forEach((s: any, i: number) => {
+        if (!s.type) { results.push({ ok: false, msg: `Setting #${i + 1} is missing "type".` }); return; }
+        if (!TYPE_DEFS[s.type]) { results.push({ ok: false, warn: true, msg: `Setting #${i + 1} has an unrecognized type "${s.type}".` }); return; }
+        const def = TYPE_DEFS[s.type];
+        if (def.needsId) {
+          if (!s.id) results.push({ ok: false, msg: `Setting "${s.label || i}" (${s.type}) is missing "id".` });
+          else if (seenSectionIds.has(s.id)) results.push({ ok: false, msg: `Duplicate setting id "${s.id}" in section settings.` });
+          else seenSectionIds.add(s.id);
+        }
+        if (def.needsOptions && (!s.options || !s.options.length)) results.push({ ok: false, msg: `Setting "${s.id}" (${s.type}) needs an "options" array.` });
+        if (s.type === 'range') {
+          if (s.min === undefined || s.max === undefined || s.step === undefined) results.push({ ok: false, msg: `Range "${s.id}" needs min, max, and step.` });
+          else { const steps = (s.max - s.min) / s.step; if (steps > 101) results.push({ ok: false, msg: `Range "${s.id}": (max\u2212min)/step is ${Math.round(steps)}, over Shopify's 101-step limit.` }); }
+        }
+      });
+      if (schema.settings) results.push({ ok: true, msg: `${schema.settings.length} section setting(s) checked.` });
+
+      const seenBlockTypes = new Set<string>();
+      (schema.blocks || []).forEach((b: any, i: number) => {
+        if (!b.type) results.push({ ok: false, msg: `Block #${i + 1} is missing "type".` });
+        else if (seenBlockTypes.has(b.type)) results.push({ ok: false, msg: `Duplicate block type "${b.type}".` });
+        else seenBlockTypes.add(b.type);
+        const seenBlockIds = new Set<string>();
+        (b.settings || []).forEach((s: any) => {
+          if (s.id) { if (seenBlockIds.has(s.id)) results.push({ ok: false, msg: `Duplicate setting id "${s.id}" in block "${b.type}".` }); else seenBlockIds.add(s.id); }
+        });
+      });
+      if (schema.blocks) results.push({ ok: true, msg: `${schema.blocks.length} block type(s) checked.` });
+
+      (schema.presets || []).forEach((p: any, i: number) => {
+        if (!p.name) results.push({ ok: false, msg: `Preset #${i + 1} is missing "name".` });
+      });
+
+      renderReport(results);
+    }
+
+    function renderReport(results: { ok: boolean; warn?: boolean; msg: string }[]) {
+      validateReport.innerHTML = results.map((r) => {
+        const icon = r.ok ? '<span class="text-emerald-600">\u2713</span>' : r.warn ? '<span class="text-amber-600">\u26a0</span>' : '<span class="text-red-600">\u2715</span>';
+        return `<div class="flex items-start gap-2"><span>${icon}</span><span class="text-gray-700">${escapeHtml(r.msg)}</span></div>`;
+      }).join('');
+    }
+
+    let vDebounce: number | undefined;
+    validateInput.addEventListener('input', () => { window.clearTimeout(vDebounce); vDebounce = window.setTimeout(runValidation, 400); });
+
+    // ---------- init ----------
+    renderMainTabs();
+    renderMainPanel();
+    updateOutputs();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-schema-builder-widget]').forEach(initSchemaBuilder);
+</script>
