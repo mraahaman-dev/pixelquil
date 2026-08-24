@@ -66,6 +66,8 @@ import HtmlCssJsEditorWidget from '../../components/tools/HtmlCssJsEditorWidget.
 import LiquidPlaygroundWidget from '../../components/tools/LiquidPlaygroundWidget.astro';
 import SectionSchemaBuilderWidget from '../../components/tools/SectionSchemaBuilderWidget.astro';
 import MetafieldLiquidGeneratorWidget from '../../components/tools/MetafieldLiquidGeneratorWidget.astro';
+import ThemeLiquidCheckerWidget from '../../components/tools/ThemeLiquidCheckerWidget.astro';
+import LiquidReferenceWidget from '../../components/tools/LiquidReferenceWidget.astro';
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -143,6 +145,8 @@ const widgets: Record<string, any> = {
     "liquid-playground": LiquidPlaygroundWidget,
     "section-schema-builder": SectionSchemaBuilderWidget,
     "metafield-liquid-generator": MetafieldLiquidGeneratorWidget,
+    "theme-liquid-checker": ThemeLiquidCheckerWidget,
+    "liquid-filter-object-reference": LiquidReferenceWidget,
 };
 
 const Widget = widgets[tool.slug] ?? ComingSoonWidget;

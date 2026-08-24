@@ -1,0 +1,397 @@
+---
+// LiquidReferenceWidget.astro
+// Searchable reference of Shopify Liquid filters and objects, each with a real
+// LiquidJS-rendered example against shared mock data (reuses the Liquid
+// Playground's engine and data shape). Requires: npm install liquidjs
+---
+
+<div data-liquid-reference-widget class="w-full">
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <input data-search type="text" placeholder="Search filters and objects..." class="flex-1 min-w-[200px] border border-gray-300 rounded-md px-3 py-2 text-sm">
+    <div class="inline-flex rounded-md border border-gray-200 overflow-hidden">
+      <button type="button" data-type-btn="all" class="px-3 py-2 text-sm font-medium bg-rose-600 text-white">All</button>
+      <button type="button" data-type-btn="filter" class="px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">Filters</button>
+      <button type="button" data-type-btn="object" class="px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">Objects</button>
+    </div>
+    <select data-category-select class="border border-gray-300 rounded-md px-2 py-2 text-sm">
+      <option value="">All categories</option>
+    </select>
+  </div>
+
+  <p data-loading class="text-sm text-gray-400">Rendering live examples...</p>
+  <p data-result-count class="hidden text-xs text-gray-400 mb-2"></p>
+  <div data-results class="hidden grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+</div>
+
+<style>
+  [data-liquid-reference-widget] button { cursor: pointer; }
+</style>
+
+<script>
+  import { Liquid } from 'liquidjs';
+
+  type Entry = {
+    kind: 'filter' | 'object';
+    name: string;
+    cat: string;
+    syntax?: string;
+    desc: string;
+    example?: string;
+    properties?: { path: string; desc: string }[];
+    illustrative?: boolean;
+    output?: string;
+  };
+
+  function initLiquidReference(root: HTMLElement) {
+    const engine = new Liquid();
+
+    // ---- Custom filter implementations (all Shopify-specific, registered explicitly) ----
+    const slugify = (v: string) => String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const hexToRgb = (hex: string) => {
+      const h = hex.replace('#', '');
+      const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    };
+    const rgbToHex = (r: number, g: number, b: number) => '#' + [r, g, b].map((x) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, '0')).join('');
+    const rgbToHsl = (r: number, g: number, b: number) => {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0; const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+        else if (max === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h /= 6;
+      }
+      return { h: h * 360, s: s * 100, l: l * 100 };
+    };
+    const hslToRgb = (h: number, s: number, l: number) => {
+      h /= 360; s /= 100; l /= 100;
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1; if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+      let r, g, b;
+      if (s === 0) { r = g = b = l; }
+      else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3); g = hue2rgb(p, q, h); b = hue2rgb(p, q, h - 1 / 3);
+      }
+      return { r: r * 255, g: g * 255, b: b * 255 };
+    };
+    const escapeHtmlStr = (v: string) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+    const MOCK_LOCALE: Record<string, string> = { 'general.search.title': 'Search', 'products.product.add_to_cart': 'Add to cart', 'cart.general.title': 'Your cart' };
+
+    const filterImpls: Record<string, (...args: any[]) => any> = {
+      append: (v, s) => `${v}${s}`,
+      prepend: (v, s) => `${s}${v}`,
+      capitalize: (v) => String(v).charAt(0).toUpperCase() + String(v).slice(1).toLowerCase(),
+      downcase: (v) => String(v).toLowerCase(),
+      upcase: (v) => String(v).toUpperCase(),
+      strip: (v) => String(v).trim(),
+      strip_html: (v) => String(v).replace(/<[^>]*>/g, ''),
+      strip_newlines: (v) => String(v).replace(/\n/g, ''),
+      newline_to_br: (v) => String(v).replace(/\n/g, '<br>\n'),
+      remove: (v, s) => String(v).split(s).join(''),
+      replace: (v, a, b) => String(v).split(a).join(b),
+      truncate: (v, len = 50, append = '...') => (String(v).length > len ? String(v).slice(0, Math.max(0, len - append.length)) + append : String(v)),
+      truncatewords: (v, words = 15, append = '...') => { const w = String(v).split(' '); return w.length > words ? w.slice(0, words).join(' ') + append : String(v); },
+      escape: (v) => escapeHtmlStr(v),
+      url_encode: (v) => encodeURIComponent(String(v)).replace(/%20/g, '+'),
+      camelcase: (v) => String(v).replace(/[-_](.)/g, (_, c) => c.toUpperCase()).replace(/^(.)/, (c) => c.toUpperCase()),
+      handle: (v) => slugify(v),
+      slice: (v, start, len) => (Array.isArray(v) ? (len ? v.slice(start, start + len) : [v[start]]) : (len ? String(v).slice(start, start + len) : String(v).slice(start, start + 1))),
+      abs: (v) => Math.abs(Number(v)),
+      at_least: (v, n) => Math.max(Number(v), Number(n)),
+      at_most: (v, n) => Math.min(Number(v), Number(n)),
+      ceil: (v) => Math.ceil(Number(v)),
+      floor: (v) => Math.floor(Number(v)),
+      round: (v, n) => (n ? Number(v).toFixed(n) : Math.round(Number(v))),
+      divided_by: (v, n) => Number(v) / Number(n),
+      minus: (v, n) => Number(v) - Number(n),
+      plus: (v, n) => Number(v) + Number(n),
+      times: (v, n) => Number(v) * Number(n),
+      modulo: (v, n) => Number(v) % Number(n),
+      first: (v) => v[0],
+      last: (v) => v[v.length - 1],
+      join: (v, sep = ' ') => v.join(sep),
+      map: (v, prop) => v.map((x: any) => x[prop]),
+      reverse: (v) => [...v].reverse(),
+      size: (v) => (v && v.length !== undefined ? v.length : String(v).length),
+      sort: (v, prop) => (prop ? [...v].sort((a: any, b: any) => (a[prop] > b[prop] ? 1 : -1)) : [...v].sort()),
+      sort_natural: (v, prop) => (prop ? [...v].sort((a: any, b: any) => String(a[prop]).toLowerCase().localeCompare(String(b[prop]).toLowerCase())) : [...v].sort((a: any, b: any) => String(a).toLowerCase().localeCompare(String(b).toLowerCase()))),
+      uniq: (v) => [...new Set(v)],
+      where: (v, prop, val) => v.filter((x: any) => x[prop] === val),
+      compact: (v) => v.filter((x: any) => x != null),
+      sum: (v, prop) => (prop ? v.reduce((a: number, x: any) => a + Number(x[prop]), 0) : v.reduce((a: number, x: any) => a + Number(x), 0)),
+      concat: (v, arr) => v.concat(arr),
+      money: (v) => `$${(Number(v) / 100).toFixed(2)}`,
+      money_with_currency: (v) => `$${(Number(v) / 100).toFixed(2)} USD`,
+      money_without_currency: (v) => `${(Number(v) / 100).toFixed(2)}`,
+      money_without_trailing_zeros: (v) => { const n = Number(v) / 100; return n % 1 === 0 ? `$${n}` : `$${n.toFixed(2)}`; },
+      default: (v, d) => (v === undefined || v === null || v === '' || v === false ? d : v),
+      date: (v, fmt = '%B %d, %Y') => {
+        const d = v === 'now' ? new Date() : new Date(v);
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        return String(fmt).replace('%B', months[d.getMonth()]).replace('%Y', String(d.getFullYear())).replace('%m', String(d.getMonth() + 1).padStart(2, '0')).replace('%d', String(d.getDate()).padStart(2, '0'));
+      },
+      json: (v) => JSON.stringify(v),
+      pluralize: (n, s, p) => (Number(n) === 1 ? s : p),
+      color_to_rgb: (hex) => { const { r, g, b } = hexToRgb(hex); return `rgb(${r}, ${g}, ${b})`; },
+      color_lighten: (hex, pct) => { const { r, g, b } = hexToRgb(hex); const hsl = rgbToHsl(r, g, b); hsl.l = Math.min(100, hsl.l + Number(pct)); const rgb = hslToRgb(hsl.h, hsl.s, hsl.l); return rgbToHex(rgb.r, rgb.g, rgb.b); },
+      color_darken: (hex, pct) => { const { r, g, b } = hexToRgb(hex); const hsl = rgbToHsl(r, g, b); hsl.l = Math.max(0, hsl.l - Number(pct)); const rgb = hslToRgb(hsl.h, hsl.s, hsl.l); return rgbToHex(rgb.r, rgb.g, rgb.b); },
+      color_extract: (hex, part) => { const { r, g, b } = hexToRgb(hex); const hsl = rgbToHsl(r, g, b); const map: Record<string, number> = { red: r, green: g, blue: b, hue: Math.round(hsl.h), saturation: Math.round(hsl.s), lightness: Math.round(hsl.l) }; return map[part] ?? ''; },
+      color_modify: (hex, part, value) => { const { r, g, b } = hexToRgb(hex); const hsl = rgbToHsl(r, g, b); if (part === 'red') return rgbToHex(Number(value), g, b); if (part === 'green') return rgbToHex(r, Number(value), b); if (part === 'blue') return rgbToHex(r, g, Number(value)); if (part === 'lightness') { const rgb = hslToRgb(hsl.h, hsl.s, Number(value)); return rgbToHex(rgb.r, rgb.g, rgb.b); } return hex; },
+      img_url: (v) => v || 'https://picsum.photos/seed/placeholder/600/600',
+      image_url: (v) => v || 'https://picsum.photos/seed/placeholder/600/600',
+      asset_url: (v) => `/cdn/shop/files/${v}`,
+      file_url: (v) => `/cdn/shop/files/${v}`,
+      stylesheet_tag: (v) => `<link rel="stylesheet" href="${v}">`,
+      script_tag: (v) => `<script src="${v}"><\/script>`,
+      time_tag: (v, fmt = '%B %d, %Y') => `<time datetime="${v}">${filterImpls.date(v, fmt)}</time>`,
+      highlight: (v, term) => String(v).replace(new RegExp(`(${term})`, 'gi'), '<mark>$1</mark>'),
+      weight_with_unit: (v) => `${(Number(v) / 1000).toFixed(2)} kg`,
+      t: (v) => MOCK_LOCALE[v] ?? `[translation for "${v}"]`
+    };
+    Object.entries(filterImpls).forEach(([name, fn]) => engine.registerFilter(name, fn));
+
+    // ---- Shared mock data (same shape as the Liquid Playground) ----
+    const DATA = {
+      shop: { name: 'Pixel Threads', currency: 'USD' },
+      product: {
+        title: 'Classic Canvas Tote', vendor: 'Pixel Threads', type: 'Bags',
+        description: 'A durable, everyday canvas tote with reinforced stitching.',
+        tags: ['bestseller', 'canvas', 'eco-friendly'], available: true,
+        price: 3600, compare_at_price: 4500, weight: 450,
+        featured_image: { src: 'https://picsum.photos/seed/tote1/600/600', alt: 'Classic Canvas Tote', width: 600, height: 600 },
+        images: ['https://picsum.photos/seed/tote1/600/600', 'https://picsum.photos/seed/tote2/600/600'],
+        metafields: { custom: { care_instructions: { value: 'Spot clean only', type: 'single_line_text_field' } } },
+        variants: [
+          { title: 'Natural / Small', price: 3600, available: true },
+          { title: 'Natural / Large', price: 3800, available: true },
+          { title: 'Black / Small', price: 3600, available: false }
+        ]
+      },
+      collection: {
+        title: 'Best Sellers', products: [
+          { title: 'Classic Canvas Tote', price: 3600 },
+          { title: 'Recycled Wool Beanie', price: 2200 },
+          { title: 'Waxed Canvas Belt', price: 2800 }
+        ]
+      },
+      collections: [{ title: 'Best Sellers', handle: 'best-sellers' }, { title: 'New Arrivals', handle: 'new-arrivals' }],
+      cart: {
+        item_count: 2, total_price: 5800,
+        items: [
+          { title: 'Classic Canvas Tote', quantity: 1, price: 3600, line_price: 3600 },
+          { title: 'Recycled Wool Beanie', quantity: 1, price: 2200, line_price: 2200 }
+        ]
+      },
+      customer: null,
+      article: { title: 'How We Source Our Canvas', excerpt: 'A look inside our supply chain.', author: 'Jamie Rivera', published_at: '2026-05-01', tags: ['sourcing', 'materials'], url: '/blogs/journal/how-we-source' },
+      blog: { title: 'Journal' },
+      page: { title: 'About Us', content: '<p>We started in a small workshop in 2018.</p>', url: '/pages/about-us' },
+      order: { name: '#1001', total_price: 5800, email: 'customer@example.com', created_at: '2026-05-10', line_items: [{ title: 'Classic Canvas Tote', quantity: 1 }] },
+      color: '#0f766e',
+      font: { family: 'Assistant', weight: 600, style: 'normal' },
+      routes: { root_url: '/', cart_url: '/cart', account_url: '/account', account_login_url: '/account/login', search_url: '/search', all_products_collection_url: '/collections/all' },
+      linklist: { title: 'Main menu', handle: 'main-menu', links: [{ title: 'Home', url: '/' }, { title: 'Shop', url: '/collections/all' }, { title: 'About', url: '/pages/about-us' }] },
+      tax_line: { title: 'Sales Tax', rate: 0.08, price: 288 },
+      paginate: { current_page: 2, pages: 5, items: 45 }
+    };
+
+    // ---- Filter reference entries ----
+    const filters: Entry[] = [
+      { kind: 'filter', name: 'append', cat: 'String', syntax: '{{ str | append: str }}', desc: 'Adds a string to the end.', example: '{{ "shop/" | append: "products" }}' },
+      { kind: 'filter', name: 'prepend', cat: 'String', syntax: '{{ str | prepend: str }}', desc: 'Adds a string to the beginning.', example: '{{ "products" | prepend: "shop/" }}' },
+      { kind: 'filter', name: 'capitalize', cat: 'String', syntax: '{{ str | capitalize }}', desc: 'Capitalizes the first character, lowercases the rest.', example: '{{ "canvas TOTE bag" | capitalize }}' },
+      { kind: 'filter', name: 'downcase', cat: 'String', syntax: '{{ str | downcase }}', desc: 'Lowercases every character.', example: '{{ product.vendor | downcase }}' },
+      { kind: 'filter', name: 'upcase', cat: 'String', syntax: '{{ str | upcase }}', desc: 'Uppercases every character.', example: '{{ product.vendor | upcase }}' },
+      { kind: 'filter', name: 'strip', cat: 'String', syntax: '{{ str | strip }}', desc: 'Removes leading and trailing whitespace.', example: '"{{ "  padded  " | strip }}"' },
+      { kind: 'filter', name: 'strip_html', cat: 'String', syntax: '{{ str | strip_html }}', desc: 'Removes all HTML tags.', example: '{{ page.content | strip_html }}' },
+      { kind: 'filter', name: 'strip_newlines', cat: 'String', syntax: '{{ str | strip_newlines }}', desc: 'Removes newline characters.', example: '{{ "line one\nline two" | strip_newlines }}' },
+      { kind: 'filter', name: 'newline_to_br', cat: 'String', syntax: '{{ str | newline_to_br }}', desc: 'Replaces newlines with <br> tags.', example: '{{ "line one\nline two" | newline_to_br }}' },
+      { kind: 'filter', name: 'remove', cat: 'String', syntax: '{{ str | remove: str }}', desc: 'Removes every instance of a substring.', example: '{{ "hello world" | remove: "o" }}' },
+      { kind: 'filter', name: 'replace', cat: 'String', syntax: '{{ str | replace: find, replace }}', desc: 'Replaces every instance of a substring.', example: '{{ "hello world" | replace: "world", "there" }}' },
+      { kind: 'filter', name: 'truncate', cat: 'String', syntax: '{{ str | truncate: 20 }}', desc: 'Shortens a string to a set character length.', example: '{{ product.description | truncate: 20 }}' },
+      { kind: 'filter', name: 'truncatewords', cat: 'String', syntax: '{{ str | truncatewords: 5 }}', desc: 'Shortens a string to a set number of words.', example: '{{ product.description | truncatewords: 5 }}' },
+      { kind: 'filter', name: 'escape', cat: 'String', syntax: '{{ str | escape }}', desc: 'Escapes HTML-sensitive characters.', example: '{{ "<b>bold</b>" | escape }}' },
+      { kind: 'filter', name: 'url_encode', cat: 'String', syntax: '{{ str | url_encode }}', desc: 'Percent-encodes a string for use in a URL.', example: '{{ "canvas tote & bag" | url_encode }}' },
+      { kind: 'filter', name: 'camelcase', cat: 'String', syntax: '{{ str | camelcase }}', desc: 'Converts a snake_case or kebab-case string to CamelCase.', example: '{{ "background_color" | camelcase }}' },
+      { kind: 'filter', name: 'handle', cat: 'String', syntax: '{{ str | handle }}', desc: 'Converts a string into a URL-safe handle.', example: '{{ "Classic Canvas Tote!" | handle }}' },
+      { kind: 'filter', name: 'slice', cat: 'String', syntax: '{{ str | slice: 0, 5 }}', desc: 'Returns a substring or sub-array starting at an index.', example: '{{ "Pixel Threads" | slice: 0, 5 }}' },
+      { kind: 'filter', name: 'abs', cat: 'Number', syntax: '{{ num | abs }}', desc: 'Returns the absolute value.', example: '{{ -17 | abs }}' },
+      { kind: 'filter', name: 'at_least', cat: 'Number', syntax: '{{ num | at_least: 5 }}', desc: 'Limits a number to a minimum value.', example: '{{ 3 | at_least: 5 }}' },
+      { kind: 'filter', name: 'at_most', cat: 'Number', syntax: '{{ num | at_most: 5 }}', desc: 'Limits a number to a maximum value.', example: '{{ 8 | at_most: 5 }}' },
+      { kind: 'filter', name: 'ceil', cat: 'Number', syntax: '{{ num | ceil }}', desc: 'Rounds up to the nearest integer.', example: '{{ 4.1 | ceil }}' },
+      { kind: 'filter', name: 'floor', cat: 'Number', syntax: '{{ num | floor }}', desc: 'Rounds down to the nearest integer.', example: '{{ 4.9 | floor }}' },
+      { kind: 'filter', name: 'round', cat: 'Number', syntax: '{{ num | round: 2 }}', desc: 'Rounds to the nearest integer, or a set decimal precision.', example: '{{ 4.567 | round: 2 }}' },
+      { kind: 'filter', name: 'divided_by', cat: 'Number', syntax: '{{ num | divided_by: 2 }}', desc: 'Divides a number.', example: '{{ 10 | divided_by: 3 }}' },
+      { kind: 'filter', name: 'minus', cat: 'Number', syntax: '{{ num | minus: 2 }}', desc: 'Subtracts a number.', example: '{{ product.price | minus: 100 | money }}' },
+      { kind: 'filter', name: 'plus', cat: 'Number', syntax: '{{ num | plus: 2 }}', desc: 'Adds a number.', example: '{{ product.price | plus: 100 | money }}' },
+      { kind: 'filter', name: 'times', cat: 'Number', syntax: '{{ num | times: 2 }}', desc: 'Multiplies a number.', example: '{{ product.price | times: 2 | money }}' },
+      { kind: 'filter', name: 'modulo', cat: 'Number', syntax: '{{ num | modulo: 3 }}', desc: 'Returns the remainder of division.', example: '{{ 10 | modulo: 3 }}' },
+      { kind: 'filter', name: 'first', cat: 'Array', syntax: '{{ arr | first }}', desc: 'Returns the first item.', example: '{{ collection.products | first | map: "title" }}' },
+      { kind: 'filter', name: 'last', cat: 'Array', syntax: '{{ arr | last }}', desc: 'Returns the last item.', example: '{{ collection.products | last | map: "title" }}' },
+      { kind: 'filter', name: 'join', cat: 'Array', syntax: '{{ arr | join: ", " }}', desc: 'Joins array items into a string.', example: '{{ product.tags | join: ", " }}' },
+      { kind: 'filter', name: 'map', cat: 'Array', syntax: '{{ arr | map: "prop" }}', desc: 'Extracts a property from every item.', example: '{{ collection.products | map: "title" | join: ", " }}' },
+      { kind: 'filter', name: 'reverse', cat: 'Array', syntax: '{{ arr | reverse }}', desc: 'Reverses the order of an array.', example: '{{ product.tags | reverse | join: ", " }}' },
+      { kind: 'filter', name: 'size', cat: 'Array', syntax: '{{ arr | size }}', desc: 'Returns the number of items, or characters in a string.', example: '{{ collection.products | size }} products' },
+      { kind: 'filter', name: 'sort', cat: 'Array', syntax: '{{ arr | sort: "prop" }}', desc: 'Sorts an array, optionally by a property.', example: '{{ collection.products | sort: "price" | map: "title" | join: ", " }}' },
+      { kind: 'filter', name: 'sort_natural', cat: 'Array', syntax: '{{ arr | sort_natural: "prop" }}', desc: 'Case-insensitive sort.', example: '{{ product.tags | sort_natural | join: ", " }}' },
+      { kind: 'filter', name: 'uniq', cat: 'Array', syntax: '{{ arr | uniq }}', desc: 'Removes duplicate items.', example: '{{ "a,a,b,c,c" | split: "," | uniq | join: ", " }}' },
+      { kind: 'filter', name: 'where', cat: 'Array', syntax: '{{ arr | where: "prop", value }}', desc: 'Filters an array to items matching a property value.', example: '{{ product.variants | where: "available", true | size }} in stock' },
+      { kind: 'filter', name: 'compact', cat: 'Array', syntax: '{{ arr | compact }}', desc: 'Removes any nil items.', example: '{{ product.tags | compact | size }}' },
+      { kind: 'filter', name: 'sum', cat: 'Array', syntax: '{{ arr | sum: "prop" }}', desc: 'Adds up a numeric property across all items.', example: '{{ cart.items | sum: "line_price" | money }}' },
+      { kind: 'filter', name: 'concat', cat: 'Array', syntax: '{{ arr | concat: arr2 }}', desc: 'Joins two arrays together.', example: '{{ product.tags | concat: collection.products | size }}' },
+      { kind: 'filter', name: 'money', cat: 'Money', syntax: '{{ cents | money }}', desc: 'Formats an amount in cents as currency.', example: '{{ product.price | money }}' },
+      { kind: 'filter', name: 'money_with_currency', cat: 'Money', syntax: '{{ cents | money_with_currency }}', desc: 'Formats as currency, including the currency code.', example: '{{ product.price | money_with_currency }}' },
+      { kind: 'filter', name: 'money_without_currency', cat: 'Money', syntax: '{{ cents | money_without_currency }}', desc: 'Formats as a decimal amount with no currency symbol.', example: '{{ product.price | money_without_currency }}' },
+      { kind: 'filter', name: 'money_without_trailing_zeros', cat: 'Money', syntax: '{{ cents | money_without_trailing_zeros }}', desc: 'Formats as currency, dropping .00 when whole.', example: '{{ 3600 | money_without_trailing_zeros }}' },
+      { kind: 'filter', name: 'default', cat: 'Misc', syntax: '{{ val | default: "fallback" }}', desc: 'Substitutes a fallback when the value is nil, empty, or false.', example: '{{ customer.first_name | default: "Guest" }}' },
+      { kind: 'filter', name: 'date', cat: 'Misc', syntax: '{{ date_str | date: "%B %d, %Y" }}', desc: 'Formats a date string.', example: '{{ article.published_at | date: "%B %d, %Y" }}' },
+      { kind: 'filter', name: 'json', cat: 'Misc', syntax: '{{ val | json }}', desc: 'Converts a value to a JSON string.', example: '{{ product.tags | json }}' },
+      { kind: 'filter', name: 'pluralize', cat: 'Misc', syntax: '{{ count | pluralize: "item", "items" }}', desc: 'Chooses singular or plural text based on a count.', example: '{{ cart.item_count }} {{ cart.item_count | pluralize: "item", "items" }}' },
+      { kind: 'filter', name: 'color_to_rgb', cat: 'Color', syntax: '{{ hex | color_to_rgb }}', desc: 'Converts a hex color to an rgb() string.', example: '{{ color | color_to_rgb }}', illustrative: true },
+      { kind: 'filter', name: 'color_lighten', cat: 'Color', syntax: '{{ hex | color_lighten: 20 }}', desc: 'Lightens a hex color by a percentage.', example: '{{ color | color_lighten: 20 }}', illustrative: true },
+      { kind: 'filter', name: 'color_darken', cat: 'Color', syntax: '{{ hex | color_darken: 20 }}', desc: 'Darkens a hex color by a percentage.', example: '{{ color | color_darken: 20 }}', illustrative: true },
+      { kind: 'filter', name: 'color_extract', cat: 'Color', syntax: '{{ hex | color_extract: "hue" }}', desc: 'Extracts one channel (red, green, blue, hue, saturation, lightness) from a color.', example: '{{ color | color_extract: "lightness" }}', illustrative: true },
+      { kind: 'filter', name: 'color_modify', cat: 'Color', syntax: '{{ hex | color_modify: "lightness", 80 }}', desc: 'Sets one channel of a color to a new value.', example: '{{ color | color_modify: "lightness", 80 }}', illustrative: true },
+      { kind: 'filter', name: 'img_url', cat: 'Media', syntax: '{{ image | img_url: "600x" }}', desc: 'Returns a resized CDN image URL (legacy filter name).', example: '{{ product.featured_image.src | img_url }}', illustrative: true },
+      { kind: 'filter', name: 'image_url', cat: 'Media', syntax: '{{ image | image_url: width: 600 }}', desc: 'Returns a resized CDN image URL (current filter name).', example: '{{ product.featured_image.src | image_url }}', illustrative: true },
+      { kind: 'filter', name: 'asset_url', cat: 'Media', syntax: '{{ "theme.css" | asset_url }}', desc: 'Returns the CDN URL for a file in the theme\u2019s assets folder.', example: '{{ "theme.css" | asset_url }}', illustrative: true },
+      { kind: 'filter', name: 'file_url', cat: 'Media', syntax: '{{ "brochure.pdf" | file_url }}', desc: 'Returns the CDN URL for a file uploaded to Shopify Files.', example: '{{ "brochure.pdf" | file_url }}', illustrative: true },
+      { kind: 'filter', name: 'stylesheet_tag', cat: 'HTML', syntax: '{{ url | stylesheet_tag }}', desc: 'Wraps a URL in a <link rel="stylesheet"> tag.', example: '{{ "theme.css" | asset_url | stylesheet_tag }}' },
+      { kind: 'filter', name: 'script_tag', cat: 'HTML', syntax: '{{ url | script_tag }}', desc: 'Wraps a URL in a <script> tag.', example: '{{ "theme.js" | asset_url | script_tag }}' },
+      { kind: 'filter', name: 'time_tag', cat: 'HTML', syntax: '{{ date_str | time_tag: "%B %d, %Y" }}', desc: 'Wraps a date in a <time> element with a machine-readable datetime attribute.', example: '{{ article.published_at | time_tag }}' },
+      { kind: 'filter', name: 'highlight', cat: 'HTML', syntax: '{{ str | highlight: term }}', desc: 'Wraps matching text in <mark> tags, commonly used for search result highlighting.', example: '{{ "Classic Canvas Tote" | highlight: "Canvas" }}' },
+      { kind: 'filter', name: 'weight_with_unit', cat: 'Misc', syntax: '{{ grams | weight_with_unit }}', desc: 'Formats a weight stored in grams with a unit.', example: '{{ product.weight | weight_with_unit }}', illustrative: true },
+      { kind: 'filter', name: 't', cat: 'Localization', syntax: '{{ "key" | t }}', desc: 'Looks up a translation key from the theme\u2019s locale files.', example: '{{ "products.product.add_to_cart" | t }}', illustrative: true }
+    ];
+
+    // ---- Object reference entries ----
+    const objects: Entry[] = [
+      { kind: 'object', name: 'product', cat: 'Product', desc: 'The current product.', example: '{{ product.title }} \u2014 {{ product.price | money }}', properties: [{ path: '.title, .vendor, .type, .tags', desc: 'Basic info' }, { path: '.price, .compare_at_price', desc: 'In cents' }, { path: '.variants, .images, .options', desc: 'Arrays' }, { path: '.metafields.<namespace>.<key>', desc: 'Custom fields' }] },
+      { kind: 'object', name: 'variant', cat: 'Product', desc: 'A single product variant.', example: '{{ product.variants[0].title }} \u2014 {{ product.variants[0].price | money }}', properties: [{ path: '.title, .price, .available', desc: '' }, { path: '.option1, .option2, .option3', desc: 'Selected option values' }] },
+      { kind: 'object', name: 'collection', cat: 'Product', desc: 'A product collection.', example: '{{ collection.title }}: {{ collection.products | map: "title" | join: ", " }}', properties: [{ path: '.title, .products', desc: '' }] },
+      { kind: 'object', name: 'collections', cat: 'Product', desc: 'All collections, or accessed by handle: collections["best-sellers"].', example: '{% for c in collections %}{{ c.title }} {% endfor %}', properties: [] },
+      { kind: 'object', name: 'cart', cat: 'Cart', desc: 'The current cart.', example: '{{ cart.item_count }} items, {{ cart.total_price | money }}', properties: [{ path: '.items, .item_count, .total_price', desc: '' }] },
+      { kind: 'object', name: 'line_item', cat: 'Cart', desc: 'A single line in the cart.', example: '{{ cart.items[0].title }} x{{ cart.items[0].quantity }}', properties: [{ path: '.title, .quantity, .price, .line_price', desc: '' }] },
+      { kind: 'object', name: 'customer', cat: 'Customer', desc: 'The logged-in customer, or nil when logged out.', example: '{% if customer %}{{ customer.first_name }}{% else %}Not logged in{% endif %}', properties: [{ path: '.first_name, .last_name, .email', desc: '' }, { path: '.orders, .addresses', desc: '' }] },
+      { kind: 'object', name: 'shop', cat: 'Platform', desc: 'The store itself.', example: '{{ shop.name }} ({{ shop.currency }})', properties: [{ path: '.name, .currency, .domain', desc: '' }] },
+      { kind: 'object', name: 'article', cat: 'Content', desc: 'A blog post.', example: '{{ article.title }} by {{ article.author }}', properties: [{ path: '.title, .author, .content, .excerpt', desc: '' }, { path: '.published_at, .tags, .url', desc: '' }] },
+      { kind: 'object', name: 'blog', cat: 'Content', desc: 'A blog (a collection of articles).', example: '{{ blog.title }}', properties: [{ path: '.title, .articles', desc: '' }] },
+      { kind: 'object', name: 'page', cat: 'Content', desc: 'A static page.', example: '{{ page.title }}: {{ page.content | strip_html | truncate: 30 }}', properties: [{ path: '.title, .content, .url', desc: '' }] },
+      { kind: 'object', name: 'order', cat: 'Order', desc: 'A customer order (on order status / thank-you pages).', example: 'Order {{ order.name }} \u2014 {{ order.total_price | money }}', properties: [{ path: '.name, .total_price, .email', desc: '' }, { path: '.line_items, .created_at', desc: '' }] },
+      { kind: 'object', name: 'image', cat: 'Media', desc: 'An image object, e.g. product.featured_image.', example: '<img src="{{ product.featured_image.src }}" width="{{ product.featured_image.width }}" alt="{{ product.featured_image.alt }}">', properties: [{ path: '.src, .alt, .width, .height', desc: '' }] },
+      { kind: 'object', name: 'color', cat: 'Design', desc: 'A color value, usually from a color-type setting or metafield.', example: '{{ color }} \u2014 {{ color | color_to_rgb }}', properties: [] },
+      { kind: 'object', name: 'font', cat: 'Design', desc: 'A font value from a font_picker setting.', example: '{{ font.family }}, weight {{ font.weight }}', properties: [{ path: '.family, .weight, .style', desc: '' }] },
+      { kind: 'object', name: 'metafield', cat: 'Platform', desc: 'A single metafield, accessed via <owner>.metafields.<namespace>.<key>.', example: '{{ product.metafields.custom.care_instructions.value }}', properties: [{ path: '.value, .type, .namespace, .key', desc: '' }] },
+      { kind: 'object', name: 'routes', cat: 'Platform', desc: 'Common storefront URLs, always available.', example: 'Cart: {{ routes.cart_url }}, Login: {{ routes.account_login_url }}', properties: [{ path: '.root_url, .cart_url, .search_url', desc: '' }, { path: '.account_url, .account_login_url', desc: '' }] },
+      { kind: 'object', name: 'linklist', cat: 'Platform', desc: 'A navigation menu, e.g. linklists.main-menu.', example: '{% for link in linklist.links %}{{ link.title }} {% endfor %}', properties: [{ path: '.title, .handle, .links', desc: '' }] },
+      { kind: 'object', name: 'tax_line', cat: 'Order', desc: 'A single tax line on an order.', example: '{{ tax_line.title }}: {{ tax_line.price | money }}', properties: [{ path: '.title, .rate, .price', desc: '' }] },
+      { kind: 'object', name: 'paginate', cat: 'Platform', desc: 'Pagination info for a paginated list.', example: 'Page {{ paginate.current_page }} of {{ paginate.pages }}', properties: [{ path: '.current_page, .pages, .items', desc: '' }, { path: '.next, .previous', desc: 'Link objects' }] },
+      { kind: 'object', name: 'section', cat: 'Theme', desc: 'The current section, inside a section file.', properties: [{ path: '.settings, .blocks, .id', desc: '' }, { path: '.shopify_attributes', desc: 'Required for theme editor selection' }] },
+      { kind: 'object', name: 'block', cat: 'Theme', desc: 'The current block, inside a {% for block in section.blocks %} loop.', properties: [{ path: '.settings, .type, .id', desc: '' }, { path: '.shopify_attributes', desc: 'Required for theme editor selection' }] },
+      { kind: 'object', name: 'settings', cat: 'Theme', desc: 'Global theme settings defined in config/settings_schema.json.', properties: [{ path: '.<setting_id>', desc: 'Any global setting by its id' }] },
+      { kind: 'object', name: 'request', cat: 'Platform', desc: 'Info about the current request.', properties: [{ path: '.path, .host, .locale', desc: '' }, { path: '.design_mode', desc: 'true inside the theme editor' }] },
+      { kind: 'object', name: 'form', cat: 'Platform', desc: 'The current form, inside a {% form %} block.', properties: [{ path: '.errors, .posted_successfully?', desc: '' }] },
+      { kind: 'object', name: 'all_products', cat: 'Product', desc: 'Every product in the store, accessed by handle: all_products["product-handle"].', properties: [{ path: '["handle"]', desc: 'Returns a full product object' }] },
+      { kind: 'object', name: 'search', cat: 'Platform', desc: 'Search results, on the search results page.', properties: [{ path: '.results, .performed?, .terms', desc: '' }] },
+      { kind: 'object', name: 'recommendations', cat: 'Product', desc: 'Product recommendations, used with the Product Recommendations API.', properties: [{ path: '.products, .performed?, .intent', desc: '' }] }
+    ];
+
+    const allEntries = [...filters, ...objects];
+
+    // ---- Render every live example once on init ----
+    async function renderExamples() {
+      await Promise.all(allEntries.map(async (e) => {
+        if (!e.example) return;
+        try {
+          e.output = await engine.parseAndRender(e.example, DATA);
+        } catch (err) {
+          e.output = 'Error: ' + (err as Error).message;
+        }
+      }));
+    }
+
+    const searchInput = root.querySelector<HTMLInputElement>('[data-search]')!;
+    const catSelect = root.querySelector<HTMLSelectElement>('[data-category-select]')!;
+    const resultsEl = root.querySelector<HTMLElement>('[data-results]')!;
+    const loadingEl = root.querySelector<HTMLElement>('[data-loading]')!;
+    const countEl = root.querySelector<HTMLElement>('[data-result-count]')!;
+    let activeType: 'all' | 'filter' | 'object' = 'all';
+
+    function populateCategories() {
+      const cats = new Set(allEntries.filter((e) => activeType === 'all' || e.kind === activeType).map((e) => e.cat));
+      const current = catSelect.value;
+      catSelect.innerHTML = '<option value="">All categories</option>' + [...cats].sort().map((c) => `<option value="${c}">${c}</option>`).join('');
+      if (cats.has(current)) catSelect.value = current;
+    }
+
+    function escapeHtml(v: string): string { return String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string)); }
+
+    function renderList() {
+      const q = searchInput.value.toLowerCase().trim();
+      const cat = catSelect.value;
+      const filtered = allEntries.filter((e) => {
+        if (activeType !== 'all' && e.kind !== activeType) return false;
+        if (cat && e.cat !== cat) return false;
+        if (q && !e.name.toLowerCase().includes(q) && !e.desc.toLowerCase().includes(q)) return false;
+        return true;
+      });
+      countEl.textContent = `${filtered.length} of ${allEntries.length} entries`;
+      countEl.classList.remove('hidden');
+      resultsEl.classList.remove('hidden');
+      loadingEl.classList.add('hidden');
+
+      resultsEl.innerHTML = filtered.map((e) => `
+        <div class="border border-gray-200 rounded-lg p-3">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <code class="text-sm font-semibold text-gray-900">${escapeHtml(e.name)}</code>
+            <span class="text-[10px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded ${e.kind === 'filter' ? 'bg-rose-50 text-rose-600' : 'bg-sky-50 text-sky-600'}">${e.kind} \u00b7 ${escapeHtml(e.cat)}</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-2">${escapeHtml(e.desc)}</p>
+          ${e.syntax ? `<code class="block text-xs font-mono bg-gray-50 border border-gray-100 rounded px-2 py-1 mb-2 text-gray-600">${escapeHtml(e.syntax)}</code>` : ''}
+          ${e.example ? `
+            <div class="text-xs font-mono bg-gray-900 text-gray-100 rounded px-2 py-1.5 mb-1 overflow-x-auto whitespace-pre">${escapeHtml(e.example)}</div>
+            <div class="text-xs font-mono bg-emerald-50 text-emerald-800 rounded px-2 py-1.5 overflow-x-auto whitespace-pre">\u2192 ${escapeHtml(e.output ?? '')}</div>
+          ` : ''}
+          ${e.illustrative ? `<p class="text-[11px] text-amber-600 mt-1.5">\u26a0 Simplified/illustrative output \u2014 not pixel-identical to Shopify\u2019s real CDN or color engine.</p>` : ''}
+          ${e.properties && e.properties.length ? `<div class="mt-2 space-y-0.5">${e.properties.map((p) => `<p class="text-xs text-gray-500"><code class="text-gray-700">${escapeHtml(p.path)}</code>${p.desc ? ' \u2014 ' + escapeHtml(p.desc) : ''}</p>`).join('')}</div>` : ''}
+          ${!e.example && e.kind === 'object' ? `<p class="text-[11px] text-gray-400 mt-1.5">Reference only \u2014 depends on real runtime context that can\u2019t be meaningfully mocked here.</p>` : ''}
+        </div>
+      `).join('');
+    }
+
+    searchInput.addEventListener('input', renderList);
+    catSelect.addEventListener('change', renderList);
+    root.querySelectorAll<HTMLButtonElement>('[data-type-btn]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeType = btn.dataset.typeBtn as 'all' | 'filter' | 'object';
+        root.querySelectorAll('[data-type-btn]').forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('bg-rose-600', active);
+          b.classList.toggle('text-white', active);
+          b.classList.toggle('text-gray-600', !active);
+        });
+        catSelect.value = '';
+        populateCategories();
+        renderList();
+      });
+    });
+
+    renderExamples().then(() => {
+      populateCategories();
+      renderList();
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-liquid-reference-widget]').forEach(initLiquidReference);
+</script>

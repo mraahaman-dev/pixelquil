@@ -1,0 +1,165 @@
+---
+// ThemeLiquidCheckerWidget.astro
+// Checks a pasted theme.liquid file for the two Liquid objects Shopify actually
+// requires (content_for_header, content_for_layout), their placement, and a
+// handful of well-established HTML best-practice checks.
+---
+
+<div data-theme-checker-widget class="w-full">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="border border-gray-200 rounded-lg overflow-hidden">
+      <div class="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+        <span class="text-sm font-medium text-gray-700">Paste your theme.liquid</span>
+        <button type="button" data-load-example class="text-xs text-orange-600 hover:underline">Load minimal example</button>
+      </div>
+      <textarea data-theme-input spellcheck="false" class="w-full h-96 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="Paste the full contents of layout/theme.liquid here..."></textarea>
+    </div>
+
+    <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+        <span class="text-sm font-medium text-gray-700">Results</span>
+        <button type="button" data-copy-report class="px-3 py-1 text-xs font-medium rounded-md border border-gray-200 hover:bg-gray-50">Copy report</button>
+      </div>
+      <div data-results class="p-3 space-y-2 text-sm overflow-y-auto max-h-96"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-theme-checker-widget] button {
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  type Result = { level: 'pass' | 'warn' | 'error'; msg: string };
+
+  const EXAMPLE = `<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ page_title }}</title>
+  {{ content_for_header }}
+</head>
+<body>
+  <a class="skip-to-content" href="#MainContent">Skip to content</a>
+  <header>...</header>
+  <main id="MainContent">
+    {{ content_for_layout }}
+  </main>
+  <footer>...</footer>
+</body>
+</html>`;
+
+  function initThemeChecker(root: HTMLElement) {
+    const input = root.querySelector<HTMLTextAreaElement>('[data-theme-input]')!;
+    const resultsEl = root.querySelector<HTMLElement>('[data-results]')!;
+
+    function icon(level: Result['level']) {
+      if (level === 'pass') return '<span class="text-emerald-600">\u2713</span>';
+      if (level === 'warn') return '<span class="text-amber-600">\u26a0</span>';
+      return '<span class="text-red-600">\u2715</span>';
+    }
+
+    function analyze(text: string): Result[] {
+      const results: Result[] = [];
+      if (!text.trim()) return results;
+
+      const headerRe = /{{\-?\s*content_for_header\s*\-?}}/g;
+      const layoutRe = /{{\-?\s*content_for_layout\s*\-?}}/g;
+      const headerMatches = text.match(headerRe) || [];
+      const layoutMatches = text.match(layoutRe) || [];
+
+      // --- Required: content_for_header ---
+      if (headerMatches.length === 0) {
+        results.push({ level: 'error', msg: '{{ content_for_header }} is missing. Without it, app scripts, tracking pixels, and meta tags Shopify injects automatically won\u2019t load, this is the single most common cause of "apps stopped working" after a theme edit.' });
+      } else if (headerMatches.length > 1) {
+        results.push({ level: 'warn', msg: `{{ content_for_header }} appears ${headerMatches.length} times \u2014 it should only appear once in the file.` });
+      } else {
+        results.push({ level: 'pass', msg: '{{ content_for_header }} is present exactly once.' });
+      }
+
+      // --- Required: content_for_layout ---
+      if (layoutMatches.length === 0) {
+        results.push({ level: 'error', msg: '{{ content_for_layout }} is missing. This is where every template\u2019s actual content renders, without it, every page on the theme would render blank.' });
+      } else if (layoutMatches.length > 1) {
+        results.push({ level: 'warn', msg: `{{ content_for_layout }} appears ${layoutMatches.length} times \u2014 it should only appear once in the file.` });
+      } else {
+        results.push({ level: 'pass', msg: '{{ content_for_layout }} is present exactly once.' });
+      }
+
+      // --- Structural: head/body ---
+      const headOpen = text.search(/<head[\s>]/i);
+      const headClose = text.search(/<\/head\s*>/i);
+      const bodyOpen = text.search(/<body[\s>]/i);
+      const bodyClose = text.search(/<\/body\s*>/i);
+      const hasHead = headOpen > -1 && headClose > -1 && headClose > headOpen;
+      const hasBody = bodyOpen > -1 && bodyClose > -1 && bodyClose > bodyOpen;
+
+      if (!hasHead) results.push({ level: 'error', msg: 'No matching <head>...</head> found.' });
+      if (!hasBody) results.push({ level: 'error', msg: 'No matching <body>...</body> found.' });
+
+      // --- Placement checks (only meaningful if exactly one of each + head/body found) ---
+      if (headerMatches.length === 1 && hasHead) {
+        const idx = text.search(headerRe);
+        if (idx > headOpen && idx < headClose) results.push({ level: 'pass', msg: '{{ content_for_header }} is correctly placed inside <head>.' });
+        else results.push({ level: 'warn', msg: '{{ content_for_header }} was found outside <head>...</head> \u2014 it should be placed there so injected tags land in the right place.' });
+      }
+      if (layoutMatches.length === 1 && hasBody) {
+        const idx = text.search(layoutRe);
+        if (idx > bodyOpen && idx < bodyClose) results.push({ level: 'pass', msg: '{{ content_for_layout }} is correctly placed inside <body>.' });
+        else results.push({ level: 'warn', msg: '{{ content_for_layout }} was found outside <body>...</body> \u2014 it should be placed there.' });
+      }
+
+      // --- Recommended, non-blocking ---
+      if (/<!doctype\s+html/i.test(text)) results.push({ level: 'pass', msg: '<!doctype html> is present.' });
+      else results.push({ level: 'warn', msg: 'No <!doctype html> found \u2014 recommended for standards-mode rendering.' });
+
+      if (/<html[^>]*\blang\s*=/i.test(text)) results.push({ level: 'pass', msg: '<html> has a lang attribute.' });
+      else results.push({ level: 'warn', msg: '<html> has no lang attribute \u2014 Shopify recommends lang="{{ request.locale.iso_code }}" for accessibility and localization.' });
+
+      if (/<meta[^>]*name=["']viewport["']/i.test(text)) results.push({ level: 'pass', msg: 'A viewport meta tag is present.' });
+      else results.push({ level: 'warn', msg: 'No viewport meta tag found \u2014 needed for the theme to render correctly on mobile.' });
+
+      if (/<meta[^>]*charset/i.test(text)) results.push({ level: 'pass', msg: 'A charset meta tag is present.' });
+      else results.push({ level: 'warn', msg: 'No charset meta tag found \u2014 recommended as the first tag inside <head>.' });
+
+      return results;
+    }
+
+    function render() {
+      const results = analyze(input.value);
+      if (!results.length) {
+        resultsEl.innerHTML = '<p class="text-gray-400">Paste a theme.liquid file to see the report.</p>';
+        return;
+      }
+      resultsEl.innerHTML = results.map((r) => `<div class="flex items-start gap-2"><span class="mt-0.5">${icon(r.level)}</span><span class="text-gray-700">${r.msg}</span></div>`).join('');
+    }
+
+    let debounceTimer: number | undefined;
+    input.addEventListener('input', () => {
+      window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(render, 300);
+    });
+
+    root.querySelector('[data-load-example]')!.addEventListener('click', () => {
+      input.value = EXAMPLE;
+      render();
+    });
+
+    root.querySelector('[data-copy-report]')!.addEventListener('click', async () => {
+      const results = analyze(input.value);
+      const text = results.map((r) => `[${r.level.toUpperCase()}] ${r.msg}`).join('\n');
+      await navigator.clipboard.writeText(text || 'No results yet.');
+      const btn = root.querySelector('[data-copy-report]') as HTMLElement;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      window.setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-theme-checker-widget]').forEach(initThemeChecker);
+</script>
