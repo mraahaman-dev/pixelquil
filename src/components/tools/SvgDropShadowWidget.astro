@@ -1,0 +1,299 @@
+<div class="svg-drop-shadow-tool" data-svg-drop-shadow-widget>
+  <div class="flex flex-wrap items-center gap-2 rounded-t-2xl border border-b-0 border-slate-200 bg-slate-50 p-3">
+    <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-cyan-400">
+      Upload SVG
+      <input type="file" accept=".svg,image/svg+xml" data-file-input class="hidden" />
+    </label>
+    <button type="button" data-clear-btn class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-red-600">Clear</button>
+  </div>
+
+  <div class="grid overflow-hidden border border-b-0 border-slate-200 md:grid-cols-[1fr_320px]">
+    <div class="grid md:grid-cols-2">
+      <div class="border-b border-slate-200 md:border-b-0 md:border-r">
+        <div class="border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-500">Code</div>
+        <textarea
+          data-code-input
+          spellcheck="false"
+          class="h-64 w-full resize-none border-0 bg-white p-4 font-mono text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+          placeholder="Paste your SVG code here, or upload a file above"
+        ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <path d="M24 6 L42 40 L6 40 Z" fill="#67e8f9"/>
+</svg></textarea>
+      </div>
+      <div>
+        <div class="border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-500">Preview</div>
+        <div data-preview class="flex h-64 items-center justify-center overflow-auto bg-[conic-gradient(#f1f5f9_90deg,white_90deg_180deg,#f1f5f9_180deg_270deg,white_270deg)] bg-[length:20px_20px] p-4">
+          <span class="text-sm text-slate-400">Paste or upload an SVG to preview</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="space-y-5 border-t border-slate-200 bg-white p-5 md:border-l md:border-t-0">
+      <div>
+        <div class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700">
+          <label for="ds-offset-x">Offset X</label>
+          <span data-offset-x-display class="font-mono text-cyan-600">4px</span>
+        </div>
+        <input type="range" id="ds-offset-x" data-offset-x-range min="-40" max="40" value="4" class="w-full accent-cyan-600" />
+      </div>
+
+      <div>
+        <div class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700">
+          <label for="ds-offset-y">Offset Y</label>
+          <span data-offset-y-display class="font-mono text-cyan-600">4px</span>
+        </div>
+        <input type="range" id="ds-offset-y" data-offset-y-range min="-40" max="40" value="4" class="w-full accent-cyan-600" />
+      </div>
+
+      <div>
+        <div class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700">
+          <label for="ds-blur">Blur</label>
+          <span data-blur-display class="font-mono text-cyan-600">3px</span>
+        </div>
+        <input type="range" id="ds-blur" data-blur-range min="0" max="40" value="3" class="w-full accent-cyan-600" />
+      </div>
+
+      <div>
+        <div class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700">
+          <label for="ds-opacity">Opacity</label>
+          <span data-opacity-display class="font-mono text-cyan-600">40%</span>
+        </div>
+        <input type="range" id="ds-opacity" data-opacity-range min="0" max="100" value="40" class="w-full accent-cyan-600" />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700">Shadow color</label>
+        <input type="color" data-shadow-color value="#000000"
+          class="h-9 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-0.5" />
+      </div>
+
+      <label class="flex items-center gap-2 text-sm text-slate-700">
+        <input type="checkbox" data-fallback-toggle class="rounded border-slate-300 text-cyan-600 focus:ring-cyan-200" />
+        Use wider-support fallback (feGaussianBlur + feOffset + feMerge instead of feDropShadow)
+      </label>
+
+      <button type="button" data-reset-btn
+        class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <div class="rounded-b-2xl border border-slate-200 bg-white p-5">
+    <div class="mb-2 flex items-center justify-between">
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">SVG Code</h3>
+      <div class="flex gap-2">
+        <button type="button" data-copy-btn
+          class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-cyan-400">
+          <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="4" width="9" height="9" rx="1.5" />
+            <path d="M2.5 11.5V2.5h9" />
+          </svg>
+          <span data-copy-label>Copy</span>
+        </button>
+        <button type="button" data-download-btn
+          class="rounded-full bg-cyan-600 px-3 py-1 text-xs font-medium text-white hover:bg-cyan-700">
+          Download SVG
+        </button>
+      </div>
+    </div>
+    <textarea data-code-output readonly spellcheck="false"
+      class="h-32 w-full resize-none rounded-lg border-0 bg-slate-50 p-3 font-mono text-xs text-slate-700 focus:outline-none"></textarea>
+  </div>
+</div>
+
+<script>
+  interface State {
+    offsetX: number;
+    offsetY: number;
+    blur: number;
+    opacity: number;
+    color: string;
+    fallback: boolean;
+  }
+
+  function parseViewBox(vb: string | null, widthAttr: string | null, heightAttr: string | null): [number, number, number, number] {
+    if (vb) {
+      const parts = vb.trim().split(/\s+/).map(Number);
+      if (parts.length === 4 && parts.every((n) => !Number.isNaN(n))) {
+        return parts as [number, number, number, number];
+      }
+    }
+    const w = parseFloat(widthAttr ?? "100") || 100;
+    const h = parseFloat(heightAttr ?? "100") || 100;
+    return [0, 0, w, h];
+  }
+
+  function hexToRgb(hex: string): [number, number, number] {
+    const m = hex.replace("#", "");
+    return [parseInt(m.slice(0, 2), 16), parseInt(m.slice(2, 4), 16), parseInt(m.slice(4, 6), 16)];
+  }
+
+  function buildFilter(s: State): string {
+    const opacity = s.opacity / 100;
+    if (!s.fallback) {
+      return `<filter id="pq-drop-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="${s.offsetX}" dy="${s.offsetY}" stdDeviation="${s.blur}" flood-color="${s.color}" flood-opacity="${opacity}"/>
+    </filter>`;
+    }
+    return `<filter id="pq-drop-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="${s.blur}" result="blur"/>
+      <feOffset in="blur" dx="${s.offsetX}" dy="${s.offsetY}" result="offsetBlur"/>
+      <feFlood flood-color="${s.color}" flood-opacity="${opacity}" result="flood"/>
+      <feComposite in="flood" in2="offsetBlur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>`;
+  }
+
+  function buildOutputSvg(originalSvg: SVGElement, s: State): string {
+    const [x, y, w, h] = parseViewBox(
+      originalSvg.getAttribute("viewBox"),
+      originalSvg.getAttribute("width"),
+      originalSvg.getAttribute("height")
+    );
+
+    // Pad the viewBox so the blurred/offset shadow doesn't clip against the edges.
+    const pad = Math.abs(s.offsetX) + Math.abs(s.offsetY) + s.blur * 2 + 8;
+    const newX = x - pad;
+    const newY = y - pad;
+    const newW = w + pad * 2;
+    const newH = h + pad * 2;
+
+    const inner = originalSvg.innerHTML;
+    const filter = buildFilter(s);
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${newX} ${newY} ${newW} ${newH}">
+  <defs>
+    ${filter}
+  </defs>
+  <g filter="url(#pq-drop-shadow)">
+    ${inner}
+  </g>
+</svg>`;
+  }
+
+  function initSvgDropShadow(root: HTMLElement) {
+    const fileInput = root.querySelector<HTMLInputElement>("[data-file-input]")!;
+    const codeInput = root.querySelector<HTMLTextAreaElement>("[data-code-input]")!;
+    const preview = root.querySelector<HTMLDivElement>("[data-preview]")!;
+    const clearBtn = root.querySelector<HTMLButtonElement>("[data-clear-btn]")!;
+    const offsetXRange = root.querySelector<HTMLInputElement>("[data-offset-x-range]")!;
+    const offsetXDisplay = root.querySelector<HTMLElement>("[data-offset-x-display]")!;
+    const offsetYRange = root.querySelector<HTMLInputElement>("[data-offset-y-range]")!;
+    const offsetYDisplay = root.querySelector<HTMLElement>("[data-offset-y-display]")!;
+    const blurRange = root.querySelector<HTMLInputElement>("[data-blur-range]")!;
+    const blurDisplay = root.querySelector<HTMLElement>("[data-blur-display]")!;
+    const opacityRange = root.querySelector<HTMLInputElement>("[data-opacity-range]")!;
+    const opacityDisplay = root.querySelector<HTMLElement>("[data-opacity-display]")!;
+    const shadowColor = root.querySelector<HTMLInputElement>("[data-shadow-color]")!;
+    const fallbackToggle = root.querySelector<HTMLInputElement>("[data-fallback-toggle]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-reset-btn]")!;
+    const codeOutput = root.querySelector<HTMLTextAreaElement>("[data-code-output]")!;
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy-btn]")!;
+    const copyIcon = root.querySelector<SVGElement>("[data-copy-icon]")!;
+    const copyLabel = root.querySelector<HTMLElement>("[data-copy-label]")!;
+    const downloadBtn = root.querySelector<HTMLButtonElement>("[data-download-btn]")!;
+
+    const DEFAULTS = { offsetX: 4, offsetY: 4, blur: 3, opacity: 40, color: "#000000", fallback: false };
+
+    function readState(): State {
+      return {
+        offsetX: Number(offsetXRange.value),
+        offsetY: Number(offsetYRange.value),
+        blur: Number(blurRange.value),
+        opacity: Number(opacityRange.value),
+        color: shadowColor.value,
+        fallback: fallbackToggle.checked,
+      };
+    }
+
+    function render() {
+      const s = readState();
+      offsetXDisplay.textContent = `${s.offsetX}px`;
+      offsetYDisplay.textContent = `${s.offsetY}px`;
+      blurDisplay.textContent = `${s.blur}px`;
+      opacityDisplay.textContent = `${s.opacity}%`;
+
+      const code = codeInput.value.trim();
+      if (!code) {
+        preview.innerHTML = '<span class="text-sm text-slate-400">Paste or upload an SVG to preview</span>';
+        codeOutput.value = "";
+        return;
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(code, "image/svg+xml");
+      const hasParseError = !!doc.querySelector("parsererror");
+
+      if (hasParseError || doc.documentElement.nodeName !== "svg") {
+        preview.innerHTML = '<span class="text-sm text-red-500">Cannot render, check that this is valid SVG</span>';
+        codeOutput.value = "";
+        return;
+      }
+
+      const output = buildOutputSvg(doc.documentElement as unknown as SVGElement, s);
+      preview.innerHTML = output;
+      codeOutput.value = output;
+    }
+
+    codeInput.addEventListener("input", render);
+    [offsetXRange, offsetYRange, blurRange, opacityRange, shadowColor, fallbackToggle].forEach((el) =>
+      el.addEventListener("input", render)
+    );
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        codeInput.value = String(reader.result ?? "");
+        render();
+      };
+      reader.readAsText(file);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      codeInput.value = "";
+      render();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      offsetXRange.value = String(DEFAULTS.offsetX);
+      offsetYRange.value = String(DEFAULTS.offsetY);
+      blurRange.value = String(DEFAULTS.blur);
+      opacityRange.value = String(DEFAULTS.opacity);
+      shadowColor.value = DEFAULTS.color;
+      fallbackToggle.checked = DEFAULTS.fallback;
+      render();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(codeOutput.value);
+      copyIcon.innerHTML = '<path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/>';
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.innerHTML = '<rect x="4" y="4" width="9" height="9" rx="1.5"/><path d="M2.5 11.5V2.5h9"/>';
+        copyLabel.textContent = "Copy";
+      }, 1500);
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (!codeOutput.value) return;
+      const blob = new Blob([codeOutput.value], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "drop-shadow.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-svg-drop-shadow-widget]").forEach(initSvgDropShadow);
+</script>

@@ -1,0 +1,253 @@
+<div class="progress-ring-tool" data-progress-ring-widget>
+  <div class="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <!-- Controls -->
+    <div class="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+      <div>
+        <div class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700">
+          <label for="pr-percent">Progress</label>
+          <span data-percent-display class="font-mono text-rose-600">72%</span>
+        </div>
+        <input type="range" id="pr-percent" data-percent-range min="0" max="100" value="72"
+          class="w-full accent-rose-600" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Size (px)</label>
+          <input type="number" data-size-input min="60" max="600" value="200"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200" />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Stroke width (px)</label>
+          <input type="number" data-stroke-input min="2" max="60" value="14"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Track color</label>
+          <input type="color" data-track-color value="#e2e8f0"
+            class="h-9 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-0.5" />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Progress color</label>
+          <input type="color" data-progress-color value="#e11d48"
+            class="h-9 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-0.5" />
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm text-slate-700">
+        <input type="checkbox" data-gradient-toggle class="rounded border-slate-300 text-rose-600 focus:ring-rose-200" />
+        Use a gradient for the progress arc
+      </label>
+      <div data-gradient-end-wrap class="hidden">
+        <label class="mb-1.5 block text-sm font-medium text-slate-700">Gradient end color</label>
+        <input type="color" data-gradient-end-color value="#f97316"
+          class="h-9 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-0.5" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Line cap</label>
+          <select data-linecap-select
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200">
+            <option value="round" selected>Round</option>
+            <option value="butt">Flat</option>
+          </select>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Start angle</label>
+          <input type="number" data-start-angle-input min="-360" max="360" value="-90"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200" />
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm text-slate-700">
+        <input type="checkbox" data-label-toggle checked class="rounded border-slate-300 text-rose-600 focus:ring-rose-200" />
+        Show percentage label in center
+      </label>
+
+      <div class="flex gap-2 pt-1">
+        <button type="button" data-reset-btn
+          class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-6">
+      <div data-preview class="flex items-center justify-center"></div>
+    </div>
+  </div>
+
+  <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+    <div class="mb-2 flex items-center justify-between">
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">SVG Code</h3>
+      <div class="flex gap-2">
+        <button type="button" data-copy-btn
+          class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-rose-400">
+          <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="4" width="9" height="9" rx="1.5" />
+            <path d="M2.5 11.5V2.5h9" />
+          </svg>
+          <span data-copy-label>Copy</span>
+        </button>
+        <button type="button" data-download-btn
+          class="rounded-full bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">
+          Download SVG
+        </button>
+      </div>
+    </div>
+    <textarea data-code-output readonly spellcheck="false"
+      class="h-32 w-full resize-none rounded-lg border-0 bg-slate-50 p-3 font-mono text-xs text-slate-700 focus:outline-none"></textarea>
+  </div>
+</div>
+
+<script>
+  interface State {
+    percent: number;
+    size: number;
+    stroke: number;
+    track: string;
+    progress: string;
+    useGradient: boolean;
+    gradientEnd: string;
+    linecap: "round" | "butt";
+    startAngle: number;
+    showLabel: boolean;
+  }
+
+  const DEFAULTS: State = {
+    percent: 72,
+    size: 200,
+    stroke: 14,
+    track: "#e2e8f0",
+    progress: "#e11d48",
+    useGradient: false,
+    gradientEnd: "#f97316",
+    linecap: "round",
+    startAngle: -90,
+    showLabel: true,
+  };
+
+  function buildSvg(s: State): string {
+    const radius = (s.size - s.stroke) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference * (1 - s.percent / 100);
+    const cx = s.size / 2;
+    const cy = s.size / 2;
+    const fontSize = Math.round(s.size * 0.18);
+
+    const strokePaint = s.useGradient ? "url(#pr-gradient)" : s.progress;
+    const defs = s.useGradient
+      ? `<defs><linearGradient id="pr-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${s.progress}"/>
+      <stop offset="100%" stop-color="${s.gradientEnd}"/>
+    </linearGradient></defs>`
+      : "";
+
+    const label = s.showLabel
+      ? `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, sans-serif" font-size="${fontSize}" font-weight="600" fill="#1e293b">${Math.round(s.percent)}%</text>`
+      : "";
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${s.size}" height="${s.size}" viewBox="0 0 ${s.size} ${s.size}">
+  ${defs}
+  <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${s.track}" stroke-width="${s.stroke}"/>
+  <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${strokePaint}" stroke-width="${s.stroke}"
+    stroke-linecap="${s.linecap}" stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}"
+    transform="rotate(${s.startAngle} ${cx} ${cy})"/>
+  ${label}
+</svg>`;
+  }
+
+  function initProgressRing(root: HTMLElement) {
+    const percentRange = root.querySelector<HTMLInputElement>("[data-percent-range]")!;
+    const percentDisplay = root.querySelector<HTMLElement>("[data-percent-display]")!;
+    const sizeInput = root.querySelector<HTMLInputElement>("[data-size-input]")!;
+    const strokeInput = root.querySelector<HTMLInputElement>("[data-stroke-input]")!;
+    const trackColor = root.querySelector<HTMLInputElement>("[data-track-color]")!;
+    const progressColor = root.querySelector<HTMLInputElement>("[data-progress-color]")!;
+    const gradientToggle = root.querySelector<HTMLInputElement>("[data-gradient-toggle]")!;
+    const gradientEndWrap = root.querySelector<HTMLElement>("[data-gradient-end-wrap]")!;
+    const gradientEndColor = root.querySelector<HTMLInputElement>("[data-gradient-end-color]")!;
+    const linecapSelect = root.querySelector<HTMLSelectElement>("[data-linecap-select]")!;
+    const startAngleInput = root.querySelector<HTMLInputElement>("[data-start-angle-input]")!;
+    const labelToggle = root.querySelector<HTMLInputElement>("[data-label-toggle]")!;
+    const preview = root.querySelector<HTMLElement>("[data-preview]")!;
+    const codeOutput = root.querySelector<HTMLTextAreaElement>("[data-code-output]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-reset-btn]")!;
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy-btn]")!;
+    const copyIcon = root.querySelector<SVGElement>("[data-copy-icon]")!;
+    const copyLabel = root.querySelector<HTMLElement>("[data-copy-label]")!;
+    const downloadBtn = root.querySelector<HTMLButtonElement>("[data-download-btn]")!;
+
+    function readState(): State {
+      return {
+        percent: Number(percentRange.value),
+        size: Number(sizeInput.value) || DEFAULTS.size,
+        stroke: Number(strokeInput.value) || DEFAULTS.stroke,
+        track: trackColor.value,
+        progress: progressColor.value,
+        useGradient: gradientToggle.checked,
+        gradientEnd: gradientEndColor.value,
+        linecap: linecapSelect.value as "round" | "butt",
+        startAngle: Number(startAngleInput.value) || 0,
+        showLabel: labelToggle.checked,
+      };
+    }
+
+    function render() {
+      const state = readState();
+      percentDisplay.textContent = `${state.percent}%`;
+      gradientEndWrap.classList.toggle("hidden", !state.useGradient);
+      const svg = buildSvg(state);
+      preview.innerHTML = svg;
+      codeOutput.value = svg;
+    }
+
+    [percentRange, sizeInput, strokeInput, trackColor, progressColor, gradientToggle,
+     gradientEndColor, linecapSelect, startAngleInput, labelToggle].forEach((el) =>
+      el.addEventListener("input", render)
+    );
+
+    resetBtn.addEventListener("click", () => {
+      percentRange.value = String(DEFAULTS.percent);
+      sizeInput.value = String(DEFAULTS.size);
+      strokeInput.value = String(DEFAULTS.stroke);
+      trackColor.value = DEFAULTS.track;
+      progressColor.value = DEFAULTS.progress;
+      gradientToggle.checked = DEFAULTS.useGradient;
+      gradientEndColor.value = DEFAULTS.gradientEnd;
+      linecapSelect.value = DEFAULTS.linecap;
+      startAngleInput.value = String(DEFAULTS.startAngle);
+      labelToggle.checked = DEFAULTS.showLabel;
+      render();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(codeOutput.value);
+      copyIcon.innerHTML = '<path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/>';
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.innerHTML = '<rect x="4" y="4" width="9" height="9" rx="1.5"/><path d="M2.5 11.5V2.5h9"/>';
+        copyLabel.textContent = "Copy";
+      }, 1500);
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const blob = new Blob([codeOutput.value], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "progress-ring.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-progress-ring-widget]").forEach(initProgressRing);
+</script>

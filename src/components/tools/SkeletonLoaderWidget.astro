@@ -1,0 +1,376 @@
+<div class="skeleton-loader-tool" data-skeleton-loader-widget>
+  <div class="grid gap-6 lg:grid-cols-[300px_1fr]">
+    <!-- Controls -->
+    <div class="space-y-5 rounded-2xl border border-slate-200 bg-white p-5">
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700">Layout preset</label>
+        <select data-preset-select
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200">
+          <option value="text">Text lines</option>
+          <option value="card" selected>Card</option>
+          <option value="profile">Profile row</option>
+          <option value="list">List</option>
+          <option value="image">Image block</option>
+        </select>
+      </div>
+
+      <div data-rows-wrap>
+        <div class="mb-1.5 flex items-center justify-between text-sm font-medium text-slate-700">
+          <label for="sk-rows">Rows</label>
+          <span data-rows-display class="font-mono text-sky-600">4</span>
+        </div>
+        <input type="range" id="sk-rows" data-rows-range min="1" max="8" value="4" class="w-full accent-sky-600" />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700">Corner radius</label>
+        <select data-radius-select
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200">
+          <option value="none">None</option>
+          <option value="sm">Small</option>
+          <option value="md" selected>Medium</option>
+          <option value="lg">Large</option>
+          <option value="full">Full (pill)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700">Animation</label>
+        <select data-animation-select
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200">
+          <option value="pulse" selected>Pulse</option>
+          <option value="wave">Wave (shimmer)</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Base color</label>
+          <input type="color" data-base-color value="#e2e8f0"
+            class="h-9 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-0.5" />
+        </div>
+        <div data-highlight-wrap>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">Highlight color</label>
+          <input type="color" data-highlight-color value="#f1f5f9"
+            class="h-9 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-0.5" />
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-slate-700">Output format</label>
+        <div class="flex gap-2">
+          <button type="button" data-format-btn="html"
+            class="flex-1 rounded-lg border border-sky-600 bg-sky-600 px-3 py-1.5 text-sm font-medium text-white">HTML + CSS</button>
+          <button type="button" data-format-btn="tailwind"
+            class="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">Tailwind</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview + code -->
+    <div class="space-y-6">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-8">
+        <div data-preview></div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="mb-2 flex items-center justify-between">
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Code</h3>
+          <div class="flex gap-2">
+            <button type="button" data-copy-btn
+              class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-sky-400">
+              <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="4" y="4" width="9" height="9" rx="1.5" />
+                <path d="M2.5 11.5V2.5h9" />
+              </svg>
+              <span data-copy-label>Copy</span>
+            </button>
+            <button type="button" data-download-btn
+              class="rounded-full bg-sky-600 px-3 py-1 text-xs font-medium text-white hover:bg-sky-700">
+              Download
+            </button>
+          </div>
+        </div>
+        <textarea data-code-output readonly spellcheck="false"
+          class="h-56 w-full resize-none rounded-lg border-0 bg-slate-50 p-3 font-mono text-xs text-slate-700 focus:outline-none"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Preset = "text" | "card" | "profile" | "list" | "image";
+  type Radius = "none" | "sm" | "md" | "lg" | "full";
+  type Animation = "none" | "pulse" | "wave";
+  type Format = "html" | "tailwind";
+
+  interface Block { width: string; height: string }
+  type Group =
+    | { type: "stack"; blocks: Block[] }
+    | { type: "row"; avatarSize: string; blocks: Block[] }
+    | { type: "image"; width: string; height: string };
+
+  interface State {
+    preset: Preset;
+    rows: number;
+    radius: Radius;
+    animation: Animation;
+    base: string;
+    highlight: string;
+    format: Format;
+  }
+
+  const RADIUS_PX: Record<Radius, string> = { none: "0px", sm: "4px", md: "8px", lg: "16px", full: "9999px" };
+
+  const KEYFRAMES_ID = "pq-skeleton-keyframes";
+  function ensureGlobalKeyframes() {
+    if (document.getElementById(KEYFRAMES_ID)) return;
+    const style = document.createElement("style");
+    style.id = KEYFRAMES_ID;
+    style.textContent = `
+      @keyframes pq-skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+      @keyframes pq-skeleton-wave { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      .pq-skel-pulse { animation: pq-skeleton-pulse 1.5s ease-in-out infinite; }
+      .pq-skel-wave { animation: pq-skeleton-wave 1.6s ease-in-out infinite; background-size: 400% 100%; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function textLines(n: number): Block[] {
+    return Array.from({ length: n }, (_, i) => ({
+      width: i === n - 1 && n > 1 ? "60%" : "100%",
+      height: "12px",
+    }));
+  }
+
+  function buildGroups(s: State): Group[] {
+    switch (s.preset) {
+      case "text":
+        return [{ type: "stack", blocks: textLines(s.rows) }];
+      case "card":
+        return [
+          { type: "image", width: "100%", height: "160px" },
+          { type: "stack", blocks: [{ width: "100%", height: "14px" }, { width: "100%", height: "14px" }, { width: "70%", height: "14px" }] },
+        ];
+      case "profile":
+        return [{ type: "row", avatarSize: "48px", blocks: [{ width: "140px", height: "14px" }, { width: "100px", height: "12px" }] }];
+      case "list":
+        return Array.from({ length: s.rows }, () => ({
+          type: "row" as const,
+          avatarSize: "40px",
+          blocks: [{ width: "80%", height: "13px" }, { width: "55%", height: "11px" }],
+        }));
+      case "image":
+        return [{ type: "image", width: "100%", height: "220px" }];
+    }
+  }
+
+  function initSkeletonLoader(root: HTMLElement) {
+    ensureGlobalKeyframes();
+
+    const presetSelect = root.querySelector<HTMLSelectElement>("[data-preset-select]")!;
+    const rowsWrap = root.querySelector<HTMLElement>("[data-rows-wrap]")!;
+    const rowsRange = root.querySelector<HTMLInputElement>("[data-rows-range]")!;
+    const rowsDisplay = root.querySelector<HTMLElement>("[data-rows-display]")!;
+    const radiusSelect = root.querySelector<HTMLSelectElement>("[data-radius-select]")!;
+    const animationSelect = root.querySelector<HTMLSelectElement>("[data-animation-select]")!;
+    const baseColor = root.querySelector<HTMLInputElement>("[data-base-color]")!;
+    const highlightWrap = root.querySelector<HTMLElement>("[data-highlight-wrap]")!;
+    const highlightColor = root.querySelector<HTMLInputElement>("[data-highlight-color]")!;
+    const formatBtns = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-format-btn]"));
+    const preview = root.querySelector<HTMLElement>("[data-preview]")!;
+    const codeOutput = root.querySelector<HTMLTextAreaElement>("[data-code-output]")!;
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy-btn]")!;
+    const copyIcon = root.querySelector<SVGElement>("[data-copy-icon]")!;
+    const copyLabel = root.querySelector<HTMLElement>("[data-copy-label]")!;
+    const downloadBtn = root.querySelector<HTMLButtonElement>("[data-download-btn]")!;
+
+    let format: Format = "html";
+
+    function readState(): State {
+      return {
+        preset: presetSelect.value as Preset,
+        rows: Number(rowsRange.value),
+        radius: radiusSelect.value as Radius,
+        animation: animationSelect.value as Animation,
+        base: baseColor.value,
+        highlight: highlightColor.value,
+        format,
+      };
+    }
+
+    function applyAnimation(el: HTMLElement, s: State) {
+      el.classList.remove("pq-skel-pulse", "pq-skel-wave");
+      if (s.animation === "pulse") {
+        el.classList.add("pq-skel-pulse");
+        el.style.background = s.base;
+      } else if (s.animation === "wave") {
+        el.classList.add("pq-skel-wave");
+        el.style.background = `linear-gradient(90deg, ${s.base} 25%, ${s.highlight} 37%, ${s.base} 63%)`;
+      } else {
+        el.style.background = s.base;
+      }
+    }
+
+    function renderBlock(b: Block, s: State, shape: "rect" | "circle"): HTMLElement {
+      const el = document.createElement("div");
+      el.style.width = b.width;
+      el.style.height = b.height;
+      el.style.borderRadius = shape === "circle" ? "9999px" : RADIUS_PX[s.radius];
+      el.style.flexShrink = "0";
+      applyAnimation(el, s);
+      return el;
+    }
+
+    function renderPreview(groups: Group[], s: State) {
+      preview.innerHTML = "";
+      preview.style.display = "flex";
+      preview.style.flexDirection = "column";
+      preview.style.gap = "16px";
+      preview.style.maxWidth = "480px";
+
+      groups.forEach((g) => {
+        if (g.type === "image") {
+          preview.appendChild(renderBlock({ width: g.width, height: g.height }, s, "rect"));
+        } else if (g.type === "stack") {
+          const stack = document.createElement("div");
+          stack.style.display = "flex";
+          stack.style.flexDirection = "column";
+          stack.style.gap = "8px";
+          g.blocks.forEach((b) => stack.appendChild(renderBlock(b, s, "rect")));
+          preview.appendChild(stack);
+        } else {
+          const row = document.createElement("div");
+          row.style.display = "flex";
+          row.style.alignItems = "center";
+          row.style.gap = "12px";
+          row.appendChild(renderBlock({ width: g.avatarSize, height: g.avatarSize }, s, "circle"));
+          const stack = document.createElement("div");
+          stack.style.display = "flex";
+          stack.style.flexDirection = "column";
+          stack.style.gap = "8px";
+          stack.style.flex = "1";
+          g.blocks.forEach((b) => stack.appendChild(renderBlock(b, s, "rect")));
+          row.appendChild(stack);
+          preview.appendChild(row);
+        }
+      });
+    }
+
+    function blockHtml(b: Block, s: State, shape: "rect" | "circle"): string {
+      const radius = shape === "circle" ? "9999px" : RADIUS_PX[s.radius];
+      const animClass = s.animation === "pulse" ? " skeleton__block--pulse" : s.animation === "wave" ? " skeleton__block--wave" : "";
+      return `<div class="skeleton__block${animClass}" style="width:${b.width};height:${b.height};border-radius:${radius};"></div>`;
+    }
+
+    function groupHtml(g: Group, s: State): string {
+      if (g.type === "image") return blockHtml({ width: g.width, height: g.height }, s, "rect");
+      if (g.type === "stack") {
+        return `<div class="skeleton__stack">\n  ${g.blocks.map((b) => blockHtml(b, s, "rect")).join("\n  ")}\n</div>`;
+      }
+      return `<div class="skeleton__row">\n  ${blockHtml({ width: g.avatarSize, height: g.avatarSize }, s, "circle")}\n  <div class="skeleton__stack" style="flex:1;">\n    ${g.blocks.map((b) => blockHtml(b, s, "rect")).join("\n    ")}\n  </div>\n</div>`;
+    }
+
+    function buildHtmlExport(groups: Group[], s: State): string {
+      const markup = `<div class="skeleton">\n  ${groups.map((g) => groupHtml(g, s)).join("\n  ")}\n</div>`;
+      const css = `<style>
+.skeleton { display: flex; flex-direction: column; gap: 16px; }
+.skeleton__row { display: flex; align-items: center; gap: 12px; }
+.skeleton__stack { display: flex; flex-direction: column; gap: 8px; }
+.skeleton__block { background: ${s.base}; flex-shrink: 0; }
+.skeleton__block--pulse { animation: skeleton-pulse 1.5s ease-in-out infinite; }
+.skeleton__block--wave {
+  background: linear-gradient(90deg, ${s.base} 25%, ${s.highlight} 37%, ${s.base} 63%);
+  background-size: 400% 100%;
+  animation: skeleton-wave 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+@keyframes skeleton-wave { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+</style>`;
+      return `${markup}\n\n${css}`;
+    }
+
+    function twBlock(b: Block, s: State, shape: "rect" | "circle"): string {
+      const radius = shape === "circle" ? "rounded-full" : s.radius === "none" ? "" : `rounded-[${RADIUS_PX[s.radius]}]`;
+      const animClass = s.animation === "pulse" ? "animate-pulse" : s.animation === "wave" ? "pq-wave" : "";
+      const bg = s.animation === "wave" ? "" : `bg-[${s.base}]`;
+      const style = s.animation === "wave"
+        ? ` style="background:linear-gradient(90deg, ${s.base} 25%, ${s.highlight} 37%, ${s.base} 63%); background-size:400% 100%;"`
+        : "";
+      const classes = ["shrink-0", `w-[${b.width}]`, `h-[${b.height}]`, radius, bg, animClass].filter(Boolean).join(" ");
+      return `<div class="${classes}"${style}></div>`;
+    }
+
+    function twGroupHtml(g: Group, s: State): string {
+      if (g.type === "image") return twBlock({ width: g.width, height: g.height }, s, "rect");
+      if (g.type === "stack") {
+        return `<div class="flex flex-col gap-2">\n    ${g.blocks.map((b) => twBlock(b, s, "rect")).join("\n    ")}\n  </div>`;
+      }
+      return `<div class="flex items-center gap-3">\n    ${twBlock({ width: g.avatarSize, height: g.avatarSize }, s, "circle")}\n    <div class="flex flex-1 flex-col gap-2">\n      ${g.blocks.map((b) => twBlock(b, s, "rect")).join("\n      ")}\n    </div>\n  </div>`;
+    }
+
+    function buildTailwindExport(groups: Group[], s: State): string {
+      const markup = `<div class="flex flex-col gap-4">\n  ${groups.map((g) => twGroupHtml(g, s)).join("\n  ")}\n</div>`;
+      const waveNote = s.animation === "wave"
+        ? `\n\n<!-- Tailwind has no built-in shimmer animation, add this once in your global CSS: -->\n<style>\n.pq-wave { animation: pq-wave 1.6s ease-in-out infinite; }\n@keyframes pq-wave { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }\n</style>`
+        : "";
+      return `${markup}${waveNote}`;
+    }
+
+    function render() {
+      const s = readState();
+      rowsWrap.classList.toggle("hidden", s.preset !== "text" && s.preset !== "list");
+      highlightWrap.classList.toggle("hidden", s.animation !== "wave");
+      rowsDisplay.textContent = String(s.rows);
+
+      const groups = buildGroups(s);
+      renderPreview(groups, s);
+      codeOutput.value = s.format === "html" ? buildHtmlExport(groups, s) : buildTailwindExport(groups, s);
+    }
+
+    [presetSelect, rowsRange, radiusSelect, animationSelect, baseColor, highlightColor].forEach((el) =>
+      el.addEventListener("input", render)
+    );
+
+    formatBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        format = btn.dataset.formatBtn as Format;
+        formatBtns.forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle("bg-sky-600", active);
+          b.classList.toggle("text-white", active);
+          b.classList.toggle("border-sky-600", active);
+          b.classList.toggle("border-slate-300", !active);
+          b.classList.toggle("text-slate-600", !active);
+        });
+        render();
+      });
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(codeOutput.value);
+      copyIcon.innerHTML = '<path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/>';
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.innerHTML = '<rect x="4" y="4" width="9" height="9" rx="1.5"/><path d="M2.5 11.5V2.5h9"/>';
+        copyLabel.textContent = "Copy";
+      }, 1500);
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const s = readState();
+      const blob = new Blob([codeOutput.value], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `skeleton-loader.${s.format === "html" ? "html" : "txt"}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-skeleton-loader-widget]").forEach(initSkeletonLoader);
+</script>

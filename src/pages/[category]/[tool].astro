@@ -68,6 +68,9 @@ import SectionSchemaBuilderWidget from '../../components/tools/SectionSchemaBuil
 import MetafieldLiquidGeneratorWidget from '../../components/tools/MetafieldLiquidGeneratorWidget.astro';
 import ThemeLiquidCheckerWidget from '../../components/tools/ThemeLiquidCheckerWidget.astro';
 import LiquidReferenceWidget from '../../components/tools/LiquidReferenceWidget.astro';
+import CircularProgressRingWidget from '../../components/tools/CircularProgressRingWidget.astro';
+import SkeletonLoaderWidget from '../../components/tools/SkeletonLoaderWidget.astro';
+import SvgDropShadowWidget from '../../components/tools/SvgDropShadowWidget.astro';
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -147,6 +150,9 @@ const widgets: Record<string, any> = {
     "metafield-liquid-generator": MetafieldLiquidGeneratorWidget,
     "theme-liquid-checker": ThemeLiquidCheckerWidget,
     "liquid-filter-object-reference": LiquidReferenceWidget,
+    "svg-circular-progress-ring-generator": CircularProgressRingWidget,
+    "skeleton-loader-generator": SkeletonLoaderWidget,
+    "svg-drop-shadow-generator": SvgDropShadowWidget,
 };
 
 const Widget = widgets[tool.slug] ?? ComingSoonWidget;
