@@ -1,0 +1,600 @@
+---
+// HandwritingToVectorWidget.astro
+// Traces handwriting/signature/calligraphy photos into clean SVG vector paths,
+// entirely in-browser. Bilevel threshold + boundary tracing + Douglas-Peucker
+// simplification + optional Catmull-Rom smoothing. fill-rule="evenodd" so letter
+// holes (o, a, e) render correctly.
+//
+// Structure follows the project's widget conventions:
+// - root wrapper: data-handwriting-to-vector-widget (never id), styled as the
+//   standard tool card (rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm)
+// - every interactive element addressed via data-* attributes
+// - accent color is this tool's badgeColor: rose (literal Tailwind classes only)
+// - copy button uses the pill+icon clipboard -> checkmark pattern, 1.5s revert
+---
+
+<div data-handwriting-to-vector-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Left: upload + controls -->
+    <div class="space-y-5">
+
+      <!-- Step 1: upload -->
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">1. Upload</p>
+        <div
+          data-dropzone
+          class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-rose-400 hover:bg-rose-50/40 transition cursor-pointer"
+        >
+          <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M7 9l5-5 5 5M12 4v13" />
+          </svg>
+          <p class="text-sm font-medium text-gray-700">Drop a photo of handwriting, or click to upload</p>
+          <p class="text-xs text-gray-400 mt-1">PNG, JPG, or WEBP</p>
+          <input data-file-input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" />
+        </div>
+        <button type="button" data-try-sample class="mt-2 text-sm font-medium text-rose-600 hover:text-rose-700 hover:underline">
+          Try a sample signature instead
+        </button>
+      </div>
+
+      <!-- Steps 2-4: controls -->
+      <div data-controls class="hidden space-y-5 border border-gray-200 rounded-xl p-4">
+
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">2. Detection</p>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-medium text-gray-500 mb-1">
+                <span>Ink threshold</span><span data-threshold-val>160</span>
+              </div>
+              <input data-threshold type="range" min="20" max="240" value="160" class="w-full accent-rose-600" />
+            </div>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" data-invert class="rounded border-gray-300 text-rose-600 focus:ring-rose-500" />
+              Invert (light ink on dark photo)
+            </label>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-100 pt-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">3. Stroke &amp; cleanup</p>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-medium text-gray-500 mb-1">
+                <span>Stroke boldness</span><span data-boldness-val>0</span>
+              </div>
+              <input data-boldness type="range" min="-3" max="3" value="0" class="w-full accent-rose-600" />
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-medium text-gray-500 mb-1">
+                <span>Smoothing</span><span data-smoothing-val>2</span>
+              </div>
+              <input data-smoothing type="range" min="0" max="8" value="2" class="w-full accent-rose-600" />
+            </div>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" data-smooth-curves checked class="rounded border-gray-300 text-rose-600 focus:ring-rose-500" />
+              Smooth curves (uncheck for crisp/angular)
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" data-remove-specks checked class="rounded border-gray-300 text-rose-600 focus:ring-rose-500" />
+              Remove tiny specks (scan noise)
+            </label>
+            <div>
+              <div class="flex justify-between text-xs font-medium text-gray-500 mb-1">
+                <span>Trim padding</span><span data-padding-val>6%</span>
+              </div>
+              <input data-padding type="range" min="0" max="20" value="6" class="w-full accent-rose-600" />
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-100 pt-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">4. Output color</p>
+          <div class="flex items-center gap-3">
+            <input data-ink-color type="color" value="#111827" class="w-10 h-9 border border-gray-300 rounded-lg cursor-pointer" />
+            <span class="text-sm text-gray-500">Ink color used in the exported SVG path</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: preview + output -->
+    <div class="space-y-3">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Preview</p>
+
+      <div data-preview-wrap class="relative border border-gray-200 rounded-xl checker-bg h-72 flex items-center justify-center overflow-hidden">
+        <p data-empty-msg class="text-sm text-gray-400 px-6 text-center">Upload an image to see the traced result</p>
+        <div data-svg-preview class="w-full h-full flex items-center justify-center p-4"></div>
+
+        <div data-busy-overlay class="hidden absolute inset-0 bg-white/70 flex items-center justify-center">
+          <span class="flex items-center gap-2 text-sm font-medium text-rose-600">
+            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            Tracing…
+          </span>
+        </div>
+      </div>
+
+      <p data-status class="text-xs text-gray-500 min-h-[1rem]"></p>
+
+      <div data-output-wrap class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-gray-400">SVG source</span>
+          <button
+            type="button"
+            data-copy-btn
+            class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="11" height="11" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <svg data-check-icon class="hidden h-3.5 w-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+            <span data-copy-label>Copy SVG</span>
+          </button>
+        </div>
+        <textarea data-svg-code readonly class="w-full h-24 p-2 text-xs font-mono text-gray-700 border border-gray-200 rounded-lg resize-y bg-gray-50"></textarea>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" data-download-svg class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">
+            Download SVG
+          </button>
+          <button type="button" data-download-png data-size="1024" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            PNG · 1024px
+          </button>
+          <button type="button" data-download-png data-size="2048" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            PNG · 2048px
+          </button>
+          <button type="button" data-reset-btn class="ml-auto inline-flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-red-600">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" />
+            </svg>
+            Start over
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <canvas data-work-canvas class="hidden"></canvas>
+</div>
+
+<style>
+  [data-handwriting-to-vector-widget] .checker-bg {
+    background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+      linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+      linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: #ffffff;
+  }
+  [data-handwriting-to-vector-widget] button,
+  [data-handwriting-to-vector-widget] label,
+  [data-handwriting-to-vector-widget] [data-dropzone] {
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  type Point = [number, number];
+
+  function initHandwritingToVectorWidget(root: HTMLElement) {
+    const dropzone = root.querySelector<HTMLElement>('[data-dropzone]')!;
+    const fileInput = root.querySelector<HTMLInputElement>('[data-file-input]')!;
+    const trySample = root.querySelector<HTMLButtonElement>('[data-try-sample]')!;
+    const controls = root.querySelector<HTMLElement>('[data-controls]')!;
+    const thresholdEl = root.querySelector<HTMLInputElement>('[data-threshold]')!;
+    const thresholdVal = root.querySelector<HTMLElement>('[data-threshold-val]')!;
+    const invertEl = root.querySelector<HTMLInputElement>('[data-invert]')!;
+    const boldnessEl = root.querySelector<HTMLInputElement>('[data-boldness]')!;
+    const boldnessVal = root.querySelector<HTMLElement>('[data-boldness-val]')!;
+    const smoothingEl = root.querySelector<HTMLInputElement>('[data-smoothing]')!;
+    const smoothingVal = root.querySelector<HTMLElement>('[data-smoothing-val]')!;
+    const smoothCurvesEl = root.querySelector<HTMLInputElement>('[data-smooth-curves]')!;
+    const removeSpecksEl = root.querySelector<HTMLInputElement>('[data-remove-specks]')!;
+    const paddingEl = root.querySelector<HTMLInputElement>('[data-padding]')!;
+    const paddingVal = root.querySelector<HTMLElement>('[data-padding-val]')!;
+    const inkColorEl = root.querySelector<HTMLInputElement>('[data-ink-color]')!;
+    const emptyMsg = root.querySelector<HTMLElement>('[data-empty-msg]')!;
+    const svgPreview = root.querySelector<HTMLElement>('[data-svg-preview]')!;
+    const busyOverlay = root.querySelector<HTMLElement>('[data-busy-overlay]')!;
+    const statusEl = root.querySelector<HTMLElement>('[data-status]')!;
+    const outputWrap = root.querySelector<HTMLElement>('[data-output-wrap]')!;
+    const svgCode = root.querySelector<HTMLTextAreaElement>('[data-svg-code]')!;
+    const workCanvas = root.querySelector<HTMLCanvasElement>('[data-work-canvas]')!;
+    const copyBtn = root.querySelector<HTMLButtonElement>('[data-copy-btn]')!;
+    const copyIcon = root.querySelector<HTMLElement>('[data-copy-icon]')!;
+    const checkIcon = root.querySelector<HTMLElement>('[data-check-icon]')!;
+    const copyLabel = root.querySelector<HTMLElement>('[data-copy-label]')!;
+
+    let sourceImageData: ImageData | null = null;
+    let currentSvgString = '';
+    let currentViewBox = { w: 0, h: 0 };
+
+    // ---------- verified boundary-tracing core (unchanged) ----------
+    function collectEdges(mask: boolean[][], W: number, H: number): [Point, Point][] {
+      const ink = (x: number, y: number) => x >= 0 && x < W && y >= 0 && y < H && mask[y][x];
+      const list: [Point, Point][] = [];
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          if (!ink(x, y)) continue;
+          if (!ink(x - 1, y)) list.push([[x, y], [x, y + 1]]);
+          if (!ink(x, y + 1)) list.push([[x, y + 1], [x + 1, y + 1]]);
+          if (!ink(x + 1, y)) list.push([[x + 1, y + 1], [x + 1, y]]);
+          if (!ink(x, y - 1)) list.push([[x + 1, y], [x, y]]);
+        }
+      }
+      return list;
+    }
+
+    function chainLoops(edgeList: [Point, Point][]): Point[][] {
+      const k = (p: Point) => p[0] + ',' + p[1];
+      const byStart = new Map<string, number[]>();
+      edgeList.forEach((e, i) => {
+        const sk = k(e[0]);
+        if (!byStart.has(sk)) byStart.set(sk, []);
+        byStart.get(sk)!.push(i);
+      });
+      const used = new Array(edgeList.length).fill(false);
+      const loops: Point[][] = [];
+      for (let i = 0; i < edgeList.length; i++) {
+        if (used[i]) continue;
+        const loop: Point[] = [edgeList[i][0]];
+        let cur = i;
+        let guard = 0;
+        while (guard++ < edgeList.length + 5) {
+          used[cur] = true;
+          const endPt = edgeList[cur][1];
+          loop.push(endPt);
+          if (k(endPt) === k(loop[0])) break;
+          const candidates = (byStart.get(k(endPt)) || []).filter((idx) => !used[idx]);
+          if (candidates.length === 0) break;
+          cur = candidates[0];
+        }
+        loops.push(loop);
+      }
+      return loops;
+    }
+
+    function traceMask(mask: boolean[][], W: number, H: number): Point[][] {
+      return chainLoops(collectEdges(mask, W, H));
+    }
+
+    // ---------- simplification ----------
+    function perpDist(p: Point, a: Point, b: Point): number {
+      const [x, y] = p, [x1, y1] = a, [x2, y2] = b;
+      const dx = x2 - x1, dy = y2 - y1;
+      const len2 = dx * dx + dy * dy;
+      if (len2 === 0) return Math.hypot(x - x1, y - y1);
+      const t = ((x - x1) * dx + (y - y1) * dy) / len2;
+      const px = x1 + t * dx, py = y1 + t * dy;
+      return Math.hypot(x - px, y - py);
+    }
+    function douglasPeucker(points: Point[], epsilon: number): Point[] {
+      if (points.length < 3) return points.slice();
+      let maxDist = 0, idx = 0;
+      for (let i = 1; i < points.length - 1; i++) {
+        const d = perpDist(points[i], points[0], points[points.length - 1]);
+        if (d > maxDist) { maxDist = d; idx = i; }
+      }
+      if (maxDist > epsilon) {
+        const left = douglasPeucker(points.slice(0, idx + 1), epsilon);
+        const right = douglasPeucker(points.slice(idx), epsilon);
+        return left.slice(0, -1).concat(right);
+      }
+      return [points[0], points[points.length - 1]];
+    }
+
+    // ---------- mask utilities ----------
+    function imageDataToMask(data: ImageData, threshold: number, invert: boolean): boolean[][] {
+      const W = data.width, H = data.height;
+      const px = data.data;
+      const mask: boolean[][] = [];
+      for (let y = 0; y < H; y++) {
+        const row = new Array(W);
+        for (let x = 0; x < W; x++) {
+          const idx = (y * W + x) * 4;
+          const a = px[idx + 3];
+          if (a < 10) { row[x] = false; continue; }
+          const gray = 0.299 * px[idx] + 0.587 * px[idx + 1] + 0.114 * px[idx + 2];
+          let isInk = gray < threshold;
+          if (invert) isInk = !isInk;
+          row[x] = isInk;
+        }
+        mask.push(row);
+      }
+      return mask;
+    }
+
+    function downsampleMask(mask: boolean[][], W: number, H: number, maxDim: number) {
+      if (Math.max(W, H) <= maxDim) return { mask, W, H };
+      const scale = maxDim / Math.max(W, H);
+      const newW = Math.max(1, Math.round(W * scale));
+      const newH = Math.max(1, Math.round(H * scale));
+      const out: boolean[][] = [];
+      for (let ny = 0; ny < newH; ny++) {
+        const y0 = Math.floor((ny * H) / newH), y1 = Math.max(y0 + 1, Math.floor(((ny + 1) * H) / newH));
+        const row = new Array(newW).fill(false);
+        for (let nx = 0; nx < newW; nx++) {
+          const x0 = Math.floor((nx * W) / newW), x1 = Math.max(x0 + 1, Math.floor(((nx + 1) * W) / newW));
+          let any = false;
+          for (let y = y0; y < y1 && !any; y++) for (let x = x0; x < x1; x++) { if (mask[y][x]) { any = true; break; } }
+          row[nx] = any;
+        }
+        out.push(row);
+      }
+      return { mask: out, W: newW, H: newH };
+    }
+
+    function morph(mask: boolean[][], W: number, H: number, amount: number): boolean[][] {
+      let m = mask;
+      const iterations = Math.abs(amount);
+      const dilate = amount > 0;
+      for (let iter = 0; iter < iterations; iter++) {
+        const next: boolean[][] = [];
+        for (let y = 0; y < H; y++) {
+          const row = new Array(W);
+          for (let x = 0; x < W; x++) {
+            const self = m[y][x];
+            const n = [
+              y > 0 ? m[y - 1][x] : false,
+              y < H - 1 ? m[y + 1][x] : false,
+              x > 0 ? m[y][x - 1] : false,
+              x < W - 1 ? m[y][x + 1] : false
+            ];
+            row[x] = dilate ? (self || n.some(Boolean)) : (self && n.every(Boolean));
+          }
+          next.push(row);
+        }
+        m = next;
+      }
+      return m;
+    }
+
+    function bboxOf(mask: boolean[][], W: number, H: number) {
+      let minX = W, minY = H, maxX = -1, maxY = -1;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        if (mask[y][x]) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; }
+      }
+      if (maxX < 0) return null;
+      return { minX, minY, maxX, maxY };
+    }
+
+    function cropMask(mask: boolean[][], box: { minX: number; minY: number; maxX: number; maxY: number }, padPx: number) {
+      const w = box.maxX - box.minX + 1, h = box.maxY - box.minY + 1;
+      const newW = w + padPx * 2, newH = h + padPx * 2;
+      const out: boolean[][] = Array.from({ length: newH }, () => new Array(newW).fill(false));
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        out[y + padPx][x + padPx] = mask[box.minY + y][box.minX + x];
+      }
+      return { mask: out, W: newW, H: newH };
+    }
+
+    // ---------- path building ----------
+    function loopBBoxArea(loop: Point[]): number {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      loop.forEach(([x, y]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); });
+      return (maxX - minX) * (maxY - minY);
+    }
+
+    function buildSmoothSegment(points: Point[]): string {
+      const n = points.length;
+      let d = '';
+      for (let i = 0; i < n; i++) {
+        const p0 = points[(i - 1 + n) % n], p1 = points[i], p2 = points[(i + 1) % n], p3 = points[(i + 2) % n];
+        const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+        const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+        d += `C ${c1x.toFixed(2)},${c1y.toFixed(2)} ${c2x.toFixed(2)},${c2y.toFixed(2)} ${p2[0].toFixed(2)},${p2[1].toFixed(2)} `;
+      }
+      return d;
+    }
+
+    function buildPathData(loops: Point[][], epsilon: number, smooth: boolean, removeSpecks: boolean): string {
+      let d = '';
+      loops.forEach((loop) => {
+        let simplified = douglasPeucker(loop, epsilon);
+        if (simplified.length > 1 && simplified[0][0] === simplified[simplified.length - 1][0] && simplified[0][1] === simplified[simplified.length - 1][1]) {
+          simplified = simplified.slice(0, -1);
+        }
+        if (simplified.length < 3) return;
+        if (removeSpecks && loopBBoxArea(simplified) < 4) return;
+        d += `M ${simplified[0][0].toFixed(2)},${simplified[0][1].toFixed(2)} `;
+        if (smooth) {
+          d += buildSmoothSegment(simplified);
+        } else {
+          for (let i = 1; i < simplified.length; i++) d += `L ${simplified[i][0].toFixed(2)},${simplified[i][1].toFixed(2)} `;
+        }
+        d += 'Z ';
+      });
+      return d.trim();
+    }
+
+    // ---------- main pipeline ----------
+    let debounceTimer: number | undefined;
+    function scheduleTrace() {
+      busyOverlay.classList.remove('hidden');
+      window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(runTrace, 200);
+    }
+
+    function runTrace() {
+      if (!sourceImageData) { busyOverlay.classList.add('hidden'); return; }
+      const threshold = Number(thresholdEl.value);
+      const invert = invertEl.checked;
+      const boldness = Number(boldnessEl.value);
+      const epsilon = Number(smoothingEl.value) * 0.5;
+      const smooth = smoothCurvesEl.checked;
+      const removeSpecks = removeSpecksEl.checked;
+      const paddingPercent = Number(paddingEl.value);
+      const inkColor = inkColorEl.value;
+
+      let { mask, W: fullW, H: fullH } = { mask: imageDataToMask(sourceImageData, threshold, invert), W: sourceImageData.width, H: sourceImageData.height };
+      const ds = downsampleMask(mask, fullW, fullH, 600);
+      mask = ds.mask; const W = ds.W, H = ds.H;
+      if (boldness !== 0) mask = morph(mask, W, H, boldness);
+
+      const box = bboxOf(mask, W, H);
+      if (!box) {
+        emptyMsg.classList.remove('hidden');
+        emptyMsg.textContent = 'No ink detected at this threshold — try lowering the threshold slider or check "Invert".';
+        svgPreview.innerHTML = '';
+        outputWrap.classList.add('hidden');
+        statusEl.textContent = '';
+        busyOverlay.classList.add('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      const padPx = Math.round((paddingPercent / 100) * Math.max(box.maxX - box.minX, box.maxY - box.minY, 1));
+      const cropped = cropMask(mask, box, padPx);
+      const loops = traceMask(cropped.mask, cropped.W, cropped.H);
+      const pathD = buildPathData(loops, epsilon, smooth, removeSpecks);
+
+      currentViewBox = { w: cropped.W, h: cropped.H };
+      currentSvgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cropped.W} ${cropped.H}"><path d="${pathD}" fill="${inkColor}" fill-rule="evenodd"/></svg>`;
+
+      svgPreview.innerHTML = currentSvgString;
+      const svgEl = svgPreview.querySelector('svg');
+      if (svgEl) { (svgEl as SVGElement).style.maxWidth = '100%'; (svgEl as SVGElement).style.maxHeight = '100%'; }
+      svgCode.value = currentSvgString;
+      outputWrap.classList.remove('hidden');
+      statusEl.textContent = `${loops.length} contour${loops.length === 1 ? '' : 's'} traced · ${cropped.W}×${cropped.H} viewBox`;
+      busyOverlay.classList.add('hidden');
+    }
+
+    // ---------- image loading ----------
+    function loadImage(img: HTMLImageElement) {
+      const maxDim = 1600;
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      workCanvas.width = w; workCanvas.height = h;
+      const ctx = workCanvas.getContext('2d')!;
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      sourceImageData = ctx.getImageData(0, 0, w, h);
+      controls.classList.remove('hidden');
+      scheduleTrace();
+    }
+
+    function handleFile(file: File) {
+      if (!file.type.startsWith('image/')) return;
+      const img = new Image();
+      img.onload = () => loadImage(img);
+      img.src = URL.createObjectURL(file);
+    }
+
+    fileInput.addEventListener('change', () => { if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]); });
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-rose-400'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-rose-400'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-rose-400');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) handleFile(file);
+    });
+
+    trySample.addEventListener('click', () => {
+      const w = 500, h = 200;
+      workCanvas.width = w; workCanvas.height = h;
+      const ctx = workCanvas.getContext('2d')!;
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = '#111111'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(40, 130);
+      ctx.bezierCurveTo(70, 40, 110, 40, 130, 100);
+      ctx.bezierCurveTo(150, 160, 170, 60, 200, 90);
+      ctx.bezierCurveTo(220, 110, 210, 150, 250, 120);
+      ctx.bezierCurveTo(280, 100, 310, 60, 340, 110);
+      ctx.bezierCurveTo(360, 145, 400, 70, 430, 100);
+      ctx.bezierCurveTo(450, 120, 440, 150, 460, 130);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(150, 105, 18, 0, Math.PI * 2);
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      sourceImageData = ctx.getImageData(0, 0, w, h);
+      controls.classList.remove('hidden');
+      scheduleTrace();
+    });
+
+    [thresholdEl, boldnessEl, smoothingEl, paddingEl].forEach((el) => {
+      el.addEventListener('input', () => {
+        thresholdVal.textContent = thresholdEl.value;
+        boldnessVal.textContent = boldnessEl.value;
+        smoothingVal.textContent = smoothingEl.value;
+        paddingVal.textContent = paddingEl.value + '%';
+        scheduleTrace();
+      });
+    });
+    [invertEl, smoothCurvesEl, removeSpecksEl, inkColorEl].forEach((el) => el.addEventListener('input', scheduleTrace));
+    inkColorEl.addEventListener('change', scheduleTrace);
+
+    copyBtn.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(currentSvgString);
+      copyIcon.classList.add('hidden');
+      checkIcon.classList.remove('hidden');
+      copyLabel.textContent = 'Copied';
+      window.setTimeout(() => {
+        copyIcon.classList.remove('hidden');
+        checkIcon.classList.add('hidden');
+        copyLabel.textContent = 'Copy SVG';
+      }, 1500);
+    });
+
+    root.querySelector('[data-download-svg]')!.addEventListener('click', () => {
+      const blob = new Blob([currentSvgString], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'handwriting-trace.svg'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-download-png]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const size = Number(btn.dataset.size) || 1024;
+        const aspect = currentViewBox.h / currentViewBox.w;
+        const w = size, h = Math.round(size * aspect);
+        const svgBlob = new Blob([currentSvgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          const ctx = c.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          c.toBlob((blob) => {
+            if (!blob) return;
+            const dlUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = dlUrl; a.download = `handwriting-trace-${size}px.png`; a.click();
+            URL.revokeObjectURL(dlUrl);
+          }, 'image/png');
+        };
+        img.src = url;
+      });
+    });
+
+    root.querySelector('[data-reset-btn]')!.addEventListener('click', () => {
+      sourceImageData = null;
+      currentSvgString = '';
+      controls.classList.add('hidden');
+      outputWrap.classList.add('hidden');
+      svgPreview.innerHTML = '';
+      emptyMsg.classList.remove('hidden');
+      emptyMsg.textContent = 'Upload an image to see the traced result';
+      statusEl.textContent = '';
+      fileInput.value = '';
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-handwriting-to-vector-widget]').forEach(initHandwritingToVectorWidget);
+</script>

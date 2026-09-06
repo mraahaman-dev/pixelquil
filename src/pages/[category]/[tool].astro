@@ -71,6 +71,8 @@ import LiquidReferenceWidget from '../../components/tools/LiquidReferenceWidget.
 import CircularProgressRingWidget from '../../components/tools/CircularProgressRingWidget.astro';
 import SkeletonLoaderWidget from '../../components/tools/SkeletonLoaderWidget.astro';
 import SvgDropShadowWidget from '../../components/tools/SvgDropShadowWidget.astro';
+import HandwritingToVectorWidget from '../../components/tools/HandwritingToVectorWidget.astro';
+import LiquidLoopEstimatorWidget from '../../components/tools/LiquidLoopEstimatorWidget.astro';
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -153,6 +155,8 @@ const widgets: Record<string, any> = {
     "svg-circular-progress-ring-generator": CircularProgressRingWidget,
     "skeleton-loader-generator": SkeletonLoaderWidget,
     "svg-drop-shadow-generator": SvgDropShadowWidget,
+    "handwriting-to-vector": HandwritingToVectorWidget,
+    "liquid-loop-performance-estimator": LiquidLoopEstimatorWidget,
 };
 
 const Widget = widgets[tool.slug] ?? ComingSoonWidget;

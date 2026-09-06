@@ -1,0 +1,63 @@
+﻿---
+import { getCollection } from 'astro:content';
+import popularSlugs from '../data/popular-guides.json';
+
+const allGuides = await getCollection('guides');
+
+const categoryLabels: Record<string, string> = {
+  'svg-tools': 'SVG',
+  'developer-tools': 'Dev',
+  'seo-tools': 'SEO',
+};
+
+const popularGuides = popularSlugs
+  .map((slug) => allGuides.find((g) => g.id === slug))
+  .filter((g): g is NonNullable<typeof g> => Boolean(g));
+---
+
+<aside class="rounded-xl border border-slate-200 p-5">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800 mb-4">
+    Popular Posts
+  </h2>
+  <ul class="space-y-4">
+    {popularGuides.map((guide) => {
+      const formattedDate = guide.data.publishDate.toLocaleDateString('en-US', {
+        month: 'short',
+        year: 'numeric',
+      });
+      return (
+        <li>
+          <a
+            href={`/guides/${guide.id}/`}
+            class="flex gap-3 group"
+          >
+            <img
+              src={guide.data.image}
+              alt=""
+              class="w-14 h-14 rounded-lg object-cover border border-slate-200 flex-shrink-0"
+              width="56"
+              height="56"
+              loading="lazy"
+            />
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-slate-900 leading-snug group-hover:text-brand-600 line-clamp-2">
+                {guide.data.title}
+              </p>
+              <p class="mt-1 text-xs text-slate-500">
+                {formattedDate}
+                {categoryLabels[guide.data.category] && (
+                  <>
+                    {' · '}
+                    <span class="inline-block rounded-full bg-brand-50 text-brand-700 px-2 py-0.5 font-medium">
+                      {categoryLabels[guide.data.category]}
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</aside>

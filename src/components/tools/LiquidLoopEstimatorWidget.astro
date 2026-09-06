@@ -1,0 +1,377 @@
+---
+// LiquidLoopEstimatorWidget.astro
+// Static heuristic estimator for Liquid {% for %} loop cost. Parses tag
+// structure (not full Liquid execution) to find loop nesting, inline
+// sort/where/map filters on the collection expression, and render/include
+// tags inside loop bodies, then lets the user plug in estimated collection
+// sizes to see an approximate total iteration count and render-call count.
+---
+
+<div data-liquid-loop-estimator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="space-y-4">
+
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <label class="text-xs font-semibold uppercase tracking-wide text-gray-400">Liquid template</label>
+        <button type="button" data-try-sample class="text-sm font-medium text-lime-700 hover:text-lime-800 hover:underline">
+          Try an example
+        </button>
+      </div>
+      <textarea
+        data-liquid-input
+        rows="10"
+        spellcheck="false"
+        placeholder="Paste a section, snippet, or template's Liquid code here…"
+        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-mono text-gray-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-lime-500 resize-y"
+      ></textarea>
+    </div>
+
+    <p data-unclosed-warning class="hidden text-xs text-red-600"></p>
+
+    <div data-empty-state class="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-400">
+      Paste Liquid code with at least one <code class="font-mono">{'{% for %}'}</code> loop to get an estimate.
+    </div>
+
+    <div data-results class="hidden space-y-4">
+
+      <!-- Summary -->
+      <div class="rounded-xl border border-gray-200 p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Summary</p>
+          <span data-status-badge class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"></span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+          <div class="rounded-lg bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">Loops found</p>
+            <p data-count-loops class="text-lg font-semibold text-gray-900"></p>
+          </div>
+          <div class="rounded-lg bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">Max nesting</p>
+            <p data-count-depth class="text-lg font-semibold text-gray-900"></p>
+          </div>
+          <div class="rounded-lg bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">Est. total iterations</p>
+            <p data-count-iterations class="text-lg font-semibold text-gray-900"></p>
+          </div>
+          <div class="rounded-lg bg-lime-50 p-3">
+            <p class="text-xs text-lime-700">Est. render/include calls</p>
+            <p data-count-renders class="text-lg font-semibold text-lime-800"></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-gray-500">Flag as "worth a look" above</label>
+          <input data-threshold type="number" min="1" value="500" class="w-24 rounded-md border border-gray-300 px-2 py-1 text-xs" />
+          <span class="text-xs text-gray-400">total iterations (your call — not an official Shopify limit)</span>
+        </div>
+        <ul data-global-flags class="hidden mt-3 space-y-1"></ul>
+      </div>
+
+      <!-- Per-loop breakdown -->
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Detected loops</p>
+        <ul data-loop-list class="space-y-3"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  interface LoopFlag { label: string; severity: "warn" | "info" }
+  interface LoopInfo {
+    id: number;
+    depth: number; // 1 = top level
+    parentId: number | null;
+    headerText: string;
+    variable: string;
+    sourceForDisplay: string;
+    limit: number | null;
+    isFixedRange: boolean;
+    fixedCount: number | null;
+    defaultGuess: number;
+    flags: LoopFlag[];
+  }
+
+  const DEFAULT_GUESS_RULES: [RegExp, number][] = [
+    [/cart\.items/i, 3],
+    [/product\.variants/i, 5],
+    [/product\.(images|media)/i, 5],
+    [/section\.blocks/i, 6],
+    [/linklists|\.links\b/i, 6],
+    [/recommendations\.products/i, 4],
+    [/search\.results/i, 24],
+    [/collections?\.[\w.]*products|all_products|collection\.products/i, 24],
+    [/blog\.articles|\barticles\b/i, 10],
+  ];
+
+  const FILTER_FLAG_NAMES = ["sort", "where", "group_by", "map", "uniq", "reverse", "compact"];
+
+  function initLiquidLoopEstimator(root: HTMLElement) {
+    const input = root.querySelector<HTMLTextAreaElement>("[data-liquid-input]")!;
+    const trySample = root.querySelector<HTMLButtonElement>("[data-try-sample]")!;
+    const unclosedWarning = root.querySelector<HTMLElement>("[data-unclosed-warning]")!;
+    const emptyState = root.querySelector<HTMLElement>("[data-empty-state]")!;
+    const results = root.querySelector<HTMLElement>("[data-results]")!;
+    const statusBadge = root.querySelector<HTMLElement>("[data-status-badge]")!;
+    const countLoops = root.querySelector<HTMLElement>("[data-count-loops]")!;
+    const countDepth = root.querySelector<HTMLElement>("[data-count-depth]")!;
+    const countIterations = root.querySelector<HTMLElement>("[data-count-iterations]")!;
+    const countRenders = root.querySelector<HTMLElement>("[data-count-renders]")!;
+    const thresholdInput = root.querySelector<HTMLInputElement>("[data-threshold]")!;
+    const globalFlagsEl = root.querySelector<HTMLElement>("[data-global-flags]")!;
+    const loopListEl = root.querySelector<HTMLElement>("[data-loop-list]")!;
+
+    let loops: LoopInfo[] = [];
+    let itemCounts = new Map<number, number>();
+
+    function escapeHtml(text: string): string {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function guessFor(source: string): number {
+      for (const [re, guess] of DEFAULT_GUESS_RULES) {
+        if (re.test(source)) return guess;
+      }
+      return 10;
+    }
+
+    function parse(code: string): { loops: LoopInfo[]; unclosedCount: number } {
+      const tagRe = /{%-?\s*(\w+)([\s\S]*?)-?%}/g;
+      const stack: LoopInfo[] = [];
+      const completed: LoopInfo[] = [];
+      let nextId = 1;
+      let match: RegExpExecArray | null;
+
+      while ((match = tagRe.exec(code)) !== null) {
+        const tagName = match[1];
+        const rest = match[2].trim();
+
+        if (tagName === "for") {
+          const m = /^(\w+)\s+in\s+([\s\S]+)$/.exec(rest);
+          const variable = m ? m[1] : "item";
+          const remainder = m ? m[2].trim() : rest;
+
+          const limitMatch = /\blimit:\s*(\d+)/.exec(remainder);
+          const limit = limitMatch ? Number(limitMatch[1]) : null;
+
+          const sourceForDisplay = remainder
+            .split("|")[0]
+            .split(/\slimit:|\soffset:|\breversed\b/)[0]
+            .trim();
+
+          const filterChain = remainder.includes("|") ? remainder.split("|").slice(1).join("|") : "";
+          const inlineFilterFlags: LoopFlag[] = [];
+          for (const name of FILTER_FLAG_NAMES) {
+            if (new RegExp(`\\b${name}\\b`, "i").test(filterChain)) {
+              inlineFilterFlags.push({
+                label: `Collection is "${name}"-ed inline — if this loop is nested inside another, this filter re-runs on every outer iteration.`,
+                severity: "warn",
+              });
+              break; // one flag is enough signal, avoid noisy repeats
+            }
+          }
+
+          const rangeMatch = /^\(\s*(-?\d+)\s*\.\.\s*(-?\d+)\s*\)$/.exec(sourceForDisplay);
+          const isFixedRange = !!rangeMatch;
+          const fixedCount = rangeMatch ? Math.abs(Number(rangeMatch[2]) - Number(rangeMatch[1])) + 1 : null;
+
+          const loop: LoopInfo = {
+            id: nextId++,
+            depth: stack.length + 1,
+            parentId: stack.length ? stack[stack.length - 1].id : null,
+            headerText: `${variable} in ${sourceForDisplay}`,
+            variable,
+            sourceForDisplay,
+            limit,
+            isFixedRange,
+            fixedCount,
+            defaultGuess: isFixedRange ? (fixedCount as number) : guessFor(sourceForDisplay),
+            flags: [...inlineFilterFlags],
+          };
+          if (limit !== null) {
+            loop.flags.push({ label: `Capped by "limit: ${limit}" in the tag itself.`, severity: "info" });
+          }
+          stack.push(loop);
+        } else if (tagName === "endfor") {
+          const loop = stack.pop();
+          if (loop) completed.push(loop);
+        } else if (tagName === "render" || tagName === "include") {
+          if (stack.length > 0) {
+            const innermost = stack[stack.length - 1];
+            const nameMatch = /['"]([\w.-]+)['"]/.exec(rest);
+            innermost.flags.push({
+              label: `{% ${tagName} ${nameMatch ? `"${nameMatch[1]}" ` : ""}%} runs once per iteration of this loop.`,
+              severity: "warn",
+            });
+          }
+        }
+      }
+
+      completed.sort((a, b) => a.id - b.id);
+      return { loops: completed, unclosedCount: stack.length };
+    }
+
+    function totalIterationsFor(loop: LoopInfo, counts: Map<number, number>, byId: Map<number, LoopInfo>): number {
+      const own = counts.get(loop.id) ?? loop.defaultGuess;
+      const capped = loop.limit !== null ? Math.min(own, loop.limit) : own;
+      if (loop.parentId === null) return capped;
+      const parent = byId.get(loop.parentId)!;
+      return capped * totalIterationsFor(parent, counts, byId);
+    }
+
+    function render() {
+      const byId = new Map(loops.map((l) => [l.id, l]));
+      const maxDepth = loops.reduce((max, l) => Math.max(max, l.depth), 0);
+      let totalIterations = 0;
+      let totalRenders = 0;
+      const globalFlags: string[] = [];
+
+      loops.forEach((loop) => {
+        const total = totalIterationsFor(loop, itemCounts, byId);
+        totalIterations += total;
+        const hasRenderFlag = loop.flags.some((f) => f.label.includes("runs once per iteration"));
+        if (hasRenderFlag) totalRenders += total;
+        if (loop.depth >= 3 && !globalFlags.some((g) => g.startsWith("Deep nesting"))) {
+          globalFlags.push(`Deep nesting detected (depth ${loop.depth}) — iteration counts multiply at each level, so this can grow fast.`);
+        }
+      });
+
+      countLoops.textContent = String(loops.length);
+      countDepth.textContent = String(maxDepth);
+      countIterations.textContent = totalIterations.toLocaleString();
+      countRenders.textContent = totalRenders.toLocaleString();
+
+      const threshold = Number(thresholdInput.value) || 500;
+      let statusText = "Looks fine";
+      let statusClass = "bg-green-100 text-green-700";
+      if (totalIterations > threshold * 4) {
+        statusText = "High — consider optimizing";
+        statusClass = "bg-red-100 text-red-700";
+      } else if (totalIterations > threshold) {
+        statusText = "Worth a look";
+        statusClass = "bg-amber-100 text-amber-700";
+      }
+      statusBadge.textContent = statusText;
+      statusBadge.className = `inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass}`;
+
+      if (globalFlags.length) {
+        globalFlagsEl.classList.remove("hidden");
+        globalFlagsEl.innerHTML = globalFlags
+          .map((g) => `<li class="text-xs text-amber-700">• ${escapeHtml(g)}</li>`)
+          .join("");
+      } else {
+        globalFlagsEl.classList.add("hidden");
+        globalFlagsEl.innerHTML = "";
+      }
+
+      loopListEl.innerHTML = loops
+        .map((loop) => {
+          const total = totalIterationsFor(loop, itemCounts, byId);
+          const current = itemCounts.get(loop.id) ?? loop.defaultGuess;
+          const flagsHtml = loop.flags
+            .map(
+              (f) =>
+                `<p class="text-xs ${f.severity === "warn" ? "text-amber-700" : "text-blue-600"} mt-1">• ${escapeHtml(f.label)}</p>`
+            )
+            .join("");
+
+          return `
+          <li class="rounded-lg border border-gray-200 p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <code class="text-sm font-mono text-gray-800">{% for ${escapeHtml(loop.headerText)} %}</code>
+              <span class="inline-flex items-center rounded-full bg-lime-100 px-2 py-0.5 text-xs font-medium text-lime-800">depth ${loop.depth}</span>
+            </div>
+            <div class="flex items-center gap-2 mb-1">
+              <label class="text-xs text-gray-500">Estimated items</label>
+              <input
+                type="number"
+                min="0"
+                data-item-count-input
+                data-loop-id="${loop.id}"
+                value="${current}"
+                ${loop.isFixedRange ? "disabled" : ""}
+                class="w-20 rounded-md border border-gray-300 px-2 py-1 text-xs ${loop.isFixedRange ? "bg-gray-100 text-gray-400" : ""}"
+              />
+              ${loop.isFixedRange ? '<span class="text-xs text-gray-400">fixed range</span>' : '<span class="text-xs text-gray-400">guess — edit freely</span>'}
+              <span class="ml-auto text-xs text-gray-500">≈ <strong class="text-gray-800">${total.toLocaleString()}</strong> total runs</span>
+            </div>
+            ${flagsHtml}
+          </li>`;
+        })
+        .join("");
+
+      loopListEl.querySelectorAll<HTMLInputElement>("[data-item-count-input]").forEach((el) => {
+        el.addEventListener("input", () => {
+          const id = Number(el.dataset.loopId);
+          const val = Math.max(0, Number(el.value) || 0);
+          itemCounts.set(id, val);
+          render();
+        });
+      });
+    }
+
+    let debounceTimer: number | undefined;
+    function run() {
+      const code = input.value;
+      if (!code.trim()) {
+        emptyState.classList.remove("hidden");
+        results.classList.add("hidden");
+        unclosedWarning.classList.add("hidden");
+        loops = [];
+        itemCounts = new Map();
+        return;
+      }
+
+      const parsed = parse(code);
+      const previousCounts = itemCounts;
+      itemCounts = new Map();
+      loops = parsed.loops;
+      // Preserve any counts a user already tweaked, for loops that still exist by position.
+      loops.forEach((loop, i) => {
+        const prevLoop = [...previousCounts.entries()][i];
+        if (prevLoop) itemCounts.set(loop.id, prevLoop[1]);
+      });
+
+      if (parsed.unclosedCount > 0) {
+        unclosedWarning.classList.remove("hidden");
+        unclosedWarning.textContent = `${parsed.unclosedCount} unclosed {% for %} tag(s) detected — check for a missing {% endfor %}. Results below only reflect properly closed loops.`;
+      } else {
+        unclosedWarning.classList.add("hidden");
+      }
+
+      if (loops.length === 0) {
+        emptyState.classList.remove("hidden");
+        emptyState.textContent = "No {% for %} loops detected. Paste a Liquid template that includes a for loop to get an estimate.";
+        results.classList.add("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      results.classList.remove("hidden");
+      render();
+    }
+
+    input.addEventListener("input", () => {
+      window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(run, 200);
+    });
+    thresholdInput.addEventListener("input", () => loops.length && render());
+
+    trySample.addEventListener("click", () => {
+      input.value = `{% for collection_item in collections.all %}
+  {% for product in collection_item.products | sort: 'best-selling' limit: 8 %}
+    {% render 'product-card', product: product %}
+    {% for variant in product.variants %}
+      <option value="{{ variant.id }}">{{ variant.title }}</option>
+    {% endfor %}
+  {% endfor %}
+{% endfor %}`;
+      run();
+    });
+
+    run();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-liquid-loop-estimator-widget]").forEach(initLiquidLoopEstimator);
+</script>
