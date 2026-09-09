@@ -1,0 +1,560 @@
+
+<div data-structured-data-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="mb-6">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Schema Type</p>
+    <select
+      data-schema-type
+      class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+    >
+      <option value="product">Product</option>
+      <option value="organization">Organization / Online Store</option>
+      <option value="breadcrumb">Breadcrumb</option>
+      <option value="faq">FAQ</option>
+      <option value="review">Review / Aggregate Rating</option>
+      <option value="localbusiness">Local Business</option>
+      <option value="article">Article / Blog Post</option>
+    </select>
+  </div>
+
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Details</p>
+    <div data-fields class="space-y-3"></div>
+  </div>
+
+  <div>
+    <div class="mb-2 flex items-center justify-between">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Output</p>
+      <div data-liquid-toggle-wrap class="hidden inline-flex rounded-lg border border-gray-200 p-0.5 text-xs">
+        <button type="button" data-output-mode="json" class="rounded-md bg-orange-600 px-2.5 py-1 font-medium text-white">JSON-LD</button>
+        <button type="button" data-output-mode="liquid" class="rounded-md px-2.5 py-1 font-medium text-gray-500">Shopify Liquid</button>
+      </div>
+    </div>
+    <p data-liquid-note class="mb-2 hidden text-xs text-gray-500">
+      This schema type has no direct Shopify Liquid objects to map to (name, address, and other fields are store-specific), so only static JSON-LD is available.
+    </p>
+    <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4 text-xs leading-relaxed text-gray-100"><code data-output>Loading…</code></pre>
+    <div class="mt-3 flex items-center gap-2">
+      <button
+        type="button"
+        data-copy-btn
+        class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-orange-300 hover:text-orange-600"
+      >
+        <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+        </svg>
+        <svg data-check-icon class="hidden h-3.5 w-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span data-copy-label>Copy</span>
+      </button>
+      <button type="button" data-reset-btn class="ml-auto text-xs text-gray-400 hover:text-red-600">
+        Reset fields
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  type FieldDef = {
+    key: string;
+    label: string;
+    kind: "text" | "textarea" | "select" | "number";
+    placeholder?: string;
+    default?: string;
+    options?: { value: string; label: string }[];
+  };
+
+  const FIELD_SETS: Record<string, FieldDef[]> = {
+    product: [
+      { key: "name", label: "Product name", kind: "text", default: "Classic Canvas Tote" },
+      { key: "description", label: "Description", kind: "textarea", default: "Durable canvas tote bag with reinforced straps, made for everyday carry." },
+      { key: "image", label: "Image URL", kind: "text", placeholder: "https://cdn.shopify.com/.../tote.jpg" },
+      { key: "url", label: "Product URL", kind: "text", placeholder: "https://yourstore.com/products/classic-tote" },
+      { key: "brand", label: "Brand", kind: "text", default: "Your Store" },
+      { key: "sku", label: "SKU", kind: "text", placeholder: "TOTE-001-BLK" },
+      { key: "price", label: "Price", kind: "number", default: "38.00" },
+      { key: "priceCurrency", label: "Currency", kind: "text", default: "USD" },
+      {
+        key: "availability",
+        label: "Availability",
+        kind: "select",
+        default: "InStock",
+        options: [
+          { value: "InStock", label: "In stock" },
+          { value: "OutOfStock", label: "Out of stock" },
+          { value: "PreOrder", label: "Pre-order" },
+          { value: "BackOrder", label: "Back order" },
+          { value: "Discontinued", label: "Discontinued" },
+        ],
+      },
+      { key: "ratingValue", label: "Avg. rating (optional)", kind: "number", placeholder: "4.6" },
+      { key: "reviewCount", label: "Review count (optional)", kind: "number", placeholder: "128" },
+    ],
+    organization: [
+      { key: "name", label: "Store name", kind: "text", default: "Your Store" },
+      { key: "url", label: "Store URL", kind: "text", placeholder: "https://yourstore.com" },
+      { key: "logo", label: "Logo URL", kind: "text", placeholder: "https://yourstore.com/logo.png" },
+      { key: "description", label: "Description", kind: "textarea", default: "Independent shop selling handmade goods." },
+      { key: "telephone", label: "Phone (optional)", kind: "text", placeholder: "+1-555-010-2000" },
+      { key: "sameAs", label: "Social profile URLs (comma-separated, optional)", kind: "textarea", placeholder: "https://instagram.com/yourstore, https://facebook.com/yourstore" },
+    ],
+    breadcrumb: [],
+    faq: [],
+    review: [
+      { key: "itemName", label: "Item being reviewed", kind: "text", default: "Classic Canvas Tote" },
+      { key: "ratingValue", label: "Rating value", kind: "number", default: "5" },
+      { key: "bestRating", label: "Best possible rating", kind: "number", default: "5" },
+      { key: "authorName", label: "Reviewer name", kind: "text", default: "Jordan P." },
+      { key: "reviewBody", label: "Review text", kind: "textarea", default: "Held up well after months of daily use. Straps show no wear." },
+      { key: "datePublished", label: "Date published (YYYY-MM-DD)", kind: "text", placeholder: "2026-08-14" },
+      { key: "aggRatingValue", label: "Aggregate rating (optional)", kind: "number", placeholder: "4.6" },
+      { key: "aggReviewCount", label: "Aggregate review count (optional)", kind: "number", placeholder: "128" },
+    ],
+    localbusiness: [
+      {
+        key: "subtype",
+        label: "Business type",
+        kind: "select",
+        default: "Store",
+        options: [
+          { value: "Store", label: "Store (generic)" },
+          { value: "ClothingStore", label: "Clothing store" },
+          { value: "ShoeStore", label: "Shoe store" },
+          { value: "JewelryStore", label: "Jewelry store" },
+          { value: "ElectronicsStore", label: "Electronics store" },
+          { value: "HomeGoodsStore", label: "Home goods store" },
+          { value: "SportingGoodsStore", label: "Sporting goods store" },
+          { value: "Boutique", label: "Boutique" },
+        ],
+      },
+      { key: "name", label: "Business name", kind: "text", default: "Your Store — Flagship" },
+      { key: "streetAddress", label: "Street address", kind: "text", placeholder: "123 Market St" },
+      { key: "addressLocality", label: "City", kind: "text", placeholder: "Portland" },
+      { key: "addressRegion", label: "State / region", kind: "text", placeholder: "OR" },
+      { key: "postalCode", label: "Postal code", kind: "text", placeholder: "97201" },
+      { key: "addressCountry", label: "Country code (ISO 3166-1 alpha-2)", kind: "text", default: "US" },
+      { key: "telephone", label: "Phone", kind: "text", placeholder: "+1-555-010-2000" },
+      { key: "priceRange", label: "Price range", kind: "text", placeholder: "$$" },
+      { key: "openingHours", label: "Opening hours (optional)", kind: "text", placeholder: "Mo-Sa 10:00-18:00" },
+    ],
+    article: [
+      { key: "headline", label: "Headline", kind: "text", default: "How We Source Our Canvas" },
+      { key: "authorName", label: "Author name", kind: "text", default: "Your Store" },
+      { key: "datePublished", label: "Date published (YYYY-MM-DD)", kind: "text", placeholder: "2026-08-14" },
+      { key: "image", label: "Image URL", kind: "text", placeholder: "https://cdn.shopify.com/.../article-hero.jpg" },
+      { key: "description", label: "Description", kind: "textarea", default: "A look at where our canvas comes from and how it's woven." },
+    ],
+  };
+
+  const LIQUID_CAPABLE = new Set(["product", "organization"]);
+
+  function initStructuredDataGenerator(root: HTMLElement) {
+    const typeSelect = root.querySelector<HTMLSelectElement>("[data-schema-type]")!;
+    const fieldsWrap = root.querySelector<HTMLElement>("[data-fields]")!;
+    const output = root.querySelector<HTMLElement>("[data-output]")!;
+    const liquidToggleWrap = root.querySelector<HTMLElement>("[data-liquid-toggle-wrap]")!;
+    const liquidNote = root.querySelector<HTMLElement>("[data-liquid-note]")!;
+    const modeButtons = root.querySelectorAll<HTMLButtonElement>("[data-output-mode]");
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy-btn]")!;
+    const copyIcon = root.querySelector<HTMLElement>("[data-copy-icon]")!;
+    const checkIcon = root.querySelector<HTMLElement>("[data-check-icon]")!;
+    const copyLabel = root.querySelector<HTMLElement>("[data-copy-label]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-reset-btn]")!;
+
+    let outputMode: "json" | "liquid" = "json";
+    let breadcrumbRows: { name: string; url: string }[] = [
+      { name: "Home", url: "https://yourstore.com" },
+      { name: "Bags", url: "https://yourstore.com/collections/bags" },
+      { name: "Classic Canvas Tote", url: "" },
+    ];
+    let faqRows: { question: string; answer: string }[] = [
+      { question: "Do you ship internationally?", answer: "Yes, we ship to most countries. Rates are calculated at checkout." },
+      { question: "What is your return policy?", answer: "Unused items can be returned within 30 days for a full refund." },
+    ];
+
+    function currentFields(): FieldDef[] {
+      return FIELD_SETS[typeSelect.value] || [];
+    }
+
+    function getValue(key: string): string {
+      const el = fieldsWrap.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[data-field="${key}"]`);
+      return el ? el.value.trim() : "";
+    }
+
+    function renderGenericFields() {
+      fieldsWrap.innerHTML = "";
+      for (const field of currentFields()) {
+        const wrap = document.createElement("div");
+        const labelEl = document.createElement("label");
+        labelEl.className = "mb-1 block text-xs font-medium text-gray-600";
+        labelEl.textContent = field.label;
+        wrap.appendChild(labelEl);
+
+        let input: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        if (field.kind === "textarea") {
+          input = document.createElement("textarea");
+          (input as HTMLTextAreaElement).rows = 2;
+        } else if (field.kind === "select") {
+          input = document.createElement("select");
+          for (const opt of field.options || []) {
+            const o = document.createElement("option");
+            o.value = opt.value;
+            o.textContent = opt.label;
+            input.appendChild(o);
+          }
+        } else {
+          input = document.createElement("input");
+          (input as HTMLInputElement).type = field.kind === "number" ? "number" : "text";
+        }
+        input.setAttribute("data-field", field.key);
+        input.className =
+          "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500";
+        if (field.default) input.value = field.default;
+        if (field.placeholder) input.setAttribute("placeholder", field.placeholder);
+        input.addEventListener("input", render);
+        input.addEventListener("change", render);
+
+        wrap.appendChild(input);
+        fieldsWrap.appendChild(wrap);
+      }
+    }
+
+    function renderRepeatableList(kind: "breadcrumb" | "faq") {
+      fieldsWrap.innerHTML = "";
+      const rows = kind === "breadcrumb" ? breadcrumbRows : faqRows;
+      const list = document.createElement("div");
+      list.className = "space-y-2";
+
+      rows.forEach((row, i) => {
+        const rowEl = document.createElement("div");
+        rowEl.className = "flex gap-2 items-start rounded-lg border border-gray-200 p-2";
+
+        if (kind === "breadcrumb") {
+          const r = row as { name: string; url: string };
+          const nameInput = document.createElement("input");
+          nameInput.type = "text";
+          nameInput.value = r.name;
+          nameInput.placeholder = "Step name";
+          nameInput.className = "w-1/2 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500";
+          nameInput.addEventListener("input", () => { r.name = nameInput.value; render(); });
+
+          const urlInput = document.createElement("input");
+          urlInput.type = "text";
+          urlInput.value = r.url;
+          urlInput.placeholder = i === rows.length - 1 ? "Current page (no URL needed)" : "https://yourstore.com/...";
+          urlInput.className = "w-1/2 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500";
+          urlInput.addEventListener("input", () => { r.url = urlInput.value; render(); });
+
+          rowEl.appendChild(nameInput);
+          rowEl.appendChild(urlInput);
+        } else {
+          const r = row as { question: string; answer: string };
+          const col = document.createElement("div");
+          col.className = "w-full space-y-1.5";
+
+          const qInput = document.createElement("input");
+          qInput.type = "text";
+          qInput.value = r.question;
+          qInput.placeholder = "Question";
+          qInput.className = "w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500";
+          qInput.addEventListener("input", () => { r.question = qInput.value; render(); });
+
+          const aInput = document.createElement("textarea");
+          aInput.rows = 2;
+          aInput.value = r.answer;
+          aInput.placeholder = "Answer";
+          aInput.className = "w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500";
+          aInput.addEventListener("input", () => { r.answer = aInput.value; render(); });
+
+          col.appendChild(qInput);
+          col.appendChild(aInput);
+          rowEl.appendChild(col);
+        }
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "shrink-0 text-gray-400 hover:text-red-600 text-xs mt-1.5";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => {
+          rows.splice(i, 1);
+          renderRepeatableList(kind);
+          render();
+        });
+
+        rowEl.appendChild(removeBtn);
+        list.appendChild(rowEl);
+      });
+
+      fieldsWrap.appendChild(list);
+
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.className = "mt-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-orange-300 hover:text-orange-600";
+      addBtn.textContent = kind === "breadcrumb" ? "+ Add step" : "+ Add question";
+      addBtn.addEventListener("click", () => {
+        if (kind === "breadcrumb") breadcrumbRows.push({ name: "", url: "" });
+        else faqRows.push({ question: "", answer: "" });
+        renderRepeatableList(kind);
+        render();
+      });
+      fieldsWrap.appendChild(addBtn);
+    }
+
+    function buildJsonLd(): Record<string, unknown> {
+      const type = typeSelect.value;
+
+      if (type === "product") {
+        const obj: Record<string, unknown> = {
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          name: getValue("name"),
+          description: getValue("description"),
+          image: getValue("image"),
+          url: getValue("url"),
+          brand: { "@type": "Brand", name: getValue("brand") },
+          sku: getValue("sku"),
+          offers: {
+            "@type": "Offer",
+            url: getValue("url"),
+            priceCurrency: getValue("priceCurrency"),
+            price: getValue("price"),
+            itemCondition: "https://schema.org/NewCondition",
+            availability: `https://schema.org/${getValue("availability")}`,
+          },
+        };
+        const rv = getValue("ratingValue");
+        const rc = getValue("reviewCount");
+        if (rv && rc) {
+          obj.aggregateRating = { "@type": "AggregateRating", ratingValue: rv, reviewCount: rc };
+        }
+        return obj;
+      }
+
+      if (type === "organization") {
+        const sameAs = getValue("sameAs")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const obj: Record<string, unknown> = {
+          "@context": "https://schema.org/",
+          "@type": "OnlineStore",
+          name: getValue("name"),
+          url: getValue("url"),
+          logo: getValue("logo"),
+          description: getValue("description"),
+        };
+        if (getValue("telephone")) obj.telephone = getValue("telephone");
+        if (sameAs.length) obj.sameAs = sameAs;
+        return obj;
+      }
+
+      if (type === "breadcrumb") {
+        return {
+          "@context": "https://schema.org/",
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbRows.map((r, i) => {
+            const item: Record<string, unknown> = { "@type": "ListItem", position: i + 1, name: r.name };
+            if (r.url) item.item = r.url;
+            return item;
+          }),
+        };
+      }
+
+      if (type === "faq") {
+        return {
+          "@context": "https://schema.org/",
+          "@type": "FAQPage",
+          mainEntity: faqRows.map((r) => ({
+            "@type": "Question",
+            name: r.question,
+            acceptedAnswer: { "@type": "Answer", text: r.answer },
+          })),
+        };
+      }
+
+      if (type === "review") {
+        const obj: Record<string, unknown> = {
+          "@context": "https://schema.org/",
+          "@type": "Review",
+          itemReviewed: { "@type": "Product", name: getValue("itemName") },
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: getValue("ratingValue"),
+            bestRating: getValue("bestRating"),
+          },
+          author: { "@type": "Person", name: getValue("authorName") },
+          reviewBody: getValue("reviewBody"),
+        };
+        if (getValue("datePublished")) obj.datePublished = getValue("datePublished");
+        const arv = getValue("aggRatingValue");
+        const arc = getValue("aggReviewCount");
+        if (arv && arc) {
+          obj.aggregateRating = { "@type": "AggregateRating", ratingValue: arv, reviewCount: arc };
+        }
+        return obj;
+      }
+
+      if (type === "localbusiness") {
+        const obj: Record<string, unknown> = {
+          "@context": "https://schema.org/",
+          "@type": getValue("subtype") || "Store",
+          name: getValue("name"),
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: getValue("streetAddress"),
+            addressLocality: getValue("addressLocality"),
+            addressRegion: getValue("addressRegion"),
+            postalCode: getValue("postalCode"),
+            addressCountry: getValue("addressCountry"),
+          },
+        };
+        if (getValue("telephone")) obj.telephone = getValue("telephone");
+        if (getValue("priceRange")) obj.priceRange = getValue("priceRange");
+        if (getValue("openingHours")) obj.openingHours = getValue("openingHours");
+        return obj;
+      }
+
+      // article
+      const obj: Record<string, unknown> = {
+        "@context": "https://schema.org/",
+        "@type": "Article",
+        headline: getValue("headline"),
+        image: getValue("image"),
+        description: getValue("description"),
+        author: { "@type": "Person", name: getValue("authorName") },
+      };
+      if (getValue("datePublished")) obj.datePublished = getValue("datePublished");
+      return obj;
+    }
+
+    function buildLiquidBlock(): string {
+      const type = typeSelect.value;
+
+      if (type === "product") {
+        const rv = getValue("ratingValue");
+        const rc = getValue("reviewCount");
+        const aggregate = rv && rc
+          ? `,
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": ${JSON.stringify(rv)},
+    "reviewCount": ${JSON.stringify(rc)}
+  }`
+          : "";
+        return `<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "description": {{ product.description | strip_html | json }},
+  "image": "{{ product.featured_image | image_url: width: 1200 }}",
+  "url": "{{ shop.url }}{{ product.url }}",
+  "brand": { "@type": "Brand", "name": {{ product.vendor | json }} },
+  "sku": {{ product.selected_or_first_available_variant.sku | json }},
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ shop.url }}{{ product.url }}",
+    "priceCurrency": "{{ cart.currency.iso_code }}",
+    "price": "{{ product.price | money_without_currency }}",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+  }${aggregate}
+}
+<\/script>`;
+      }
+
+      // organization
+      return `<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "OnlineStore",
+  "name": {{ shop.name | json }},
+  "url": "{{ shop.url }}",
+  "logo": "${getValue("logo") || "{{ 'logo.png' | asset_url }}"}",
+  "description": {{ shop.description | default: "" | json }}${getValue("telephone") ? `,
+  "telephone": ${JSON.stringify(getValue("telephone"))}` : ""}
+}
+<\/script>`;
+    }
+
+    function render() {
+      const type = typeSelect.value;
+
+      if (LIQUID_CAPABLE.has(type)) {
+        liquidToggleWrap.classList.remove("hidden");
+        liquidNote.classList.add("hidden");
+      } else {
+        liquidToggleWrap.classList.add("hidden");
+        liquidNote.classList.remove("hidden");
+        outputMode = "json";
+      }
+      modeButtons.forEach((btn) => {
+        const active = btn.getAttribute("data-output-mode") === outputMode;
+        btn.className = active
+          ? "rounded-md bg-orange-600 px-2.5 py-1 font-medium text-white"
+          : "rounded-md px-2.5 py-1 font-medium text-gray-500";
+      });
+
+      if (outputMode === "liquid" && LIQUID_CAPABLE.has(type)) {
+        output.textContent = buildLiquidBlock();
+      } else {
+        const json = JSON.stringify(buildJsonLd(), null, 2);
+        output.textContent = `<script type="application/ld+json">\n${json}\n<\/script>`;
+      }
+    }
+
+    typeSelect.addEventListener("change", () => {
+      if (typeSelect.value === "breadcrumb") renderRepeatableList("breadcrumb");
+      else if (typeSelect.value === "faq") renderRepeatableList("faq");
+      else renderGenericFields();
+      render();
+    });
+
+    modeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        outputMode = btn.getAttribute("data-output-mode") as "json" | "liquid";
+        render();
+      });
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(output.textContent || "");
+        copyIcon.classList.add("hidden");
+        checkIcon.classList.remove("hidden");
+        copyLabel.textContent = "Copied";
+        setTimeout(() => {
+          copyIcon.classList.remove("hidden");
+          checkIcon.classList.add("hidden");
+          copyLabel.textContent = "Copy";
+        }, 1500);
+      } catch {
+        // clipboard unavailable, ignore
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      breadcrumbRows = [
+        { name: "Home", url: "https://yourstore.com" },
+        { name: "Bags", url: "https://yourstore.com/collections/bags" },
+        { name: "Classic Canvas Tote", url: "" },
+      ];
+      faqRows = [
+        { question: "Do you ship internationally?", answer: "Yes, we ship to most countries. Rates are calculated at checkout." },
+        { question: "What is your return policy?", answer: "Unused items can be returned within 30 days for a full refund." },
+      ];
+      typeSelect.value = "product";
+      outputMode = "json";
+      renderGenericFields();
+      render();
+    });
+
+    renderGenericFields();
+    render();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-structured-data-generator-widget]")
+    .forEach(initStructuredDataGenerator);
+</script>

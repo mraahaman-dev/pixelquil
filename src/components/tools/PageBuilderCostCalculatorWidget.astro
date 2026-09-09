@@ -1,0 +1,194 @@
+---
+// PageBuilderCostCalculatorWidget.astro
+// Compares cumulative cost of a page-builder-app path vs a native-theme-dev path
+// over a chosen time horizon, with a break-even point and a hand-drawn SVG chart.
+// No vendor pricing is hardcoded \u2014 every number is user-adjustable.
+---
+
+<div data-cost-calculator-widget class="w-full">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left: inputs -->
+    <div class="space-y-4">
+      <div class="border border-gray-200 rounded-lg p-4 space-y-3">
+        <p class="text-sm font-semibold text-gray-800">Page builder app path</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-xs font-medium text-gray-500 mb-1">Monthly subscription ($)</label><input data-pb-sub type="number" min="0" value="30" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          <div><label class="block text-xs font-medium text-gray-500 mb-1">Pages to build</label><input data-pages type="number" min="1" value="5" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          <div><label class="block text-xs font-medium text-gray-500 mb-1">Hours to build, per page</label><input data-pb-hours type="number" min="0" step="0.5" value="2" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          <div><label class="block text-xs font-medium text-gray-500 mb-1">Your time value ($/hr, optional)</label><input data-pb-time-value type="number" min="0" value="0" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+        </div>
+        <p class="text-xs text-gray-400">Leave time value at 0 if you don't want to count your own build time as a cost.</p>
+      </div>
+
+      <div class="border border-gray-200 rounded-lg p-4 space-y-3">
+        <p class="text-sm font-semibold text-gray-800">Native theme (custom Liquid) path</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="block text-xs font-medium text-gray-500 mb-1">Hours to build, per page</label><input data-native-hours type="number" min="0" step="0.5" value="6" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          <div><label class="block text-xs font-medium text-gray-500 mb-1">Developer rate ($/hr)</label><input data-dev-rate type="number" min="0" value="40" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+          <div class="col-span-2"><label class="block text-xs font-medium text-gray-500 mb-1">Ongoing maintenance (hours/month)</label><input data-maint-hours type="number" min="0" step="0.25" value="1" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5"></div>
+        </div>
+        <p class="text-xs text-gray-400">Defaults above are just a starting example \u2014 replace every number with your own.</p>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-xs font-medium text-gray-500 mb-1"><span>Time horizon</span><span data-horizon-val>24 months</span></div>
+        <input data-horizon type="range" min="3" max="48" value="24" class="w-full">
+      </div>
+    </div>
+
+    <!-- Right: results -->
+    <div class="space-y-3">
+      <div data-summary-card class="border border-gray-200 rounded-lg p-4">
+        <p data-summary-text class="text-sm text-gray-700"></p>
+      </div>
+      <div class="border border-gray-200 rounded-lg p-3">
+        <svg data-chart viewBox="0 0 600 320" class="w-full h-auto"></svg>
+        <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+          <span class="flex items-center gap-1"><span class="w-3 h-1.5 inline-block bg-amber-500"></span> Page builder</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-1.5 inline-block bg-emerald-600"></span> Native theme</span>
+        </div>
+      </div>
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-gray-500 text-xs">
+            <tr><th class="text-left px-3 py-2 font-medium">At end of horizon</th><th class="text-right px-3 py-2 font-medium">Total cost</th></tr>
+          </thead>
+          <tbody data-cost-table class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <details class="mt-4 border border-gray-200 rounded-lg">
+    <summary class="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer bg-gray-50">Non-cost factors worth weighing too</summary>
+    <div class="px-4 py-3 text-sm text-gray-600 space-y-2">
+      <p><strong>Speed to launch and iterate:</strong> a page builder generally lets you publish and edit a page yourself, same day, without waiting on a developer. Native sections usually mean a request-and-wait cycle for every change, though a well-built section with rich schema settings can hand meaningful editing control back to a non-developer too.</p>
+      <p><strong>Page weight and speed:</strong> some page builder apps load additional JavaScript and CSS to power their editor output, which can affect page speed more than a lean, custom-coded section. This varies a lot by app and by how a page is actually configured, worth testing your specific setup with a tool like Google PageSpeed Insights rather than assuming either direction.</p>
+      <p><strong>Portability and lock-in:</strong> pages built in a page builder typically depend on that app staying installed, canceling the subscription can break or hide the pages. A native Liquid section is part of your theme permanently, with no ongoing dependency on a third-party app.</p>
+      <p><strong>Who can make changes:</strong> a page builder often lets a non-technical team member edit content directly. Native sections can be built with rich settings for the same kind of self-service editing, but that flexibility has to be deliberately designed into the schema upfront.</p>
+    </div>
+  </details>
+</div>
+
+<script>
+  function initCostCalculator(root: HTMLElement) {
+    const pbSub = root.querySelector<HTMLInputElement>('[data-pb-sub]')!;
+    const pages = root.querySelector<HTMLInputElement>('[data-pages]')!;
+    const pbHours = root.querySelector<HTMLInputElement>('[data-pb-hours]')!;
+    const pbTimeValue = root.querySelector<HTMLInputElement>('[data-pb-time-value]')!;
+    const nativeHours = root.querySelector<HTMLInputElement>('[data-native-hours]')!;
+    const devRate = root.querySelector<HTMLInputElement>('[data-dev-rate]')!;
+    const maintHours = root.querySelector<HTMLInputElement>('[data-maint-hours]')!;
+    const horizon = root.querySelector<HTMLInputElement>('[data-horizon]')!;
+    const horizonVal = root.querySelector<HTMLElement>('[data-horizon-val]')!;
+    const summaryText = root.querySelector<HTMLElement>('[data-summary-text]')!;
+    const chart = root.querySelector<SVGElement>('[data-chart]')!;
+    const costTable = root.querySelector<HTMLElement>('[data-cost-table]')!;
+
+    function computeSeries(inputs: {
+      pages: number; pbHoursPerPage: number; pbTimeValue: number; monthlySub: number;
+      nativeHoursPerPage: number; devRate: number; maintHoursPerMonth: number; horizonMonths: number;
+    }) {
+      const upfrontPB = inputs.pages * inputs.pbHoursPerPage * inputs.pbTimeValue;
+      const upfrontNative = inputs.pages * inputs.nativeHoursPerPage * inputs.devRate;
+      const pbSeries: number[] = [];
+      const nativeSeries: number[] = [];
+      for (let m = 0; m <= inputs.horizonMonths; m++) {
+        pbSeries.push(upfrontPB + inputs.monthlySub * m);
+        nativeSeries.push(upfrontNative + inputs.maintHoursPerMonth * inputs.devRate * m);
+      }
+      let breakEvenMonth: number | null = null;
+      for (let m = 0; m <= inputs.horizonMonths; m++) {
+        if (nativeSeries[m] <= pbSeries[m]) { breakEvenMonth = m; break; }
+      }
+      return { pbSeries, nativeSeries, breakEvenMonth, upfrontPB, upfrontNative };
+    }
+
+    function fmt(n: number): string {
+      return '$' + Math.round(n).toLocaleString();
+    }
+
+    function drawChart(pbSeries: number[], nativeSeries: number[], breakEvenMonth: number | null, horizonMonths: number) {
+      const W = 600, H = 320;
+      const padL = 55, padR = 15, padT = 15, padB = 35;
+      const chartW = W - padL - padR, chartH = H - padT - padB;
+      const maxVal = Math.max(...pbSeries, ...nativeSeries, 1);
+
+      const xScale = (m: number) => padL + (m / horizonMonths) * chartW;
+      const yScale = (v: number) => padT + chartH - (v / maxVal) * chartH;
+
+      const pbPoints = pbSeries.map((v, m) => `${xScale(m).toFixed(1)},${yScale(v).toFixed(1)}`).join(' ');
+      const nativePoints = nativeSeries.map((v, m) => `${xScale(m).toFixed(1)},${yScale(v).toFixed(1)}`).join(' ');
+
+      let gridLines = '';
+      for (let i = 0; i <= 4; i++) {
+        const val = (maxVal / 4) * i;
+        const y = yScale(val);
+        gridLines += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
+        gridLines += `<text x="${padL - 8}" y="${y + 4}" font-size="10" fill="#94a3b8" text-anchor="end">${fmt(val)}</text>`;
+      }
+      let xLabels = '';
+      const xStep = Math.max(1, Math.round(horizonMonths / 6));
+      for (let m = 0; m <= horizonMonths; m += xStep) {
+        xLabels += `<text x="${xScale(m)}" y="${H - padB + 16}" font-size="10" fill="#94a3b8" text-anchor="middle">${m}mo</text>`;
+      }
+
+      let breakEvenMarker = '';
+      if (breakEvenMonth !== null && breakEvenMonth <= horizonMonths) {
+        const x = xScale(breakEvenMonth);
+        const y = yScale(nativeSeries[breakEvenMonth]);
+        breakEvenMarker = `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H - padB}" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <circle cx="${x}" cy="${y}" r="4" fill="#0f172a"/>`;
+      }
+
+      chart.innerHTML = `
+        ${gridLines}
+        ${xLabels}
+        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#cbd5e1" stroke-width="1"/>
+        <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#cbd5e1" stroke-width="1"/>
+        <polyline points="${pbPoints}" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        <polyline points="${nativePoints}" fill="none" stroke="#059669" stroke-width="2.5"/>
+        ${breakEvenMarker}
+      `;
+    }
+
+    function render() {
+      const inputs = {
+        pages: Math.max(1, Number(pages.value) || 1),
+        pbHoursPerPage: Math.max(0, Number(pbHours.value) || 0),
+        pbTimeValue: Math.max(0, Number(pbTimeValue.value) || 0),
+        monthlySub: Math.max(0, Number(pbSub.value) || 0),
+        nativeHoursPerPage: Math.max(0, Number(nativeHours.value) || 0),
+        devRate: Math.max(0, Number(devRate.value) || 0),
+        maintHoursPerMonth: Math.max(0, Number(maintHours.value) || 0),
+        horizonMonths: Math.max(1, Number(horizon.value) || 24)
+      };
+      horizonVal.textContent = inputs.horizonMonths + ' months';
+
+      const { pbSeries, nativeSeries, breakEvenMonth, upfrontPB, upfrontNative } = computeSeries(inputs);
+      const horizonPB = pbSeries[pbSeries.length - 1];
+      const horizonNative = nativeSeries[nativeSeries.length - 1];
+
+      if (breakEvenMonth === 0) {
+        summaryText.innerHTML = `At these numbers, the <strong>native theme path is already cheaper from day one</strong> (upfront ${fmt(upfrontNative)} vs ${fmt(upfrontPB)}), and stays cheaper for the rest of your ${inputs.horizonMonths}-month horizon.`;
+      } else if (breakEvenMonth !== null) {
+        summaryText.innerHTML = `The native theme path costs more upfront (${fmt(upfrontNative)} vs ${fmt(upfrontPB)}), but its lower ongoing cost means it <strong>breaks even around month ${breakEvenMonth}</strong> and is cheaper for the rest of your ${inputs.horizonMonths}-month horizon.`;
+      } else {
+        summaryText.innerHTML = `At these numbers, the <strong>page builder path stays cheaper across your entire ${inputs.horizonMonths}-month horizon</strong> \u2014 native's ongoing maintenance cost per month is higher than the subscription, so it never catches up within this timeframe.`;
+      }
+
+      drawChart(pbSeries, nativeSeries, breakEvenMonth, inputs.horizonMonths);
+
+      costTable.innerHTML = `
+        <tr><td class="px-3 py-2">Page builder app</td><td class="px-3 py-2 text-right font-medium">${fmt(horizonPB)}</td></tr>
+        <tr><td class="px-3 py-2">Native theme</td><td class="px-3 py-2 text-right font-medium">${fmt(horizonNative)}</td></tr>
+        <tr class="bg-gray-50"><td class="px-3 py-2 font-medium">Difference</td><td class="px-3 py-2 text-right font-semibold">${fmt(Math.abs(horizonPB - horizonNative))} ${horizonPB > horizonNative ? 'cheaper natively' : 'cheaper with page builder'}</td></tr>
+      `;
+    }
+
+    [pbSub, pages, pbHours, pbTimeValue, nativeHours, devRate, maintHours, horizon].forEach((el) => el.addEventListener('input', render));
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-cost-calculator-widget]').forEach(initCostCalculator);
+</script>

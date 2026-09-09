@@ -73,6 +73,9 @@ import SkeletonLoaderWidget from '../../components/tools/SkeletonLoaderWidget.as
 import SvgDropShadowWidget from '../../components/tools/SvgDropShadowWidget.astro';
 import HandwritingToVectorWidget from '../../components/tools/HandwritingToVectorWidget.astro';
 import LiquidLoopEstimatorWidget from '../../components/tools/LiquidLoopEstimatorWidget.astro';
+import PageBuilderCostCalculatorWidget from '../../components/tools/PageBuilderCostCalculatorWidget.astro';
+import StructuredDataGeneratorWidget from "../../components/tools/StructuredDataGeneratorWidget.astro";
+import WhitespaceVisualizerWidget from "../../components/tools/WhitespaceVisualizerWidget.astro";
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -157,6 +160,10 @@ const widgets: Record<string, any> = {
     "svg-drop-shadow-generator": SvgDropShadowWidget,
     "handwriting-to-vector": HandwritingToVectorWidget,
     "liquid-loop-performance-estimator": LiquidLoopEstimatorWidget,
+    "page-builder-vs-native-cost-calculator": PageBuilderCostCalculatorWidget,
+    "structured-data-generator": StructuredDataGeneratorWidget,
+    "liquid-whitespace-visualizer": WhitespaceVisualizerWidget,
+    
 };
 
 const Widget = widgets[tool.slug] ?? ComingSoonWidget;

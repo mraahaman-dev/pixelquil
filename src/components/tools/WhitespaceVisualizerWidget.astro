@@ -1,0 +1,310 @@
+
+<div data-whitespace-visualizer-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Liquid Source</p>
+    <textarea
+      data-source
+      rows="8"
+      class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+    ></textarea>
+    <button
+      type="button"
+      data-sample-btn
+      class="mt-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-violet-300 hover:text-violet-600"
+    >
+      Load sample
+    </button>
+  </div>
+
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Detected Tags &amp; Overrides</p>
+    <p data-no-tags class="text-xs text-gray-400">No Liquid tags detected yet — paste some source above.</p>
+    <div data-tag-list class="space-y-1.5"></div>
+  </div>
+
+  <div>
+    <div class="mb-2 flex items-center justify-between">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Output</p>
+      <p class="text-xs text-gray-400">
+        <span class="text-gray-500">·</span> space &nbsp;
+        <span class="text-gray-500">→</span> tab &nbsp;
+        <span class="text-gray-500">¶</span> newline &nbsp;
+        <span class="bg-red-100 text-red-400 line-through px-1">removed</span>
+      </p>
+    </div>
+
+    <p class="mb-1.5 text-xs font-medium text-gray-600">Before (whitespace that will be stripped is struck through)</p>
+    <pre class="mb-4 overflow-x-auto rounded-lg bg-gray-900 p-4 text-xs leading-relaxed text-gray-100"><code data-before-output></code></pre>
+
+    <p class="mb-1.5 text-xs font-medium text-gray-600">After whitespace control is applied</p>
+    <pre class="overflow-x-auto rounded-lg bg-gray-900 p-4 text-xs leading-relaxed text-gray-100"><code data-after-output></code></pre>
+
+    <div class="mt-3 flex items-center gap-2">
+      <button
+        type="button"
+        data-copy-btn
+        class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-violet-300 hover:text-violet-600"
+      >
+        <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+        </svg>
+        <svg data-check-icon class="hidden h-3.5 w-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span data-copy-label>Copy edited Liquid source</span>
+      </button>
+      <button type="button" data-reset-btn class="ml-auto text-xs text-gray-400 hover:text-red-600">
+        Reset overrides
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Segment =
+    | { kind: "text"; value: string }
+    | {
+        kind: "tag";
+        raw: string;
+        isOutput: boolean;
+        leftHyphen: boolean;
+        rightHyphen: boolean;
+      };
+
+  const SAMPLE = `{% assign badge = "Sale" %}
+{% if product.compare_at_price > product.price %}
+  <span class="badge">{{ badge }}</span>
+{% endif %}
+{% for tag in product.tags %}
+  <li>{{ tag }}</li>
+{% endfor %}`;
+
+  const TAG_PATTERN = /\{\{-?[\s\S]*?-?\}\}|\{%-?[\s\S]*?-?%\}/g;
+
+  function parseSource(source: string): Segment[] {
+    const segments: Segment[] = [];
+    let lastIndex = 0;
+    for (const match of source.matchAll(TAG_PATTERN)) {
+      const raw = match[0];
+      const index = match.index ?? 0;
+      if (index > lastIndex) {
+        segments.push({ kind: "text", value: source.slice(lastIndex, index) });
+      }
+      const isOutput = raw.startsWith("{{");
+      const leftHyphen = isOutput ? raw.startsWith("{{-") : raw.startsWith("{%-");
+      const rightHyphen = isOutput ? raw.endsWith("-}}") : raw.endsWith("-%}");
+      segments.push({ kind: "tag", raw, isOutput, leftHyphen, rightHyphen });
+      lastIndex = index + raw.length;
+    }
+    if (lastIndex < source.length) {
+      segments.push({ kind: "text", value: source.slice(lastIndex) });
+    }
+    return segments;
+  }
+
+  function buildTagRaw(raw: string, isOutput: boolean, leftHyphen: boolean, rightHyphen: boolean): string {
+    const openDelim = isOutput ? "{{" : "{%";
+    const closeDelim = isOutput ? "}}" : "%}";
+    let inner = raw.slice(2, -2);
+    if (inner.startsWith("-")) inner = inner.slice(1);
+    if (inner.endsWith("-")) inner = inner.slice(0, -1);
+    return openDelim + (leftHyphen ? "-" : "") + inner + (rightHyphen ? "-" : "") + closeDelim;
+  }
+
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function markerize(s: string): string {
+    return escapeHtml(s).replace(/ /g, "·").replace(/\t/g, "→").replace(/\n/g, "¶\n");
+  }
+
+  function leadWhitespaceLen(s: string): number {
+    const m = s.match(/^[ \t\r\n]+/);
+    return m ? m[0].length : 0;
+  }
+
+  function trailWhitespaceLen(s: string): number {
+    const m = s.match(/[ \t\r\n]+$/);
+    return m ? m[0].length : 0;
+  }
+
+  function initWhitespaceVisualizer(root: HTMLElement) {
+    const source = root.querySelector<HTMLTextAreaElement>("[data-source]")!;
+    const sampleBtn = root.querySelector<HTMLButtonElement>("[data-sample-btn]")!;
+    const tagList = root.querySelector<HTMLElement>("[data-tag-list]")!;
+    const noTags = root.querySelector<HTMLElement>("[data-no-tags]")!;
+    const beforeOutput = root.querySelector<HTMLElement>("[data-before-output]")!;
+    const afterOutput = root.querySelector<HTMLElement>("[data-after-output]")!;
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy-btn]")!;
+    const copyIcon = root.querySelector<HTMLElement>("[data-copy-icon]")!;
+    const checkIcon = root.querySelector<HTMLElement>("[data-check-icon]")!;
+    const copyLabel = root.querySelector<HTMLElement>("[data-copy-label]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-reset-btn]")!;
+
+    let segments: Segment[] = [];
+    let overrides: { left: boolean; right: boolean }[] = [];
+
+    function tagIndexOf(segIndex: number): number {
+      let count = 0;
+      for (let i = 0; i < segIndex; i++) {
+        if (segments[i].kind === "tag") count++;
+      }
+      return count;
+    }
+
+    function effectiveFlags(tagIdx: number): { left: boolean; right: boolean } {
+      return overrides[tagIdx];
+    }
+
+    function reparse() {
+      segments = parseSource(source.value);
+      overrides = segments
+        .filter((s): s is Extract<Segment, { kind: "tag" }> => s.kind === "tag")
+        .map((s) => ({ left: s.leftHyphen, right: s.rightHyphen }));
+      renderTagList();
+      renderOutputs();
+    }
+
+    function renderTagList() {
+      tagList.innerHTML = "";
+      const tags = segments.filter((s): s is Extract<Segment, { kind: "tag" }> => s.kind === "tag");
+      noTags.classList.toggle("hidden", tags.length > 0);
+
+      tags.forEach((tag, i) => {
+        const row = document.createElement("div");
+        row.className = "flex items-center gap-2 rounded-lg border border-gray-200 px-2.5 py-1.5";
+
+        const preview = document.createElement("code");
+        preview.className = "flex-1 truncate text-xs text-gray-700";
+        const inner = tag.raw.slice(2, -2).replace(/^-/, "").replace(/-$/, "").trim();
+        preview.textContent = (tag.isOutput ? "{{ " : "{% ") + inner + (tag.isOutput ? " }}" : " %}");
+        row.appendChild(preview);
+
+        const leftBtn = document.createElement("button");
+        leftBtn.type = "button";
+        const rightBtn = document.createElement("button");
+        rightBtn.type = "button";
+
+        function paintButtons() {
+          const f = effectiveFlags(i);
+          leftBtn.className = f.left
+            ? "shrink-0 rounded-md bg-violet-600 px-2 py-1 text-xs font-medium text-white"
+            : "shrink-0 rounded-md border border-gray-200 px-2 py-1 text-xs font-medium text-gray-500 hover:border-violet-300 hover:text-violet-600";
+          rightBtn.className = f.right
+            ? "shrink-0 rounded-md bg-violet-600 px-2 py-1 text-xs font-medium text-white"
+            : "shrink-0 rounded-md border border-gray-200 px-2 py-1 text-xs font-medium text-gray-500 hover:border-violet-300 hover:text-violet-600";
+        }
+
+        leftBtn.textContent = "-{ left";
+        rightBtn.textContent = "}- right";
+        leftBtn.addEventListener("click", () => {
+          overrides[i] = { ...overrides[i], left: !overrides[i].left };
+          paintButtons();
+          renderOutputs();
+        });
+        rightBtn.addEventListener("click", () => {
+          overrides[i] = { ...overrides[i], right: !overrides[i].right };
+          paintButtons();
+          renderOutputs();
+        });
+        paintButtons();
+
+        row.appendChild(leftBtn);
+        row.appendChild(rightBtn);
+        tagList.appendChild(row);
+      });
+    }
+
+    function renderOutputs() {
+      let beforeHtml = "";
+      let afterHtml = "";
+
+      segments.forEach((seg, i) => {
+        if (seg.kind === "tag") {
+          const tagIdx = tagIndexOf(i);
+          const flags = effectiveFlags(tagIdx);
+          const editedRaw = buildTagRaw(seg.raw, seg.isOutput, flags.left, flags.right);
+          beforeHtml += `<span class="text-violet-400 font-semibold">${escapeHtml(seg.raw)}</span>`;
+          afterHtml += `<span class="text-violet-400 font-semibold">${escapeHtml(editedRaw)}</span>`;
+          return;
+        }
+
+        const text = seg.value;
+        const prevTag = i > 0 && segments[i - 1].kind === "tag" ? (segments[i - 1] as Extract<Segment, { kind: "tag" }>) : null;
+        const nextTag = i < segments.length - 1 && segments[i + 1].kind === "tag" ? (segments[i + 1] as Extract<Segment, { kind: "tag" }>) : null;
+
+        const prevFlags = prevTag ? effectiveFlags(tagIndexOf(i - 1)) : null;
+        const nextFlags = nextTag ? effectiveFlags(tagIndexOf(i + 1)) : null;
+
+        let leadLen = prevFlags?.right ? leadWhitespaceLen(text) : 0;
+        let trailLen = nextFlags?.left ? trailWhitespaceLen(text) : 0;
+        if (leadLen + trailLen > text.length) {
+          leadLen = text.length;
+          trailLen = 0;
+        }
+
+        const leadPart = text.slice(0, leadLen);
+        const midPart = text.slice(leadLen, text.length - trailLen);
+        const trailPart = text.slice(text.length - trailLen);
+
+        if (leadPart) beforeHtml += `<span class="bg-red-900/40 text-red-300 line-through">${markerize(leadPart)}</span>`;
+        beforeHtml += markerize(midPart);
+        if (trailPart) beforeHtml += `<span class="bg-red-900/40 text-red-300 line-through">${markerize(trailPart)}</span>`;
+
+        afterHtml += markerize(midPart);
+      });
+
+      beforeOutput.innerHTML = beforeHtml || "&nbsp;";
+      afterOutput.innerHTML = afterHtml || "&nbsp;";
+    }
+
+    function editedSourceText(): string {
+      let out = "";
+      segments.forEach((seg, i) => {
+        if (seg.kind === "tag") {
+          const flags = effectiveFlags(tagIndexOf(i));
+          out += buildTagRaw(seg.raw, seg.isOutput, flags.left, flags.right);
+        } else {
+          out += seg.value;
+        }
+      });
+      return out;
+    }
+
+    source.addEventListener("input", reparse);
+
+    sampleBtn.addEventListener("click", () => {
+      source.value = SAMPLE;
+      reparse();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(editedSourceText());
+        copyIcon.classList.add("hidden");
+        checkIcon.classList.remove("hidden");
+        copyLabel.textContent = "Copied";
+        setTimeout(() => {
+          copyIcon.classList.remove("hidden");
+          checkIcon.classList.add("hidden");
+          copyLabel.textContent = "Copy edited Liquid source";
+        }, 1500);
+      } catch {
+        // clipboard unavailable, ignore
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      reparse();
+    });
+
+    source.value = SAMPLE;
+    reparse();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-whitespace-visualizer-widget]")
+    .forEach(initWhitespaceVisualizer);
+</script>
