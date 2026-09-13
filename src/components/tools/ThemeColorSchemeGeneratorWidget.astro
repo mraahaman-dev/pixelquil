@@ -1,0 +1,303 @@
+---
+// ThemeColorSchemeGeneratorWidget.astro
+// Generates a Dawn-compatible Shopify color scheme (background, text, button,
+// button_label, secondary_button_label, shadow, background_gradient) from one
+// or two picked colors, with live WCAG contrast checking and a preview.
+---
+
+<div data-scheme-generator-widget class="w-full">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left: controls -->
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Scheme name</label>
+        <input data-scheme-name type="text" value="scheme-1" class="w-full text-sm font-mono border border-gray-300 rounded-md px-2 py-1.5">
+      </div>
+
+      <div class="border border-gray-200 rounded-lg p-4 space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Background</label>
+            <div class="flex gap-2"><input data-c="background" type="color" value="#ffffff" class="w-10 h-9 border border-gray-300 rounded"><input data-c-hex="background" type="text" value="#ffffff" class="flex-1 text-xs font-mono border border-gray-300 rounded-md px-2"></div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Button</label>
+            <div class="flex gap-2"><input data-c="button" type="color" value="#111827" class="w-10 h-9 border border-gray-300 rounded"><input data-c-hex="button" type="text" value="#111827" class="flex-1 text-xs font-mono border border-gray-300 rounded-md px-2"></div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Text</label>
+            <div class="flex gap-2"><input data-c="text" type="color" value="#000000" class="w-10 h-9 border border-gray-300 rounded"><input data-c-hex="text" type="text" value="#000000" class="flex-1 text-xs font-mono border border-gray-300 rounded-md px-2"></div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Button label</label>
+            <div class="flex gap-2"><input data-c="button_label" type="color" value="#ffffff" class="w-10 h-9 border border-gray-300 rounded"><input data-c-hex="button_label" type="text" value="#ffffff" class="flex-1 text-xs font-mono border border-gray-300 rounded-md px-2"></div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Secondary button label</label>
+            <div class="flex gap-2"><input data-c="secondary_button_label" type="color" value="#000000" class="w-10 h-9 border border-gray-300 rounded"><input data-c-hex="secondary_button_label" type="text" value="#000000" class="flex-1 text-xs font-mono border border-gray-300 rounded-md px-2"></div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Shadow</label>
+            <div class="flex gap-2"><input data-c="shadow" type="color" value="#1a1a1a" class="w-10 h-9 border border-gray-300 rounded"><input data-c-hex="shadow" type="text" value="#1a1a1a" class="flex-1 text-xs font-mono border border-gray-300 rounded-md px-2"></div>
+          </div>
+        </div>
+        <label class="flex items-center gap-2 text-xs text-gray-500">
+          <input type="checkbox" data-auto-contrast checked class="rounded border-gray-300 text-rose-600"> Auto-fill text, button label, and shadow for contrast when background/button change
+        </label>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" data-use-gradient class="rounded border-gray-300 text-rose-600"> Add a subtle background gradient
+      </label>
+      <div data-gradient-wrap class="hidden flex items-center gap-2">
+        <label class="text-xs font-medium text-gray-500">Gradient toward</label>
+        <input data-gradient-color type="color" value="#f3f4f6" class="w-10 h-9 border border-gray-300 rounded">
+      </div>
+    </div>
+
+    <!-- Right: preview + contrast + output -->
+    <div class="space-y-3">
+      <div data-preview class="border border-gray-200 rounded-lg p-6 space-y-3">
+        <h3 data-preview-heading class="text-lg font-bold">Sample heading</h3>
+        <p data-preview-text class="text-sm">This is sample body text using the scheme's text color on its background.</p>
+        <div class="flex gap-2">
+          <button data-preview-button type="button" class="px-4 py-2 rounded-md text-sm font-semibold">Primary button</button>
+          <button data-preview-secondary type="button" class="px-4 py-2 rounded-md text-sm font-semibold border-2 bg-transparent">Secondary button</button>
+        </div>
+      </div>
+
+      <div class="border border-gray-200 rounded-lg p-3 space-y-1.5 text-sm">
+        <div class="flex items-center justify-between"><span>Text on background</span><span data-contrast-text class="font-mono text-xs"></span></div>
+        <div class="flex items-center justify-between"><span>Button label on button</span><span data-contrast-button class="font-mono text-xs"></span></div>
+      </div>
+
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="flex items-center gap-1 border-b border-gray-200 bg-gray-50 px-2 py-1.5">
+          <button type="button" data-output-tab="json" class="px-3 py-1.5 text-sm font-medium rounded-md bg-rose-600 text-white">settings_data.json</button>
+          <button type="button" data-output-tab="css" class="px-3 py-1.5 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100">CSS variables</button>
+          <button type="button" data-copy-output class="ml-auto px-3 py-1 text-xs font-medium rounded-md border border-gray-200 hover:bg-gray-50">Copy</button>
+        </div>
+        <pre data-out-json class="m-0 p-3 text-xs font-mono text-gray-800 overflow-auto whitespace-pre-wrap max-h-64"></pre>
+        <pre data-out-css class="hidden m-0 p-3 text-xs font-mono text-gray-800 overflow-auto whitespace-pre-wrap max-h-64"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-scheme-generator-widget] button,
+  [data-scheme-generator-widget] label {
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  type RGB = { r: number; g: number; b: number };
+  type HSL = { h: number; s: number; l: number };
+
+  function initSchemeGenerator(root: HTMLElement) {
+    const schemeName = root.querySelector<HTMLInputElement>('[data-scheme-name]')!;
+    const autoContrast = root.querySelector<HTMLInputElement>('[data-auto-contrast]')!;
+    const useGradient = root.querySelector<HTMLInputElement>('[data-use-gradient]')!;
+    const gradientWrap = root.querySelector<HTMLElement>('[data-gradient-wrap]')!;
+    const gradientColor = root.querySelector<HTMLInputElement>('[data-gradient-color]')!;
+    const contrastTextEl = root.querySelector<HTMLElement>('[data-contrast-text]')!;
+    const contrastButtonEl = root.querySelector<HTMLElement>('[data-contrast-button]')!;
+    const outJson = root.querySelector<HTMLElement>('[data-out-json]')!;
+    const outCss = root.querySelector<HTMLElement>('[data-out-css]')!;
+
+    const roles = ['background', 'button', 'text', 'button_label', 'secondary_button_label', 'shadow'] as const;
+    type Role = typeof roles[number];
+    const colorInputs: Record<Role, HTMLInputElement> = {} as any;
+    const hexInputs: Record<Role, HTMLInputElement> = {} as any;
+    roles.forEach((r) => {
+      colorInputs[r] = root.querySelector<HTMLInputElement>(`[data-c="${r}"]`)!;
+      hexInputs[r] = root.querySelector<HTMLInputElement>(`[data-c-hex="${r}"]`)!;
+    });
+
+    // ---------- verified color math ----------
+    function hexToRgb(hex: string): RGB {
+      hex = hex.replace('#', '');
+      if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+      const n = parseInt(hex, 16) || 0;
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    }
+    function rgbToHex({ r, g, b }: RGB): string {
+      return '#' + [r, g, b].map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+    }
+    function relativeLuminance({ r, g, b }: RGB): number {
+      const chan = (c: number) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+      return 0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
+    }
+    function contrastRatio(hex1: string, hex2: string): number {
+      const L1 = relativeLuminance(hexToRgb(hex1));
+      const L2 = relativeLuminance(hexToRgb(hex2));
+      const lighter = Math.max(L1, L2), darker = Math.min(L1, L2);
+      return (lighter + 0.05) / (darker + 0.05);
+    }
+    function bestTextColor(bgHex: string): string {
+      return contrastRatio(bgHex, '#ffffff') > contrastRatio(bgHex, '#000000') ? '#ffffff' : '#000000';
+    }
+    function rgbToHsl({ r, g, b }: RGB): HSL {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0; const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          default: h = (r - g) / d + 4;
+        }
+        h /= 6;
+      }
+      return { h: h * 360, s: s * 100, l: l * 100 };
+    }
+    function hslToRgb({ h, s, l }: HSL): RGB {
+      h /= 360; s /= 100; l /= 100;
+      if (s === 0) { const v = l * 255; return { r: v, g: v, b: v }; }
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1; if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+      return { r: hue2rgb(p, q, h + 1 / 3) * 255, g: hue2rgb(p, q, h) * 255, b: hue2rgb(p, q, h - 1 / 3) * 255 };
+    }
+    function setLightness(hex: string, targetL: number): string {
+      const hsl = rgbToHsl(hexToRgb(hex));
+      return rgbToHex(hslToRgb({ h: hsl.h, s: hsl.s, l: targetL }));
+    }
+    function adjustLightness(hex: string, delta: number): string {
+      const hsl = rgbToHsl(hexToRgb(hex));
+      return rgbToHex(hslToRgb({ h: hsl.h, s: hsl.s, l: Math.max(0, Math.min(100, hsl.l + delta)) }));
+    }
+    function toRgbTriplet(hex: string): string {
+      const { r, g, b } = hexToRgb(hex);
+      return `${r}, ${g}, ${b}`;
+    }
+
+    // ---------- sync color + hex inputs ----------
+    function setColor(role: Role, hex: string, fromAuto = false) {
+      colorInputs[role].value = hex;
+      hexInputs[role].value = hex;
+      if (!fromAuto) colorInputs[role].dataset.manual = 'true';
+    }
+    roles.forEach((r) => {
+      colorInputs[r].addEventListener('input', () => { hexInputs[r].value = colorInputs[r].value; colorInputs[r].dataset.manual = 'true'; onChange(r); });
+      hexInputs[r].addEventListener('input', () => {
+        if (/^#[0-9a-fA-F]{6}$/.test(hexInputs[r].value)) { colorInputs[r].value = hexInputs[r].value; colorInputs[r].dataset.manual = 'true'; onChange(r); }
+      });
+    });
+
+    function onChange(changedRole: Role) {
+      if (autoContrast.checked) {
+        const bg = colorInputs.background.value;
+        const btn = colorInputs.button.value;
+        if (changedRole === 'background') {
+          if (colorInputs.text.dataset.manual !== 'true') setColor('text', bestTextColor(bg), true);
+          if (colorInputs.secondary_button_label.dataset.manual !== 'true') setColor('secondary_button_label', bestTextColor(bg), true);
+          if (colorInputs.shadow.dataset.manual !== 'true') setColor('shadow', setLightness(bg, 10), true);
+        }
+        if (changedRole === 'button') {
+          if (colorInputs.button_label.dataset.manual !== 'true') setColor('button_label', bestTextColor(btn), true);
+        }
+      }
+      render();
+    }
+
+    useGradient.addEventListener('change', () => { gradientWrap.classList.toggle('hidden', !useGradient.checked); render(); });
+    gradientColor.addEventListener('input', render);
+    schemeName.addEventListener('input', render);
+
+    function render() {
+      const c: Record<Role, string> = {} as any;
+      roles.forEach((r) => { c[r] = colorInputs[r].value; });
+      const name = schemeName.value.trim() || 'scheme-1';
+
+      let gradientCss = '';
+      if (useGradient.checked) gradientCss = `linear-gradient(180deg, ${c.background} 0%, ${gradientColor.value} 100%)`;
+
+      // preview
+      const previewEl = root.querySelector<HTMLElement>('[data-preview]')!;
+      previewEl.style.background = gradientCss || c.background;
+      previewEl.style.color = c.text;
+      (root.querySelector('[data-preview-heading]') as HTMLElement).style.color = c.text;
+      (root.querySelector('[data-preview-text]') as HTMLElement).style.color = c.text;
+      const btn = root.querySelector<HTMLElement>('[data-preview-button]')!;
+      btn.style.background = c.button; btn.style.color = c.button_label;
+      const sec = root.querySelector<HTMLElement>('[data-preview-secondary]')!;
+      sec.style.borderColor = c.secondary_button_label; sec.style.color = c.secondary_button_label;
+      previewEl.style.boxShadow = `0 8px 20px -4px ${c.shadow}55`;
+
+      // contrast readouts
+      const textRatio = contrastRatio(c.text, c.background);
+      const buttonRatio = contrastRatio(c.button_label, c.button);
+      const fmtRatio = (ratio: number) => {
+        const pass = ratio >= 4.5;
+        return `${ratio.toFixed(2)}:1 ${pass ? '\u2705 AA' : ratio >= 3 ? '\u26a0\ufe0f large text only' : '\u274c fails'}`;
+      };
+      contrastTextEl.textContent = fmtRatio(textRatio);
+      contrastButtonEl.textContent = fmtRatio(buttonRatio);
+
+      // JSON output
+      const jsonObj = {
+        [name]: {
+          settings: {
+            background: c.background,
+            background_gradient: gradientCss,
+            text: c.text,
+            button: c.button,
+            button_label: c.button_label,
+            secondary_button_label: c.secondary_button_label,
+            shadow: c.shadow
+          }
+        }
+      };
+      outJson.textContent = JSON.stringify(jsonObj, null, 2);
+
+      // CSS output (Dawn-style RGB-triplet custom properties)
+      outCss.textContent = `/* Dawn and many Dawn-based themes read color scheme values as RGB triplets,
+   used like: background: rgb(var(--color-background)); */
+.color-${name} {
+  --color-background: ${toRgbTriplet(c.background)};
+  --color-foreground: ${toRgbTriplet(c.text)};
+  --color-button: ${toRgbTriplet(c.button)};
+  --color-button-text: ${toRgbTriplet(c.button_label)};
+  --color-secondary-button-text: ${toRgbTriplet(c.secondary_button_label)};
+  --color-shadow: ${toRgbTriplet(c.shadow)};
+}`;
+    }
+
+    let outputTab: 'json' | 'css' = 'json';
+    root.querySelectorAll<HTMLButtonElement>('[data-output-tab]').forEach((b) => {
+      b.addEventListener('click', () => {
+        outputTab = b.dataset.outputTab as 'json' | 'css';
+        root.querySelectorAll('[data-output-tab]').forEach((btn) => {
+          const active = btn === b;
+          btn.classList.toggle('bg-rose-600', active);
+          btn.classList.toggle('text-white', active);
+          btn.classList.toggle('text-gray-600', !active);
+        });
+        outJson.classList.toggle('hidden', outputTab !== 'json');
+        outCss.classList.toggle('hidden', outputTab !== 'css');
+      });
+    });
+    root.querySelector('[data-copy-output]')!.addEventListener('click', async () => {
+      const text = outputTab === 'json' ? outJson.textContent! : outCss.textContent!;
+      await navigator.clipboard.writeText(text);
+      const b = root.querySelector('[data-copy-output]') as HTMLElement;
+      const original = b.textContent;
+      b.textContent = 'Copied!';
+      window.setTimeout(() => { b.textContent = original; }, 1500);
+    });
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-scheme-generator-widget]').forEach(initSchemeGenerator);
+</script>

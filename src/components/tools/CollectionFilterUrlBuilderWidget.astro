@@ -1,0 +1,322 @@
+---
+// CollectionFilterUrlBuilderWidget.astro
+// Builds a Shopify collection URL with native storefront filter query parameters
+// (filter.v.*, filter.p.*, sort_by), or decodes an existing filtered URL.
+---
+
+<div data-filter-url-widget class="w-full">
+  <div class="inline-flex rounded-md border border-gray-200 overflow-hidden mb-4">
+    <button type="button" data-mode-btn="build" class="px-4 py-2 text-sm font-medium bg-blue-600 text-white">Build a URL</button>
+    <button type="button" data-mode-btn="decode" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">Decode existing URL</button>
+  </div>
+
+  <!-- BUILD MODE -->
+  <div data-mode-panel="build" class="block">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Collection handle or full URL</label>
+          <input data-base type="text" placeholder="summer-sale  or  https://yourstore.com/collections/summer-sale" value="summer-sale" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Availability</label>
+            <select data-availability class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+              <option value="">Any</option>
+              <option value="1">In stock only</option>
+              <option value="0">Out of stock only</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Sort by</label>
+            <select data-sort class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+              <option value="">Default</option>
+              <option value="best-selling">Best selling</option>
+              <option value="title-ascending">Alphabetically, A\u2013Z</option>
+              <option value="title-descending">Alphabetically, Z\u2013A</option>
+              <option value="price-ascending">Price, low to high</option>
+              <option value="price-descending">Price, high to low</option>
+              <option value="created-descending">Date, newest</option>
+              <option value="created-ascending">Date, oldest</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Min price</label>
+            <input data-price-min type="number" min="0" placeholder="0" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Max price</label>
+            <input data-price-max type="number" min="0" placeholder="100" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Product type (comma-separated for multiple)</label>
+          <input data-product-type type="text" placeholder="Shoes, Boots" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Vendor (comma-separated for multiple)</label>
+          <input data-vendor type="text" placeholder="Nike, Adidas" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Tags (comma-separated for multiple)</label>
+          <input data-tags type="text" placeholder="Red, Cotton" class="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5">
+        </div>
+
+        <details class="border border-gray-200 rounded-lg">
+          <summary class="px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50">Advanced: variant option filters (size, color, etc.)</summary>
+          <div class="p-3 space-y-2">
+            <div data-option-rows class="space-y-2"></div>
+            <button type="button" data-add-option class="text-xs text-blue-600 hover:underline">+ Add option filter</button>
+            <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5 mt-2">\u26a0 The option name has to match exactly how it's spelled in your store (e.g. Size, Color). If a generated URL doesn't filter correctly, click that same filter manually on your live storefront once and compare the resulting URL.</p>
+          </div>
+        </details>
+
+        <details class="border border-gray-200 rounded-lg">
+          <summary class="px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50">Advanced: metafield filters</summary>
+          <div class="p-3 space-y-2">
+            <div data-metafield-rows class="space-y-2"></div>
+            <button type="button" data-add-metafield class="text-xs text-blue-600 hover:underline">+ Add metafield filter</button>
+            <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5 mt-2">\u26a0 Only metafields explicitly enabled as filters in your Search & Discovery app settings actually work here \u2014 verify against a real filter link from your storefront if unsure.</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="space-y-3">
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <div class="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+            <span class="text-sm font-medium text-gray-700">Generated URL</span>
+            <button type="button" data-copy-btn class="px-3 py-1 text-xs font-medium rounded-md border border-gray-200 hover:bg-gray-50">Copy</button>
+          </div>
+          <pre data-output class="m-0 p-3 text-sm font-mono text-gray-800 overflow-auto whitespace-pre-wrap break-all"></pre>
+        </div>
+        <div class="border border-gray-200 rounded-lg p-3">
+          <p class="text-xs font-medium text-gray-500 mb-1.5">Active filters</p>
+          <div data-active-list class="text-sm text-gray-600 space-y-1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECODE MODE -->
+  <div data-mode-panel="decode" class="hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border-b border-gray-200">Paste a collection URL</div>
+        <textarea data-decode-input spellcheck="false" class="w-full h-40 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="https://yourstore.com/collections/summer-sale?filter.v.availability=1&filter.p.vendor=Nike"></textarea>
+      </div>
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border-b border-gray-200">Filters found</div>
+        <div data-decode-report class="p-3 text-sm space-y-1.5"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [data-filter-url-widget] button,
+  [data-filter-url-widget] summary,
+  [data-filter-url-widget] label {
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  type OptionRow = { name: string; value: string };
+  type MetaRow = { namespace: string; key: string; value: string };
+
+  function initFilterUrlWidget(root: HTMLElement) {
+    const baseInput = root.querySelector<HTMLInputElement>('[data-base]')!;
+    const availability = root.querySelector<HTMLSelectElement>('[data-availability]')!;
+    const sortSel = root.querySelector<HTMLSelectElement>('[data-sort]')!;
+    const priceMin = root.querySelector<HTMLInputElement>('[data-price-min]')!;
+    const priceMax = root.querySelector<HTMLInputElement>('[data-price-max]')!;
+    const productType = root.querySelector<HTMLInputElement>('[data-product-type]')!;
+    const vendor = root.querySelector<HTMLInputElement>('[data-vendor]')!;
+    const tags = root.querySelector<HTMLInputElement>('[data-tags]')!;
+    const optionRowsEl = root.querySelector<HTMLElement>('[data-option-rows]')!;
+    const metaRowsEl = root.querySelector<HTMLElement>('[data-metafield-rows]')!;
+    const output = root.querySelector<HTMLElement>('[data-output]')!;
+    const activeList = root.querySelector<HTMLElement>('[data-active-list]')!;
+
+    let optionRows: OptionRow[] = [{ name: '', value: '' }];
+    let metaRows: MetaRow[] = [{ namespace: '', key: '', value: '' }];
+
+    function escapeHtml(v: string): string {
+      return String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+    }
+
+    function splitList(v: string): string[] {
+      return v.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+
+    function parseBase(v: string): string {
+      const trimmed = v.trim();
+      if (!trimmed) return '/collections/all';
+      if (/^https?:\/\//i.test(trimmed)) {
+        try {
+          const u = new URL(trimmed);
+          return u.origin + u.pathname.replace(/\/$/, '');
+        } catch {
+          return '/collections/' + trimmed.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+        }
+      }
+      if (trimmed.startsWith('/collections/')) return trimmed.replace(/\/$/, '');
+      return '/collections/' + trimmed.replace(/^\/+/, '');
+    }
+
+    function buildParams(): { params: [string, string][]; active: string[] } {
+      const params: [string, string][] = [];
+      const active: string[] = [];
+
+      if (availability.value) {
+        params.push(['filter.v.availability', availability.value]);
+        active.push(`Availability: ${availability.value === '1' ? 'In stock only' : 'Out of stock only'}`);
+      }
+      if (priceMin.value) { params.push(['filter.v.price.gte', priceMin.value]); }
+      if (priceMax.value) { params.push(['filter.v.price.lte', priceMax.value]); }
+      if (priceMin.value || priceMax.value) active.push(`Price: ${priceMin.value || '0'} \u2013 ${priceMax.value || '\u221e'}`);
+
+      splitList(productType.value).forEach((t) => params.push(['filter.p.product_type', t]));
+      if (productType.value.trim()) active.push(`Product type: ${splitList(productType.value).join(', ')}`);
+
+      splitList(vendor.value).forEach((v) => params.push(['filter.p.vendor', v]));
+      if (vendor.value.trim()) active.push(`Vendor: ${splitList(vendor.value).join(', ')}`);
+
+      splitList(tags.value).forEach((t) => params.push(['filter.p.tag', t]));
+      if (tags.value.trim()) active.push(`Tags: ${splitList(tags.value).join(', ')}`);
+
+      optionRows.forEach((r) => {
+        if (r.name.trim() && r.value.trim()) {
+          params.push([`filter.v.option.${r.name.trim()}`, r.value.trim()]);
+          active.push(`Option "${r.name.trim()}": ${r.value.trim()}`);
+        }
+      });
+      metaRows.forEach((r) => {
+        if (r.namespace.trim() && r.key.trim() && r.value.trim()) {
+          params.push([`filter.v.m.${r.namespace.trim()}.${r.key.trim()}`, r.value.trim()]);
+          active.push(`Metafield ${r.namespace.trim()}.${r.key.trim()}: ${r.value.trim()}`);
+        }
+      });
+
+      if (sortSel.value) params.push(['sort_by', sortSel.value]);
+
+      return { params, active };
+    }
+
+    function render() {
+      const base = parseBase(baseInput.value);
+      const { params, active } = buildParams();
+      const qs = params.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+      output.textContent = qs ? `${base}?${qs}` : base;
+      activeList.innerHTML = active.length
+        ? active.map((a) => `<div>\u2022 ${escapeHtml(a)}</div>`).join('')
+        : '<p class="text-gray-400">No filters set yet \u2014 this is just the base collection URL.</p>';
+    }
+
+    function renderOptionRows() {
+      optionRowsEl.innerHTML = optionRows.map((r, i) => `
+        <div class="flex gap-2">
+          <input data-opt-name value="${escapeHtml(r.name)}" placeholder="Option name (e.g. Size)" class="w-1/2 text-xs border border-gray-300 rounded px-2 py-1">
+          <input data-opt-value value="${escapeHtml(r.value)}" placeholder="Value (e.g. Large)" class="w-1/2 text-xs border border-gray-300 rounded px-2 py-1">
+          <button type="button" data-opt-remove class="text-red-400 hover:text-red-600 text-xs px-1">\u2715</button>
+        </div>
+      `).join('');
+      optionRowsEl.querySelectorAll('[data-opt-name]').forEach((el, i) => el.addEventListener('input', (e) => { optionRows[i].name = (e.target as HTMLInputElement).value; render(); }));
+      optionRowsEl.querySelectorAll('[data-opt-value]').forEach((el, i) => el.addEventListener('input', (e) => { optionRows[i].value = (e.target as HTMLInputElement).value; render(); }));
+      optionRowsEl.querySelectorAll('[data-opt-remove]').forEach((el, i) => el.addEventListener('click', () => { optionRows.splice(i, 1); if (!optionRows.length) optionRows.push({ name: '', value: '' }); renderOptionRows(); render(); }));
+    }
+    function renderMetaRows() {
+      metaRowsEl.innerHTML = metaRows.map((r) => `
+        <div class="flex gap-2">
+          <input data-meta-ns value="${escapeHtml(r.namespace)}" placeholder="Namespace" class="w-1/3 text-xs border border-gray-300 rounded px-2 py-1">
+          <input data-meta-key value="${escapeHtml(r.key)}" placeholder="Key" class="w-1/3 text-xs border border-gray-300 rounded px-2 py-1">
+          <input data-meta-value value="${escapeHtml(r.value)}" placeholder="Value" class="w-1/3 text-xs border border-gray-300 rounded px-2 py-1">
+          <button type="button" data-meta-remove class="text-red-400 hover:text-red-600 text-xs px-1">\u2715</button>
+        </div>
+      `).join('');
+      metaRowsEl.querySelectorAll('[data-meta-ns]').forEach((el, i) => el.addEventListener('input', (e) => { metaRows[i].namespace = (e.target as HTMLInputElement).value; render(); }));
+      metaRowsEl.querySelectorAll('[data-meta-key]').forEach((el, i) => el.addEventListener('input', (e) => { metaRows[i].key = (e.target as HTMLInputElement).value; render(); }));
+      metaRowsEl.querySelectorAll('[data-meta-value]').forEach((el, i) => el.addEventListener('input', (e) => { metaRows[i].value = (e.target as HTMLInputElement).value; render(); }));
+      metaRowsEl.querySelectorAll('[data-meta-remove]').forEach((el, i) => el.addEventListener('click', () => { metaRows.splice(i, 1); if (!metaRows.length) metaRows.push({ namespace: '', key: '', value: '' }); renderMetaRows(); render(); }));
+    }
+
+    root.querySelector('[data-add-option]')!.addEventListener('click', () => { optionRows.push({ name: '', value: '' }); renderOptionRows(); render(); });
+    root.querySelector('[data-add-metafield]')!.addEventListener('click', () => { metaRows.push({ namespace: '', key: '', value: '' }); renderMetaRows(); render(); });
+
+    [baseInput, availability, sortSel, priceMin, priceMax, productType, vendor, tags].forEach((el) => el.addEventListener('input', render));
+
+    root.querySelector('[data-copy-btn]')!.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(output.textContent || '');
+      const btn = root.querySelector('[data-copy-btn]') as HTMLElement;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      window.setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+
+    // ---------- mode toggle ----------
+    root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        root.querySelectorAll('[data-mode-btn]').forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle('bg-blue-600', active);
+          b.classList.toggle('text-white', active);
+          b.classList.toggle('text-gray-600', !active);
+        });
+        const mode = btn.dataset.modeBtn!;
+        root.querySelectorAll('[data-mode-panel]').forEach((p) => {
+          p.classList.toggle('hidden', p.getAttribute('data-mode-panel') !== mode);
+          p.classList.toggle('block', p.getAttribute('data-mode-panel') === mode);
+        });
+      });
+    });
+
+    // ---------- decode mode ----------
+    const decodeInput = root.querySelector<HTMLTextAreaElement>('[data-decode-input]')!;
+    const decodeReport = root.querySelector<HTMLElement>('[data-decode-report]')!;
+
+    function decode() {
+      const raw = decodeInput.value.trim();
+      if (!raw) { decodeReport.innerHTML = '<p class="text-gray-400">Paste a URL to see its filters.</p>'; return; }
+      let query = '';
+      const qIndex = raw.indexOf('?');
+      if (qIndex >= 0) query = raw.slice(qIndex + 1);
+      else if (raw.includes('=')) query = raw;
+      if (!query) { decodeReport.innerHTML = '<p class="text-gray-400">No query parameters found in that URL.</p>'; return; }
+
+      const params = new URLSearchParams(query);
+      const rows: string[] = [];
+      const seenTags: string[] = [], seenVendors: string[] = [], seenTypes: string[] = [];
+
+      params.forEach((value, key) => {
+        if (key === 'filter.v.availability') rows.push(`Availability: ${value === '1' ? 'In stock only' : 'Out of stock only'}`);
+        else if (key === 'filter.v.price.gte') rows.push(`Min price: ${value}`);
+        else if (key === 'filter.v.price.lte') rows.push(`Max price: ${value}`);
+        else if (key === 'filter.p.tag') seenTags.push(value);
+        else if (key === 'filter.p.vendor') seenVendors.push(value);
+        else if (key === 'filter.p.product_type') seenTypes.push(value);
+        else if (key.startsWith('filter.v.option.')) rows.push(`Option "${key.slice('filter.v.option.'.length)}": ${value}`);
+        else if (key.startsWith('filter.v.m.')) rows.push(`Metafield ${key.slice('filter.v.m.'.length)}: ${value}`);
+        else if (key === 'sort_by') rows.push(`Sort by: ${value}`);
+        else rows.push(`${key}: ${value} <span class="text-gray-400">(unrecognized parameter)</span>`);
+      });
+      if (seenTags.length) rows.unshift(`Tags: ${seenTags.join(', ')}`);
+      if (seenVendors.length) rows.unshift(`Vendor: ${seenVendors.join(', ')}`);
+      if (seenTypes.length) rows.unshift(`Product type: ${seenTypes.join(', ')}`);
+
+      decodeReport.innerHTML = rows.length
+        ? rows.map((r) => `<div>\u2022 ${r}</div>`).join('')
+        : '<p class="text-gray-400">No recognized filter parameters found.</p>';
+    }
+
+    let decodeTimer: number | undefined;
+    decodeInput.addEventListener('input', () => { window.clearTimeout(decodeTimer); decodeTimer = window.setTimeout(decode, 250); });
+
+    renderOptionRows();
+    renderMetaRows();
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-filter-url-widget]').forEach(initFilterUrlWidget);
+</script>

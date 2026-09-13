@@ -1,0 +1,236 @@
+---
+---
+
+<div data-meta-refresh-detector-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="mb-6">
+    <div class="mb-3 inline-flex rounded-lg border border-gray-200 p-0.5 text-xs">
+      <button type="button" data-mode="url" class="rounded-md bg-emerald-600 px-2.5 py-1 font-medium text-white">Check by URL</button>
+      <button type="button" data-mode="html" class="rounded-md px-2.5 py-1 font-medium text-gray-500">Paste HTML</button>
+    </div>
+
+    <div data-mode-url>
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Page URL</p>
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <input
+          data-url-input
+          type="text"
+          placeholder="https://example.com/old-page"
+          class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+        <button type="button" data-check-url-btn class="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+          Check
+        </button>
+      </div>
+      <p data-url-status class="mt-1.5 text-xs text-gray-400">&nbsp;</p>
+    </div>
+
+    <div data-mode-html class="hidden">
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Paste Page HTML</p>
+      <textarea
+        data-html-input
+        rows="6"
+        placeholder="Paste the page's HTML source (view-source or Ctrl+U in your browser) here…"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+      ></textarea>
+      <label class="mb-1 mt-2 block text-xs font-medium text-gray-600">Page URL (optional — used to resolve relative redirect targets)</label>
+      <input
+        data-html-base-url
+        type="text"
+        placeholder="https://example.com/old-page"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+      />
+      <button type="button" data-check-html-btn class="mt-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+        Check
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Results</p>
+    <div data-results class="space-y-3">
+      <p class="text-xs text-gray-400">Enter a URL or paste HTML above, then click Check.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  type MetaRefreshTag = {
+    delaySeconds: number;
+    rawContent: string;
+    targetUrl: string | null;
+  };
+
+  function parseMetaRefreshTags(html: string, baseUrl: string | null): MetaRefreshTag[] {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const metas = doc.querySelectorAll('meta[http-equiv="refresh" i]');
+    const results: MetaRefreshTag[] = [];
+
+    metas.forEach((meta) => {
+      const content = meta.getAttribute("content") || "";
+      const match = content.match(/^\s*([\d.]+)\s*(?:;\s*url\s*=\s*['"]?([^'"]*)['"]?)?/i);
+      if (!match) return;
+
+      const delaySeconds = parseFloat(match[1]);
+      let targetUrl: string | null = match[2] ? match[2].trim() : null;
+
+      if (targetUrl && baseUrl) {
+        try {
+          targetUrl = new URL(targetUrl, baseUrl).href;
+        } catch {
+          // leave as-is if it can't be resolved
+        }
+      }
+
+      results.push({ delaySeconds: isNaN(delaySeconds) ? 0 : delaySeconds, rawContent: content, targetUrl });
+    });
+
+    return results;
+  }
+
+  function sameDomain(a: string, b: string): boolean | null {
+    try {
+      return new URL(a).hostname === new URL(b).hostname;
+    } catch {
+      return null;
+    }
+  }
+
+  function initMetaRefreshDetector(root: HTMLElement) {
+    const modeButtons = root.querySelectorAll<HTMLButtonElement>("[data-mode]");
+    const urlPanel = root.querySelector<HTMLElement>("[data-mode-url]")!;
+    const htmlPanel = root.querySelector<HTMLElement>("[data-mode-html]")!;
+    const urlInput = root.querySelector<HTMLInputElement>("[data-url-input]")!;
+    const urlStatus = root.querySelector<HTMLElement>("[data-url-status]")!;
+    const checkUrlBtn = root.querySelector<HTMLButtonElement>("[data-check-url-btn]")!;
+    const htmlInput = root.querySelector<HTMLTextAreaElement>("[data-html-input]")!;
+    const htmlBaseUrl = root.querySelector<HTMLInputElement>("[data-html-base-url]")!;
+    const checkHtmlBtn = root.querySelector<HTMLButtonElement>("[data-check-html-btn]")!;
+    const results = root.querySelector<HTMLElement>("[data-results]")!;
+
+    modeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.getAttribute("data-mode");
+        modeButtons.forEach((b) => {
+          const active = b === btn;
+          b.className = active
+            ? "rounded-md bg-emerald-600 px-2.5 py-1 font-medium text-white"
+            : "rounded-md px-2.5 py-1 font-medium text-gray-500";
+        });
+        urlPanel.classList.toggle("hidden", mode !== "url");
+        htmlPanel.classList.toggle("hidden", mode !== "html");
+      });
+    });
+
+    function renderResults(tags: MetaRefreshTag[], pageUrl: string | null) {
+      results.innerHTML = "";
+
+      if (tags.length === 0) {
+        const card = document.createElement("div");
+        card.className = "rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700";
+        card.textContent = "No meta refresh tag detected on this page.";
+        results.appendChild(card);
+        return;
+      }
+
+      tags.forEach((tag) => {
+        const card = document.createElement("div");
+        card.className = "rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm";
+
+        const title = document.createElement("p");
+        title.className = "mb-1.5 font-medium text-amber-800";
+        title.textContent = `Meta refresh found: ${tag.delaySeconds}s delay`;
+        card.appendChild(title);
+
+        const contentLine = document.createElement("p");
+        contentLine.className = "mb-2 font-mono text-xs text-amber-700";
+        contentLine.textContent = `content="${tag.rawContent}"`;
+        card.appendChild(contentLine);
+
+        if (tag.targetUrl) {
+          const targetLine = document.createElement("p");
+          targetLine.className = "mb-2 text-xs text-gray-700";
+          targetLine.innerHTML = `Destination: <span class="font-mono">${tag.targetUrl.replace(/</g, "&lt;")}</span>`;
+          card.appendChild(targetLine);
+        } else {
+          const targetLine = document.createElement("p");
+          targetLine.className = "mb-2 text-xs text-gray-700";
+          targetLine.textContent = "No destination URL in the tag — this reloads the same page rather than redirecting elsewhere.";
+          card.appendChild(targetLine);
+        }
+
+        const flags = document.createElement("ul");
+        flags.className = "space-y-1 text-xs text-gray-600";
+
+        const seoLi = document.createElement("li");
+        if (tag.delaySeconds === 0) {
+          seoLi.textContent = "SEO: Google treats an instant (0-second) meta refresh similarly to a permanent redirect — but a server-side 301 is still the more reliable, recommended choice when you can set one up.";
+        } else {
+          seoLi.textContent = "SEO: Google treats a delayed meta refresh similarly to a temporary redirect, not a permanent one — if this page has permanently moved, a 0-second meta refresh or (better) a server-side 301 communicates that more clearly.";
+        }
+        flags.appendChild(seoLi);
+
+        if (tag.delaySeconds > 0 && tag.delaySeconds < 72000) {
+          const a11yLi = document.createElement("li");
+          a11yLi.textContent = "Accessibility: refreshes or redirects under 20 hours fail WCAG 2.2.1 (Timing Adjustable) unless the user can turn off, extend, or adjust the timing — this delay is well under that threshold.";
+          flags.appendChild(a11yLi);
+        }
+
+        if (tag.delaySeconds === 0 && tag.targetUrl && pageUrl) {
+          const domainsDiffer = sameDomain(pageUrl, tag.targetUrl);
+          if (domainsDiffer === false) {
+            const domainLi = document.createElement("li");
+            domainLi.textContent = "Cross-domain instant redirect: this sends visitors to a different domain immediately with no delay — a pattern some spam/security scanners flag, even when it's legitimate.";
+            flags.appendChild(domainLi);
+          }
+        }
+
+        card.appendChild(flags);
+        results.appendChild(card);
+      });
+    }
+
+    async function fetchViaProxy(url: string): Promise<string> {
+      // ASSUMPTION — unconfirmed against the real /api/fetch-proxy contract.
+      // Adjust this function if the real route responds differently
+      // (e.g. a different JSON key, or raw text instead of JSON).
+      const res = await fetch(`/api/fetch-proxy/?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error(`Proxy request failed (${res.status})`);
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        return data.html ?? data.content ?? data.body ?? "";
+      }
+      return await res.text();
+    }
+
+    checkUrlBtn.addEventListener("click", async () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        urlStatus.textContent = "Enter a URL first.";
+        return;
+      }
+      urlStatus.textContent = "Fetching…";
+      results.innerHTML = "";
+      try {
+        const html = await fetchViaProxy(url);
+        const tags = parseMetaRefreshTags(html, url);
+        renderResults(tags, url);
+        urlStatus.textContent = `Checked ${url}`;
+      } catch (err) {
+        urlStatus.textContent = "Couldn't fetch that URL through the proxy. Try the \"Paste HTML\" tab instead.";
+      }
+    });
+
+    checkHtmlBtn.addEventListener("click", () => {
+      const html = htmlInput.value;
+      const baseUrl = htmlBaseUrl.value.trim() || null;
+      if (!html.trim()) return;
+      const tags = parseMetaRefreshTags(html, baseUrl);
+      renderResults(tags, baseUrl);
+    });
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-meta-refresh-detector-widget]")
+    .forEach(initMetaRefreshDetector);
+</script>

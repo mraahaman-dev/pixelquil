@@ -76,6 +76,10 @@ import LiquidLoopEstimatorWidget from '../../components/tools/LiquidLoopEstimato
 import PageBuilderCostCalculatorWidget from '../../components/tools/PageBuilderCostCalculatorWidget.astro';
 import StructuredDataGeneratorWidget from "../../components/tools/StructuredDataGeneratorWidget.astro";
 import WhitespaceVisualizerWidget from "../../components/tools/WhitespaceVisualizerWidget.astro";
+import CollectionFilterUrlBuilderWidget from '../../components/tools/CollectionFilterUrlBuilderWidget.astro';
+import ThemeColorSchemeGeneratorWidget from '../../components/tools/ThemeColorSchemeGeneratorWidget.astro';
+import CurrencyCheckerWidget from '../../components/tools/CurrencyCheckerWidget.astro';
+import MetaRefreshDetectorWidget from "../../components/tools/MetaRefreshDetectorWidget.astro";
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -163,6 +167,10 @@ const widgets: Record<string, any> = {
     "page-builder-vs-native-cost-calculator": PageBuilderCostCalculatorWidget,
     "structured-data-generator": StructuredDataGeneratorWidget,
     "liquid-whitespace-visualizer": WhitespaceVisualizerWidget,
+    "collection-filter-url-builder": CollectionFilterUrlBuilderWidget,
+    "theme-color-scheme-generator": ThemeColorSchemeGeneratorWidget,
+    "currency-symbol-checker": CurrencyCheckerWidget,
+    "meta-refresh-detector": MetaRefreshDetectorWidget,
     
 };
 
