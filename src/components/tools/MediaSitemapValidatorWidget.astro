@@ -1,0 +1,224 @@
+---
+// MediaSitemapValidatorWidget.astro
+// Validates Google's Image and Video sitemap extensions against the current
+// documented required/optional/deprecated tags and constraints (verified against
+// developers.google.com directly, including the May 2026-updated video reference).
+---
+
+<div data-media-sitemap-widget class="w-full">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="border border-gray-200 rounded-lg overflow-hidden">
+      <div class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border-b border-gray-200">Paste a sitemap, or just a &lt;url&gt; / &lt;image:image&gt; / &lt;video:video&gt; snippet</div>
+      <textarea data-xml-input spellcheck="false" class="w-full h-96 p-3 font-mono text-sm text-gray-800 focus:outline-none resize-y" placeholder="<url>
+  <loc>https://example.com/page</loc>
+  <video:video>
+    <video:thumbnail_loc>...</video:thumbnail_loc>
+    <video:title>...</video:title>
+    <video:description>...</video:description>
+    <video:content_loc>...</video:content_loc>
+  </video:video>
+</url>"></textarea>
+    </div>
+    <div class="border border-gray-200 rounded-lg overflow-hidden">
+      <div class="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 border-b border-gray-200">
+        <span>Validation report</span>
+        <span data-file-size class="text-xs text-gray-400"></span>
+      </div>
+      <div data-report class="p-3 text-sm space-y-3 max-h-96 overflow-y-auto"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Check = { ok: boolean; warn?: boolean; msg: string };
+
+  function initMediaSitemapValidator(root: HTMLElement) {
+    const input = root.querySelector<HTMLTextAreaElement>('[data-xml-input]')!;
+    const report = root.querySelector<HTMLElement>('[data-report]')!;
+    const fileSizeEl = root.querySelector<HTMLElement>('[data-file-size]')!;
+
+    function escapeHtml(v: string): string {
+      return String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+    }
+
+    function preprocess(raw: string): string {
+      let src = raw.trim();
+      if (!src) return src;
+      if (!/<urlset/i.test(src)) {
+        src = `<urlset xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">${src}</urlset>`;
+      }
+      if (!/<url[\s>]/i.test(src)) {
+        src = src.replace(/<urlset([^>]*)>/i, `<urlset$1><url><loc>(no loc provided)</loc>`).replace(/<\/urlset>/i, '</url></urlset>');
+      }
+      return src;
+    }
+
+    function text(el: Element | null): string {
+      return el ? (el.textContent || '').trim() : '';
+    }
+
+    function first(el: Element, tag: string): Element | null {
+      const found = el.getElementsByTagName(tag);
+      return found.length ? found[0] : null;
+    }
+    function all(el: Element, tag: string): Element[] {
+      return Array.from(el.getElementsByTagName(tag));
+    }
+
+    function validateImage(img: Element): Check[] {
+      const checks: Check[] = [];
+      const loc = first(img, 'image:loc');
+      if (!loc || !text(loc)) checks.push({ ok: false, msg: 'Missing required <image:loc>.' });
+      else checks.push({ ok: true, msg: `<image:loc>: ${escapeHtml(text(loc))}` });
+
+      ['image:caption', 'image:geo_location', 'image:title', 'image:license'].forEach((tag) => {
+        if (first(img, tag)) checks.push({ ok: false, warn: true, msg: `<${tag}> is deprecated \u2014 Google removed it from documentation in August 2022 and it has no effect on indexing. Safe to leave in place, or remove.` });
+      });
+      return checks;
+    }
+
+    function validateVideo(video: Element, parentLoc: string): Check[] {
+      const checks: Check[] = [];
+      const thumb = first(video, 'video:thumbnail_loc');
+      const title = first(video, 'video:title');
+      const desc = first(video, 'video:description');
+      const contentLoc = first(video, 'video:content_loc');
+      const playerLoc = first(video, 'video:player_loc');
+
+      if (!thumb || !text(thumb)) checks.push({ ok: false, msg: 'Missing required <video:thumbnail_loc>.' });
+      else checks.push({ ok: true, msg: '<video:thumbnail_loc> present.' });
+
+      if (!title || !text(title)) checks.push({ ok: false, msg: 'Missing required <video:title>.' });
+      else checks.push({ ok: true, msg: `<video:title>: ${escapeHtml(text(title))}` });
+
+      if (!desc || !text(desc)) checks.push({ ok: false, msg: 'Missing required <video:description>.' });
+      else {
+        checks.push({ ok: true, msg: '<video:description> present.' });
+        if (text(desc).length > 2048) checks.push({ ok: false, warn: true, msg: `<video:description> is ${text(desc).length} characters \u2014 Google's documented maximum is 2048.` });
+      }
+
+      if (!contentLoc && !playerLoc) {
+        checks.push({ ok: false, msg: 'Neither <video:content_loc> nor <video:player_loc> is present \u2014 one of the two is required (content_loc is recommended when possible).' });
+      } else {
+        if (contentLoc) {
+          checks.push({ ok: true, msg: '<video:content_loc> present.' });
+          if (text(contentLoc) === parentLoc.trim()) checks.push({ ok: false, msg: '<video:content_loc> must not be the same URL as the page\'s <loc>.' });
+        }
+        if (playerLoc) {
+          checks.push({ ok: true, msg: '<video:player_loc> present.' });
+          if (text(playerLoc) === parentLoc.trim()) checks.push({ ok: false, msg: '<video:player_loc> must not be the same URL as the page\'s <loc>.' });
+          if (playerLoc.hasAttribute('autoplay') || playerLoc.hasAttribute('allow_embed')) {
+            checks.push({ ok: false, warn: true, msg: 'The autoplay/allow_embed attributes on <video:player_loc> are deprecated and have no effect \u2014 safe to remove.' });
+          }
+        }
+      }
+
+      const duration = first(video, 'video:duration');
+      if (duration) {
+        const n = Number(text(duration));
+        if (!Number.isFinite(n) || n < 1 || n > 28800) checks.push({ ok: false, warn: true, msg: `<video:duration> is ${text(duration)} \u2014 must be a number of seconds from 1 to 28800 (8 hours).` });
+        else checks.push({ ok: true, msg: `<video:duration>: ${n}s` });
+      }
+
+      const rating = first(video, 'video:rating');
+      if (rating) {
+        const n = Number(text(rating));
+        if (!Number.isFinite(n) || n < 0 || n > 5) checks.push({ ok: false, warn: true, msg: `<video:rating> is ${text(rating)} \u2014 must be a number from 0.0 to 5.0.` });
+      }
+
+      ['video:family_friendly', 'video:requires_subscription', 'video:live'].forEach((tag) => {
+        const el = first(video, tag);
+        if (el && !['yes', 'no'].includes(text(el).toLowerCase())) {
+          checks.push({ ok: false, warn: true, msg: `<${tag}> is "${escapeHtml(text(el))}" \u2014 must be exactly "yes" or "no".` });
+        }
+      });
+
+      ['video:restriction', 'video:platform'].forEach((tag) => {
+        const el = first(video, tag);
+        if (el) {
+          const rel = el.getAttribute('relationship');
+          if (!rel || !['allow', 'deny'].includes(rel)) checks.push({ ok: false, warn: true, msg: `<${tag}> needs a relationship="allow" or relationship="deny" attribute.` });
+        }
+      });
+
+      const uploader = first(video, 'video:uploader');
+      if (uploader && text(uploader).length > 255) checks.push({ ok: false, warn: true, msg: `<video:uploader> is ${text(uploader).length} characters \u2014 Google's documented maximum is 255.` });
+
+      const tags = all(video, 'video:tag');
+      if (tags.length > 32) checks.push({ ok: false, warn: true, msg: `${tags.length} <video:tag> elements found \u2014 Google's documented maximum is 32 per video.` });
+
+      ['video:category', 'video:gallery_loc', 'video:price', 'video:tvshow'].forEach((tag) => {
+        if (first(video, tag)) checks.push({ ok: false, warn: true, msg: `<${tag}> is deprecated \u2014 Google removed it from documentation in August 2022 and it has no effect on indexing. Safe to leave in place, or remove.` });
+      });
+
+      return checks;
+    }
+
+    function render() {
+      const raw = input.value;
+      const bytes = new Blob([raw]).size;
+      fileSizeEl.textContent = bytes ? `${(bytes / 1024).toFixed(1)} KB` : '';
+
+      if (!raw.trim()) {
+        report.innerHTML = '<p class="text-gray-400">Paste a sitemap or snippet to see the validation report.</p>';
+        return;
+      }
+
+      const processed = preprocess(raw);
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(processed, 'application/xml');
+      if (doc.getElementsByTagName('parsererror').length) {
+        report.innerHTML = `<div class="text-red-600 text-sm">\u2715 This doesn't parse as valid XML. Check for an unclosed tag or a stray special character.</div>`;
+        return;
+      }
+
+      const urls = Array.from(doc.getElementsByTagName('url'));
+      if (!urls.length) {
+        report.innerHTML = '<p class="text-gray-400">No &lt;url&gt; elements found.</p>';
+        return;
+      }
+      if (urls.length > 50000) {
+        report.innerHTML = `<div class="text-red-600 text-sm mb-2">\u2715 ${urls.length.toLocaleString()} &lt;url&gt; elements found \u2014 Google's sitemap limit is 50,000 per file.</div>`;
+      }
+
+      const blocks: string[] = [];
+      urls.forEach((urlEl, idx) => {
+        const loc = text(first(urlEl, 'loc')) || '(no loc)';
+        const images = all(urlEl, 'image:image');
+        const videos = all(urlEl, 'video:video');
+        if (!images.length && !videos.length) return;
+
+        let block = `<div class="border border-gray-200 rounded-md p-3"><p class="font-mono text-xs text-gray-500 mb-2 truncate">${escapeHtml(loc)}</p>`;
+
+        if (images.length > 1000) block += `<div class="text-xs text-red-600 mb-1">\u2715 ${images.length} &lt;image:image&gt; entries \u2014 Google's limit is 1,000 per &lt;url&gt;.</div>`;
+        images.forEach((img, i) => {
+          const checks = validateImage(img);
+          block += `<p class="text-xs font-medium text-gray-600 mt-2">Image ${i + 1}</p>`;
+          block += checks.map((c) => renderCheck(c)).join('');
+        });
+
+        videos.forEach((video, i) => {
+          const checks = validateVideo(video, loc);
+          block += `<p class="text-xs font-medium text-gray-600 mt-2">Video ${i + 1}</p>`;
+          block += checks.map((c) => renderCheck(c)).join('');
+        });
+
+        block += '</div>';
+        blocks.push(block);
+      });
+
+      report.innerHTML = blocks.length ? blocks.join('') : '<p class="text-gray-400">No &lt;image:image&gt; or &lt;video:video&gt; entries found in any &lt;url&gt; block.</p>';
+    }
+
+    function renderCheck(c: Check): string {
+      const icon = c.ok ? '<span class="text-emerald-600">\u2713</span>' : c.warn ? '<span class="text-amber-600">\u26a0</span>' : '<span class="text-red-600">\u2715</span>';
+      return `<div class="flex items-start gap-1.5 text-xs text-gray-600 pl-2"><span>${icon}</span><span>${c.msg}</span></div>`;
+    }
+
+    let debounceTimer: number | undefined;
+    input.addEventListener('input', () => { window.clearTimeout(debounceTimer); debounceTimer = window.setTimeout(render, 300); });
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-media-sitemap-widget]').forEach(initMediaSitemapValidator);
+</script>

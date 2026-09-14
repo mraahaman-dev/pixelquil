@@ -1,0 +1,347 @@
+
+<div data-liquid-exporter-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Liquid Snippet</p>
+    <textarea
+      data-source
+      rows="8"
+      class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs focus:border-fuchsia-500 focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
+    ></textarea>
+    <button
+      type="button"
+      data-sample-btn
+      class="mt-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-fuchsia-300 hover:text-fuchsia-600"
+    >
+      Load sample
+    </button>
+  </div>
+
+  <div class="mb-6">
+    <div class="mb-2 flex items-center justify-between">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">2. Mock Data (JSON)</p>
+      <button type="button" data-generate-json-btn class="text-xs font-medium text-fuchsia-600 hover:underline">
+        Generate from snippet
+      </button>
+    </div>
+    <textarea
+      data-json-input
+      rows="8"
+      class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs focus:border-fuchsia-500 focus:outline-none focus:ring-1 focus:ring-fuchsia-500"
+    ></textarea>
+    <p data-json-error class="mt-1.5 hidden text-xs text-red-600"></p>
+  </div>
+
+  <div>
+    <div class="mb-2 flex items-center justify-between">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Static HTML Output</p>
+      <div class="inline-flex rounded-lg border border-gray-200 p-0.5 text-xs">
+        <button type="button" data-view-mode="preview" class="rounded-md bg-fuchsia-600 px-2.5 py-1 font-medium text-white">Preview</button>
+        <button type="button" data-view-mode="source" class="rounded-md px-2.5 py-1 font-medium text-gray-500">Source</button>
+      </div>
+    </div>
+
+    <label class="mb-2 flex items-center gap-2 text-xs text-gray-600">
+      <input data-wrap-doc type="checkbox" class="rounded border-gray-300 text-fuchsia-600 focus:ring-fuchsia-500" />
+      Wrap output in a standalone HTML document (&lt;html&gt;/&lt;head&gt;/&lt;body&gt;)
+    </label>
+
+    <button
+      type="button"
+      data-export-btn
+      class="mb-3 rounded-lg bg-fuchsia-600 px-4 py-2 text-sm font-medium text-white hover:bg-fuchsia-700"
+    >
+      Export to Static HTML
+    </button>
+
+    <div data-error-box class="mb-3 hidden rounded-lg bg-red-50 px-4 py-3 text-xs text-red-700"></div>
+
+    <div data-preview-wrap class="overflow-hidden rounded-lg border border-gray-200">
+      <iframe data-preview-frame class="h-64 w-full bg-white" sandbox=""></iframe>
+    </div>
+    <pre data-source-wrap class="hidden overflow-x-auto rounded-lg bg-gray-900 p-4 text-xs leading-relaxed text-gray-100"><code data-source-output></code></pre>
+
+    <div class="mt-3 flex items-center gap-2">
+      <button
+        type="button"
+        data-copy-btn
+        class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-fuchsia-300 hover:text-fuchsia-600"
+      >
+        <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+        </svg>
+        <svg data-check-icon class="hidden h-3.5 w-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span data-copy-label>Copy HTML</span>
+      </button>
+      <button type="button" data-download-btn class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-fuchsia-300 hover:text-fuchsia-600">
+        Download .html
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { Liquid } from "liquidjs";
+
+  const SAMPLE_SOURCE = `<div class="product-card">
+  <h2>{{ product.title }}</h2>
+  <p class="price">{{ product.price | money }}</p>
+  <p>{{ product.description }}</p>
+  <ul class="tags">
+    {% for tag in product.tags %}
+      <li>{{ tag }}</li>
+    {% endfor %}
+  </ul>
+  {% if product.available %}
+    <button>Add to cart</button>
+  {% else %}
+    <button disabled>Sold out</button>
+  {% endif %}
+</div>`;
+
+  function guessValue(key: string): unknown {
+    const k = key.toLowerCase();
+    if (k.includes("price") || k.includes("amount")) return 3800;
+    if (k.includes("count") || k.includes("quantity") || k.includes("number")) return 3;
+    if (k.startsWith("is_") || k.startsWith("has_") || k === "available") return true;
+    if (k.includes("url") || k.includes("image") || k.includes("src") || k.includes("logo")) {
+      return "https://placehold.co/400x300";
+    }
+    if (k.includes("description")) return "A short sample description goes here.";
+    if (k.includes("title") || k.includes("name")) {
+      return "Sample " + key.replace(/_/g, " ");
+    }
+    return "Sample " + key;
+  }
+
+  function setNested(obj: Record<string, any>, path: string[], value: unknown) {
+    let cur = obj;
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i];
+      if (typeof cur[key] !== "object" || cur[key] === null || Array.isArray(cur[key])) {
+        cur[key] = {};
+      }
+      cur = cur[key];
+    }
+    const last = path[path.length - 1];
+    if (!(last in cur)) cur[last] = value;
+  }
+
+  function generateMockData(source: string): Record<string, any> {
+    const context: Record<string, any> = {};
+    const loopSources = new Map<string, string>(); // loopVar -> sourcePath
+
+    for (const m of source.matchAll(/\{%\s*for\s+(\w+)\s+in\s+([\w.]+)/g)) {
+      loopSources.set(m[1], m[2]);
+    }
+
+    const outputPaths = new Set<string>();
+    for (const m of source.matchAll(/\{\{\s*([\w.]+)/g)) outputPaths.add(m[1]);
+    for (const m of source.matchAll(/\{%\s*(?:if|elsif|unless)\s+([\w.]+)/g)) outputPaths.add(m[1]);
+
+    for (const path of outputPaths) {
+      const parts = path.split(".");
+      const root = parts[0];
+      if (loopSources.has(root)) continue; // this is a loop variable, not a context root
+      setNested(context, parts, guessValue(parts[parts.length - 1] || root));
+    }
+
+    for (const [loopVar, sourcePath] of loopSources) {
+      const props = new Set<string>();
+      const propPattern = new RegExp(`\\b${loopVar}\\.(\\w+)`, "g");
+      for (const m of source.matchAll(propPattern)) props.add(m[1]);
+
+      let items: unknown[];
+      if (props.size > 0) {
+        items = [1, 2, 3].map((n) => {
+          const item: Record<string, unknown> = {};
+          for (const prop of props) item[prop] = guessValue(prop) + (typeof guessValue(prop) === "string" ? ` ${n}` : "");
+          return item;
+        });
+      } else {
+        items = ["Item 1", "Item 2", "Item 3"];
+      }
+      setNested(context, sourcePath.split("."), items);
+    }
+
+    return context;
+  }
+
+  function initLiquidExporter(root: HTMLElement) {
+    const sourceInput = root.querySelector<HTMLTextAreaElement>("[data-source]")!;
+    const sampleBtn = root.querySelector<HTMLButtonElement>("[data-sample-btn]")!;
+    const jsonInput = root.querySelector<HTMLTextAreaElement>("[data-json-input]")!;
+    const generateJsonBtn = root.querySelector<HTMLButtonElement>("[data-generate-json-btn]")!;
+    const jsonError = root.querySelector<HTMLElement>("[data-json-error]")!;
+    const viewModeButtons = root.querySelectorAll<HTMLButtonElement>("[data-view-mode]");
+    const wrapDocCheckbox = root.querySelector<HTMLInputElement>("[data-wrap-doc]")!;
+    const exportBtn = root.querySelector<HTMLButtonElement>("[data-export-btn]")!;
+    const errorBox = root.querySelector<HTMLElement>("[data-error-box]")!;
+    const previewWrap = root.querySelector<HTMLElement>("[data-preview-wrap]")!;
+    const previewFrame = root.querySelector<HTMLIFrameElement>("[data-preview-frame]")!;
+    const sourceWrap = root.querySelector<HTMLElement>("[data-source-wrap]")!;
+    const sourceOutput = root.querySelector<HTMLElement>("[data-source-output]")!;
+    const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy-btn]")!;
+    const copyIcon = root.querySelector<HTMLElement>("[data-copy-icon]")!;
+    const checkIcon = root.querySelector<HTMLElement>("[data-check-icon]")!;
+    const copyLabel = root.querySelector<HTMLElement>("[data-copy-label]")!;
+    const downloadBtn = root.querySelector<HTMLButtonElement>("[data-download-btn]")!;
+
+    const engine = new Liquid({ strictFilters: false, strictVariables: false });
+    engine.registerFilter("money", (v: number) => `$${(Number(v) / 100).toFixed(2)}`);
+    engine.registerFilter("money_with_currency", (v: number) => `$${(Number(v) / 100).toFixed(2)} USD`);
+    engine.registerFilter("img_url", (v: string) => String(v));
+    engine.registerFilter("asset_url", (v: string) => `/assets/${v}`);
+    engine.registerFilter("handle", (v: string) =>
+      String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+    );
+    engine.registerFilter("handleize", (v: string) =>
+      String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+    );
+    engine.registerFilter("t", (v: string) => String(v));
+    engine.registerFilter("pluralize", (count: number, singular: string, plural: string) =>
+      Number(count) === 1 ? singular : plural
+    );
+    engine.registerFilter("json", (v: unknown) => JSON.stringify(v));
+
+    let viewMode: "preview" | "source" = "preview";
+    let lastRenderedHtml = "";
+
+    function currentContext(): Record<string, any> | null {
+      try {
+        const ctx = jsonInput.value.trim() ? JSON.parse(jsonInput.value) : {};
+        jsonError.classList.add("hidden");
+        return ctx;
+      } catch (e) {
+        jsonError.textContent = "Mock data isn't valid JSON: " + (e as Error).message;
+        jsonError.classList.remove("hidden");
+        return null;
+      }
+    }
+
+    function buildFinalHtml(rendered: string): string {
+      if (!wrapDocCheckbox.checked) return rendered;
+      return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exported snippet</title>
+</head>
+<body>
+${rendered}
+</body>
+</html>`;
+    }
+
+    function showError(message: string) {
+      errorBox.textContent = message;
+      errorBox.classList.remove("hidden");
+      previewWrap.classList.add("hidden");
+      sourceWrap.classList.add("hidden");
+    }
+
+    function friendlyError(err: unknown): string {
+      const raw = err instanceof Error ? err.message : String(err);
+      if (/\brender\b|\binclude\b|\bsection\b|\bschema\b/i.test(raw)) {
+        return `This snippet uses {% render %}, {% section %}, {% schema %}, or {% include %} — tags that reference other theme files this tool can't resolve. Inline the referenced content directly into the snippet, or remove those tags, then try again.\n\nRaw error: ${raw}`;
+      }
+      return `Couldn't render this snippet.\n\nRaw error: ${raw}`;
+    }
+
+    function renderOutput() {
+      if (viewMode === "preview") {
+        previewWrap.classList.remove("hidden");
+        sourceWrap.classList.add("hidden");
+        previewFrame.srcdoc = lastRenderedHtml;
+      } else {
+        previewWrap.classList.add("hidden");
+        sourceWrap.classList.remove("hidden");
+        sourceOutput.textContent = lastRenderedHtml;
+      }
+    }
+
+    async function runExport() {
+      const ctx = currentContext();
+      if (ctx === null) return;
+
+      errorBox.classList.add("hidden");
+      try {
+        const rendered = await engine.parseAndRender(sourceInput.value, ctx);
+        lastRenderedHtml = buildFinalHtml(rendered);
+        previewWrap.classList.remove("hidden");
+        sourceWrap.classList.toggle("hidden", viewMode !== "source");
+        previewWrap.classList.toggle("hidden", viewMode !== "preview");
+        renderOutput();
+      } catch (err) {
+        showError(friendlyError(err));
+      }
+    }
+
+    sampleBtn.addEventListener("click", () => {
+      sourceInput.value = SAMPLE_SOURCE;
+      jsonInput.value = JSON.stringify(generateMockData(SAMPLE_SOURCE), null, 2);
+      runExport();
+    });
+
+    generateJsonBtn.addEventListener("click", () => {
+      jsonInput.value = JSON.stringify(generateMockData(sourceInput.value), null, 2);
+    });
+
+    viewModeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        viewMode = btn.getAttribute("data-view-mode") as "preview" | "source";
+        viewModeButtons.forEach((b) => {
+          const active = b === btn;
+          b.className = active
+            ? "rounded-md bg-fuchsia-600 px-2.5 py-1 font-medium text-white"
+            : "rounded-md px-2.5 py-1 font-medium text-gray-500";
+        });
+        if (lastRenderedHtml) renderOutput();
+      });
+    });
+
+    exportBtn.addEventListener("click", runExport);
+    wrapDocCheckbox.addEventListener("change", () => {
+      if (lastRenderedHtml) runExport();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!lastRenderedHtml) return;
+      try {
+        await navigator.clipboard.writeText(lastRenderedHtml);
+        copyIcon.classList.add("hidden");
+        checkIcon.classList.remove("hidden");
+        copyLabel.textContent = "Copied";
+        setTimeout(() => {
+          copyIcon.classList.remove("hidden");
+          checkIcon.classList.add("hidden");
+          copyLabel.textContent = "Copy HTML";
+        }, 1500);
+      } catch {
+        // clipboard unavailable, ignore
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (!lastRenderedHtml) return;
+      const blob = new Blob([lastRenderedHtml], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "exported-snippet.html";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    sourceInput.value = SAMPLE_SOURCE;
+    jsonInput.value = JSON.stringify(generateMockData(SAMPLE_SOURCE), null, 2);
+    runExport();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-liquid-exporter-widget]")
+    .forEach(initLiquidExporter);
+</script>

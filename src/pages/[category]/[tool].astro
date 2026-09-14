@@ -80,6 +80,10 @@ import CollectionFilterUrlBuilderWidget from '../../components/tools/CollectionF
 import ThemeColorSchemeGeneratorWidget from '../../components/tools/ThemeColorSchemeGeneratorWidget.astro';
 import CurrencyCheckerWidget from '../../components/tools/CurrencyCheckerWidget.astro';
 import MetaRefreshDetectorWidget from "../../components/tools/MetaRefreshDetectorWidget.astro";
+import MediaSitemapValidatorWidget from '../../components/tools/MediaSitemapValidatorWidget.astro';
+import LiquidExporterWidget from "../../components/tools/LiquidExporterWidget.astro";
+import BundlePricingWidget from "../../components/tools/BundlePricingWidget.astro";
+import VariantMatrixWidget from "../../components/tools/VariantMatrixWidget.astro";
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -171,6 +175,10 @@ const widgets: Record<string, any> = {
     "theme-color-scheme-generator": ThemeColorSchemeGeneratorWidget,
     "currency-symbol-checker": CurrencyCheckerWidget,
     "meta-refresh-detector": MetaRefreshDetectorWidget,
+    "video-image-sitemap-validator": MediaSitemapValidatorWidget,
+    "liquid-snippet-exporter": LiquidExporterWidget,
+    "bundle-pricing-calculator": BundlePricingWidget,
+    "variant-matrix-sku-generator": VariantMatrixWidget,
     
 };
 

@@ -1,0 +1,245 @@
+
+<div data-bundle-pricing-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Bundle Items</p>
+    <div data-item-rows class="space-y-2"></div>
+    <button
+      type="button"
+      data-add-item-btn
+      class="mt-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-cyan-300 hover:text-cyan-600"
+    >
+      + Add item
+    </button>
+  </div>
+
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Pricing Strategy</p>
+    <div class="mb-2 inline-flex flex-wrap rounded-lg border border-gray-200 p-0.5 text-xs">
+      <button type="button" data-strategy="discount" class="rounded-md bg-cyan-600 px-2.5 py-1 font-medium text-white">Discount %</button>
+      <button type="button" data-strategy="fixed" class="rounded-md px-2.5 py-1 font-medium text-gray-500">Fixed bundle price</button>
+      <button type="button" data-strategy="margin" class="rounded-md px-2.5 py-1 font-medium text-gray-500">Target margin %</button>
+    </div>
+
+    <div data-strategy-input-discount>
+      <label class="mb-1 block text-xs font-medium text-gray-600">Discount off combined retail price (%)</label>
+      <input data-discount-pct type="number" value="20" min="0" max="100" step="1" class="w-full max-w-[10rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500" />
+    </div>
+    <div data-strategy-input-fixed class="hidden">
+      <label class="mb-1 block text-xs font-medium text-gray-600">Bundle price ($)</label>
+      <input data-fixed-price type="number" value="0" min="0" step="0.01" class="w-full max-w-[10rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500" />
+    </div>
+    <div data-strategy-input-margin class="hidden">
+      <label class="mb-1 block text-xs font-medium text-gray-600">Target profit margin (%)</label>
+      <input data-target-margin type="number" value="30" min="0" max="99" step="1" class="w-full max-w-[10rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500" />
+    </div>
+
+    <label class="mt-3 mb-1 block text-xs font-medium text-gray-600">Extra costs per bundle — packaging, shipping, etc. (optional)</label>
+    <input data-extra-costs type="number" value="0" min="0" step="0.01" class="w-full max-w-[10rem] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500" />
+  </div>
+
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">3. Results</p>
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div class="rounded-lg border border-gray-200 p-3">
+        <p class="text-[11px] text-gray-400">Bundle price</p>
+        <p data-out-bundle-price class="text-lg font-semibold text-gray-900">$0.00</p>
+      </div>
+      <div class="rounded-lg border border-gray-200 p-3">
+        <p class="text-[11px] text-gray-400">Individual total</p>
+        <p data-out-retail-total class="text-lg font-semibold text-gray-900">$0.00</p>
+      </div>
+      <div class="rounded-lg border border-gray-200 p-3">
+        <p class="text-[11px] text-gray-400">Customer saves</p>
+        <p data-out-savings class="text-lg font-semibold text-gray-900">$0.00</p>
+      </div>
+      <div class="rounded-lg border border-gray-200 p-3">
+        <p class="text-[11px] text-gray-400">Your cost</p>
+        <p data-out-cost class="text-lg font-semibold text-gray-900">$0.00</p>
+      </div>
+      <div class="rounded-lg border border-gray-200 p-3">
+        <p class="text-[11px] text-gray-400">Your profit</p>
+        <p data-out-profit class="text-lg font-semibold text-gray-900">$0.00</p>
+      </div>
+      <div class="rounded-lg border border-gray-200 p-3">
+        <p class="text-[11px] text-gray-400">Profit margin</p>
+        <p data-out-margin class="text-lg font-semibold text-gray-900">0%</p>
+      </div>
+    </div>
+    <p data-health-flag class="mt-3 rounded-lg px-3 py-2 text-xs"></p>
+  </div>
+</div>
+
+<script>
+  type Item = { name: string; cost: number; retail: number; qty: number };
+
+  function initBundlePricing(root: HTMLElement) {
+    const itemRows = root.querySelector<HTMLElement>("[data-item-rows]")!;
+    const addItemBtn = root.querySelector<HTMLButtonElement>("[data-add-item-btn]")!;
+    const strategyButtons = root.querySelectorAll<HTMLButtonElement>("[data-strategy]");
+    const discountInputWrap = root.querySelector<HTMLElement>("[data-strategy-input-discount]")!;
+    const fixedInputWrap = root.querySelector<HTMLElement>("[data-strategy-input-fixed]")!;
+    const marginInputWrap = root.querySelector<HTMLElement>("[data-strategy-input-margin]")!;
+    const discountPctInput = root.querySelector<HTMLInputElement>("[data-discount-pct]")!;
+    const fixedPriceInput = root.querySelector<HTMLInputElement>("[data-fixed-price]")!;
+    const targetMarginInput = root.querySelector<HTMLInputElement>("[data-target-margin]")!;
+    const extraCostsInput = root.querySelector<HTMLInputElement>("[data-extra-costs]")!;
+
+    const outBundlePrice = root.querySelector<HTMLElement>("[data-out-bundle-price]")!;
+    const outRetailTotal = root.querySelector<HTMLElement>("[data-out-retail-total]")!;
+    const outSavings = root.querySelector<HTMLElement>("[data-out-savings]")!;
+    const outCost = root.querySelector<HTMLElement>("[data-out-cost]")!;
+    const outProfit = root.querySelector<HTMLElement>("[data-out-profit]")!;
+    const outMargin = root.querySelector<HTMLElement>("[data-out-margin]")!;
+    const healthFlag = root.querySelector<HTMLElement>("[data-health-flag]")!;
+
+    let items: Item[] = [
+      { name: "Shampoo", cost: 3.5, retail: 12, qty: 1 },
+      { name: "Conditioner", cost: 3.5, retail: 12, qty: 1 },
+      { name: "Travel bag", cost: 1.5, retail: 6, qty: 1 },
+    ];
+    let strategy: "discount" | "fixed" | "margin" = "discount";
+
+    function fmtMoney(n: number): string {
+      return `$${n.toFixed(2)}`;
+    }
+
+    function renderItemRows() {
+      itemRows.innerHTML = "";
+      items.forEach((item, i) => {
+        const row = document.createElement("div");
+        row.className = "flex flex-wrap items-center gap-1.5 rounded-lg border border-gray-200 p-2";
+
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = item.name;
+        nameInput.placeholder = "Item name";
+        nameInput.className = "min-w-[7rem] flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500";
+        nameInput.addEventListener("input", () => { item.name = nameInput.value; });
+
+        const costInput = document.createElement("input");
+        costInput.type = "number";
+        costInput.step = "0.01";
+        costInput.min = "0";
+        costInput.value = String(item.cost);
+        costInput.placeholder = "Cost";
+        costInput.title = "Your cost per unit";
+        costInput.className = "w-20 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500";
+        costInput.addEventListener("input", () => { item.cost = parseFloat(costInput.value) || 0; recalc(); });
+
+        const retailInput = document.createElement("input");
+        retailInput.type = "number";
+        retailInput.step = "0.01";
+        retailInput.min = "0";
+        retailInput.value = String(item.retail);
+        retailInput.placeholder = "Retail";
+        retailInput.title = "Normal individual selling price";
+        retailInput.className = "w-20 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500";
+        retailInput.addEventListener("input", () => { item.retail = parseFloat(retailInput.value) || 0; recalc(); });
+
+        const qtyInput = document.createElement("input");
+        qtyInput.type = "number";
+        qtyInput.step = "1";
+        qtyInput.min = "1";
+        qtyInput.value = String(item.qty);
+        qtyInput.title = "Quantity in the bundle";
+        qtyInput.className = "w-16 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500";
+        qtyInput.addEventListener("input", () => { item.qty = parseInt(qtyInput.value, 10) || 1; recalc(); });
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "shrink-0 text-xs text-gray-400 hover:text-red-600";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => {
+          items.splice(i, 1);
+          renderItemRows();
+          recalc();
+        });
+
+        row.appendChild(nameInput);
+        row.appendChild(costInput);
+        row.appendChild(retailInput);
+        row.appendChild(qtyInput);
+        row.appendChild(removeBtn);
+        itemRows.appendChild(row);
+      });
+    }
+
+    function recalc() {
+      const totalCost = items.reduce((sum, it) => sum + it.cost * it.qty, 0);
+      const totalRetail = items.reduce((sum, it) => sum + it.retail * it.qty, 0);
+      const extraCosts = parseFloat(extraCostsInput.value) || 0;
+
+      let bundlePrice = 0;
+      if (strategy === "discount") {
+        const pct = parseFloat(discountPctInput.value) || 0;
+        bundlePrice = totalRetail * (1 - pct / 100);
+      } else if (strategy === "fixed") {
+        bundlePrice = parseFloat(fixedPriceInput.value) || 0;
+      } else {
+        const targetMarginPct = parseFloat(targetMarginInput.value) || 0;
+        const denom = 1 - targetMarginPct / 100;
+        bundlePrice = denom > 0 ? (totalCost + extraCosts) / denom : 0;
+      }
+
+      const savings = totalRetail - bundlePrice;
+      const profit = bundlePrice - totalCost - extraCosts;
+      const marginPct = bundlePrice > 0 ? (profit / bundlePrice) * 100 : 0;
+
+      outBundlePrice.textContent = fmtMoney(bundlePrice);
+      outRetailTotal.textContent = fmtMoney(totalRetail);
+      outSavings.textContent = fmtMoney(Math.max(savings, 0)) + (totalRetail > 0 ? ` (${((savings / totalRetail) * 100).toFixed(0)}%)` : "");
+      outCost.textContent = fmtMoney(totalCost + extraCosts);
+      outProfit.textContent = fmtMoney(profit);
+      outMargin.textContent = `${marginPct.toFixed(1)}%`;
+
+      outProfit.className = profit < 0 ? "text-lg font-semibold text-red-600" : "text-lg font-semibold text-gray-900";
+
+      if (profit < 0) {
+        healthFlag.textContent = "This bundle price is below your total cost — you'd lose money on every sale.";
+        healthFlag.className = "mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700";
+      } else if (marginPct < 10) {
+        healthFlag.textContent = "Thin margin — consider raising the bundle price or reducing per-item cost.";
+        healthFlag.className = "mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700";
+      } else if (savings <= 0) {
+        healthFlag.textContent = "This bundle isn't actually cheaper than buying the items separately — customers may not see it as a deal.";
+        healthFlag.className = "mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700";
+      } else {
+        healthFlag.textContent = "Healthy margin, and the bundle is priced as a real discount versus buying separately.";
+        healthFlag.className = "mt-3 rounded-lg bg-green-50 px-3 py-2 text-xs text-green-700";
+      }
+    }
+
+    addItemBtn.addEventListener("click", () => {
+      items.push({ name: "", cost: 0, retail: 0, qty: 1 });
+      renderItemRows();
+      recalc();
+    });
+
+    strategyButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        strategy = btn.getAttribute("data-strategy") as "discount" | "fixed" | "margin";
+        strategyButtons.forEach((b) => {
+          const active = b === btn;
+          b.className = active
+            ? "rounded-md bg-cyan-600 px-2.5 py-1 font-medium text-white"
+            : "rounded-md px-2.5 py-1 font-medium text-gray-500";
+        });
+        discountInputWrap.classList.toggle("hidden", strategy !== "discount");
+        fixedInputWrap.classList.toggle("hidden", strategy !== "fixed");
+        marginInputWrap.classList.toggle("hidden", strategy !== "margin");
+        recalc();
+      });
+    });
+
+    [discountPctInput, fixedPriceInput, targetMarginInput, extraCostsInput].forEach((input) => {
+      input.addEventListener("input", recalc);
+    });
+
+    renderItemRows();
+    recalc();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-bundle-pricing-widget]")
+    .forEach(initBundlePricing);
+</script>
