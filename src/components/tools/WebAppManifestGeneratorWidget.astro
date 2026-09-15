@@ -1,0 +1,460 @@
+<div data-web-app-manifest-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="space-y-6">
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">1. App Details</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">App name</label>
+          <input data-app-name type="text" placeholder="My Awesome App" value="My Awesome App" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Short name <span class="text-gray-400">(under 12 chars)</span></label>
+          <input data-short-name type="text" placeholder="Awesome" value="Awesome" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea data-description rows="2" placeholder="A short description of what your app does." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Start URL</label>
+          <input data-start-url type="text" value="/" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Scope</label>
+          <input data-scope type="text" value="/" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Display mode</label>
+          <select data-display-select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1">
+            <option value="standalone" selected>standalone</option>
+            <option value="fullscreen">fullscreen</option>
+            <option value="minimal-ui">minimal-ui</option>
+            <option value="browser">browser</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Orientation</label>
+          <select data-orientation-select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1">
+            <option value="any" selected>any</option>
+            <option value="portrait">portrait</option>
+            <option value="landscape">landscape</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Theme color</label>
+          <div class="flex items-center gap-2">
+            <input data-theme-color type="color" value="#65a30d" class="h-9 w-10 rounded border border-gray-300" />
+            <input data-theme-color-text type="text" value="#65a30d" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Background color</label>
+          <div class="flex items-center gap-2">
+            <input data-bg-color type="color" value="#ffffff" class="h-9 w-10 rounded border border-gray-300" />
+            <input data-bg-color-text type="text" value="#ffffff" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+          <input data-lang type="text" value="en" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Text direction</label>
+          <select data-dir-select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:ring-lime-500 focus:outline-none focus:ring-1">
+            <option value="auto" selected>auto</option>
+            <option value="ltr">ltr</option>
+            <option value="rtl">rtl</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">2. Icon</h3>
+      <div data-icon-dropzone class="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-6 text-center cursor-pointer hover:border-lime-400 hover:bg-lime-50/50 transition-colors">
+        <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p class="text-sm text-gray-500">Drop a square image (512×512 or larger recommended), or click to browse</p>
+        <input data-icon-file-input type="file" accept="image/*" class="hidden" />
+      </div>
+      <div class="flex items-center gap-3 mt-2">
+        <button data-icon-sample-btn type="button" class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-lime-300 hover:text-lime-600">Try a sample icon</button>
+        <label class="flex items-center gap-2 text-xs text-gray-600 ml-auto">
+          <input data-maskable-toggle type="checkbox" class="rounded border-gray-300 accent-lime-600" />
+          Also generate maskable icons
+        </label>
+      </div>
+      <div data-icon-grid class="hidden mt-4 grid grid-cols-3 sm:grid-cols-5 gap-3"></div>
+    </div>
+
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">3. Install Preview</h3>
+      <div class="flex gap-1 rounded-lg border border-gray-200 p-0.5 w-fit mb-3">
+        <button data-preview-android type="button" class="rounded-md px-3 py-1 text-xs font-medium bg-lime-600 text-white">Android</button>
+        <button data-preview-ios type="button" class="rounded-md px-3 py-1 text-xs font-medium border border-gray-200 text-gray-600">iOS</button>
+      </div>
+
+      <div data-preview-android-view class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <div class="flex items-center gap-3 rounded-lg bg-white shadow-sm p-3">
+          <img data-android-icon class="h-12 w-12 rounded-xl object-cover bg-gray-100" src="" alt="App icon preview" />
+          <div class="flex-1 min-w-0">
+            <p data-android-name class="text-sm font-semibold text-gray-900 truncate">My Awesome App</p>
+            <p class="text-xs text-gray-500">Add to Home screen</p>
+          </div>
+          <button data-android-install-btn type="button" class="rounded-md px-3 py-1.5 text-xs font-semibold text-white">Install</button>
+        </div>
+      </div>
+
+      <div data-preview-ios-view class="hidden rounded-xl border border-gray-200 bg-gray-50 p-6 flex flex-col items-center gap-2 w-32 mx-auto">
+        <div data-ios-icon-wrap class="h-16 w-16 rounded-2xl overflow-hidden shadow flex items-center justify-center">
+          <img data-ios-icon class="h-full w-full object-cover" src="" alt="App icon preview" />
+        </div>
+        <p data-ios-name class="text-xs text-gray-800 text-center truncate w-full">Awesome</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">4. Manifest Output</h3>
+        <button data-reset-btn type="button" class="text-xs text-gray-400 hover:text-red-600">Reset</button>
+      </div>
+      <textarea data-manifest-output rows="12" readonly class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-xs font-mono"></textarea>
+      <div class="flex flex-wrap items-center gap-2 mt-2">
+        <button data-copy-manifest type="button" class="flex items-center gap-1.5 rounded-lg bg-lime-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-lime-700">
+          <svg data-copy-manifest-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <svg data-copy-manifest-check class="hidden h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span data-copy-manifest-label>Copy manifest.json</span>
+        </button>
+        <button data-download-manifest type="button" class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-lime-300 hover:text-lime-600">Download manifest.json</button>
+        <button data-copy-headtags type="button" class="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-lime-300 hover:text-lime-600">
+          <svg data-copy-headtags-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <svg data-copy-headtags-check class="hidden h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span data-copy-headtags-label>Copy &lt;head&gt; tags</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  interface IconEntry {
+    size: number;
+    dataUrl: string;
+    maskable: boolean;
+  }
+
+  function initWebAppManifestGenerator(root: HTMLElement) {
+    const appName = root.querySelector<HTMLInputElement>('[data-app-name]')!;
+    const shortName = root.querySelector<HTMLInputElement>('[data-short-name]')!;
+    const description = root.querySelector<HTMLTextAreaElement>('[data-description]')!;
+    const startUrl = root.querySelector<HTMLInputElement>('[data-start-url]')!;
+    const scope = root.querySelector<HTMLInputElement>('[data-scope]')!;
+    const displaySelect = root.querySelector<HTMLSelectElement>('[data-display-select]')!;
+    const orientationSelect = root.querySelector<HTMLSelectElement>('[data-orientation-select]')!;
+    const themeColor = root.querySelector<HTMLInputElement>('[data-theme-color]')!;
+    const themeColorText = root.querySelector<HTMLInputElement>('[data-theme-color-text]')!;
+    const bgColor = root.querySelector<HTMLInputElement>('[data-bg-color]')!;
+    const bgColorText = root.querySelector<HTMLInputElement>('[data-bg-color-text]')!;
+    const lang = root.querySelector<HTMLInputElement>('[data-lang]')!;
+    const dirSelect = root.querySelector<HTMLSelectElement>('[data-dir-select]')!;
+
+    const dropzone = root.querySelector<HTMLElement>('[data-icon-dropzone]')!;
+    const fileInput = root.querySelector<HTMLInputElement>('[data-icon-file-input]')!;
+    const sampleBtn = root.querySelector<HTMLButtonElement>('[data-icon-sample-btn]')!;
+    const maskableToggle = root.querySelector<HTMLInputElement>('[data-maskable-toggle]')!;
+    const iconGrid = root.querySelector<HTMLElement>('[data-icon-grid]')!;
+
+    const previewAndroidBtn = root.querySelector<HTMLButtonElement>('[data-preview-android]')!;
+    const previewIosBtn = root.querySelector<HTMLButtonElement>('[data-preview-ios]')!;
+    const androidView = root.querySelector<HTMLElement>('[data-preview-android-view]')!;
+    const iosView = root.querySelector<HTMLElement>('[data-preview-ios-view]')!;
+    const androidIcon = root.querySelector<HTMLImageElement>('[data-android-icon]')!;
+    const androidName = root.querySelector<HTMLElement>('[data-android-name]')!;
+    const androidInstallBtn = root.querySelector<HTMLButtonElement>('[data-android-install-btn]')!;
+    const iosIconWrap = root.querySelector<HTMLElement>('[data-ios-icon-wrap]')!;
+    const iosIcon = root.querySelector<HTMLImageElement>('[data-ios-icon]')!;
+    const iosName = root.querySelector<HTMLElement>('[data-ios-name]')!;
+
+    const manifestOutput = root.querySelector<HTMLTextAreaElement>('[data-manifest-output]')!;
+    const copyManifestBtn = root.querySelector<HTMLButtonElement>('[data-copy-manifest]')!;
+    const copyManifestIcon = root.querySelector<HTMLElement>('[data-copy-manifest-icon]')!;
+    const copyManifestCheck = root.querySelector<HTMLElement>('[data-copy-manifest-check]')!;
+    const copyManifestLabel = root.querySelector<HTMLElement>('[data-copy-manifest-label]')!;
+    const downloadManifestBtn = root.querySelector<HTMLButtonElement>('[data-download-manifest]')!;
+    const copyHeadtagsBtn = root.querySelector<HTMLButtonElement>('[data-copy-headtags]')!;
+    const copyHeadtagsIcon = root.querySelector<HTMLElement>('[data-copy-headtags-icon]')!;
+    const copyHeadtagsCheck = root.querySelector<HTMLElement>('[data-copy-headtags-check]')!;
+    const copyHeadtagsLabel = root.querySelector<HTMLElement>('[data-copy-headtags-label]')!;
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset-btn]')!;
+
+    const STANDARD_SIZES = [48, 72, 96, 128, 144, 152, 192, 384, 512];
+    const MASKABLE_SIZES = [192, 512];
+
+    let sourceImage: HTMLImageElement | null = null;
+    let icons: IconEntry[] = [];
+
+    function resizeToDataUrl(img: HTMLImageElement, size: number): string {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, size, size);
+      return canvas.toDataURL('image/png');
+    }
+
+    function resizeMaskable(img: HTMLImageElement, size: number, bg: string): string {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, size, size);
+      const inner = Math.round(size * 0.7);
+      const offset = Math.round((size - inner) / 2);
+      ctx.drawImage(img, offset, offset, inner, inner);
+      return canvas.toDataURL('image/png');
+    }
+
+    function generateSampleImage(): HTMLImageElement {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#65a30d';
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 280px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('A', 256, 290);
+      const img = new Image();
+      img.src = canvas.toDataURL('image/png');
+      return img;
+    }
+
+    function regenerateIcons() {
+      if (!sourceImage) return;
+      const bg = bgColorText.value || '#ffffff';
+      const entries: IconEntry[] = STANDARD_SIZES.map((size) => ({
+        size,
+        dataUrl: resizeToDataUrl(sourceImage!, size),
+        maskable: false,
+      }));
+      if (maskableToggle.checked) {
+        MASKABLE_SIZES.forEach((size) => {
+          entries.push({ size, dataUrl: resizeMaskable(sourceImage!, size, bg), maskable: true });
+        });
+      }
+      icons = entries;
+      renderIconGrid();
+      updatePreviewIcons();
+      updateManifest();
+    }
+
+    function renderIconGrid() {
+      iconGrid.innerHTML = '';
+      icons.forEach((entry) => {
+        const cell = document.createElement('div');
+        cell.className = 'flex flex-col items-center gap-1 rounded-lg border border-gray-200 p-2';
+        const filename = entry.maskable
+          ? `icon-maskable-${entry.size}x${entry.size}.png`
+          : `icon-${entry.size}x${entry.size}.png`;
+        cell.innerHTML = `
+          <img src="${entry.dataUrl}" class="h-10 w-10 rounded object-cover" alt="${entry.size}px icon" />
+          <span class="text-[10px] text-gray-500">${entry.size}×${entry.size}${entry.maskable ? ' (maskable)' : ''}</span>
+          <a href="${entry.dataUrl}" download="${filename}" class="text-[10px] text-lime-600 hover:underline">Download</a>
+        `;
+        iconGrid.appendChild(cell);
+      });
+      iconGrid.classList.toggle('hidden', icons.length === 0);
+    }
+
+    function updatePreviewIcons() {
+      const best = icons.find((e) => e.size === 192 && !e.maskable) || icons.find((e) => !e.maskable);
+      if (best) {
+        androidIcon.src = best.dataUrl;
+        iosIcon.src = best.dataUrl;
+      }
+    }
+
+    function loadImageFromFile(file: File) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          sourceImage = img;
+          regenerateIcons();
+        };
+        img.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function buildManifest() {
+      const manifest: Record<string, unknown> = {
+        name: appName.value || 'My Awesome App',
+        short_name: shortName.value || appName.value || 'App',
+        start_url: startUrl.value || '/',
+        scope: scope.value || '/',
+        display: displaySelect.value,
+        orientation: orientationSelect.value,
+        background_color: bgColorText.value || '#ffffff',
+        theme_color: themeColorText.value || '#000000',
+        lang: lang.value || 'en',
+        dir: dirSelect.value,
+      };
+      if (description.value.trim()) {
+        manifest.description = description.value.trim();
+      }
+      manifest.icons = icons.map((entry) => ({
+        src: entry.maskable
+          ? `/icons/icon-maskable-${entry.size}x${entry.size}.png`
+          : `/icons/icon-${entry.size}x${entry.size}.png`,
+        sizes: `${entry.size}x${entry.size}`,
+        type: 'image/png',
+        purpose: entry.maskable ? 'maskable' : 'any',
+      }));
+      return manifest;
+    }
+
+    function updateManifest() {
+      const manifest = buildManifest();
+      manifestOutput.value = JSON.stringify(manifest, null, 2);
+      androidName.textContent = appName.value || 'My Awesome App';
+      iosName.textContent = shortName.value || appName.value || 'App';
+      androidInstallBtn.style.backgroundColor = themeColorText.value || '#65a30d';
+      iosIconWrap.style.backgroundColor = bgColorText.value || '#ffffff';
+    }
+
+    function syncColorPair(colorInput: HTMLInputElement, textInput: HTMLInputElement) {
+      colorInput.addEventListener('input', () => {
+        textInput.value = colorInput.value;
+        updateManifest();
+        if (sourceImage) regenerateIcons();
+      });
+      textInput.addEventListener('input', () => {
+        if (/^#[0-9a-fA-F]{6}$/.test(textInput.value)) {
+          colorInput.value = textInput.value;
+        }
+        updateManifest();
+      });
+    }
+
+    [appName, shortName, description, startUrl, scope, lang].forEach((el) =>
+      el.addEventListener('input', updateManifest)
+    );
+    [displaySelect, orientationSelect, dirSelect].forEach((el) =>
+      el.addEventListener('change', updateManifest)
+    );
+    syncColorPair(themeColor, themeColorText);
+    syncColorPair(bgColor, bgColorText);
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-lime-400', 'bg-lime-50/50');
+    });
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-lime-400', 'bg-lime-50/50');
+    });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-lime-400', 'bg-lime-50/50');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) loadImageFromFile(file);
+    });
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (file) loadImageFromFile(file);
+    });
+
+    sampleBtn.addEventListener('click', () => {
+      sourceImage = generateSampleImage();
+      sourceImage.onload = () => regenerateIcons();
+    });
+
+    maskableToggle.addEventListener('change', () => {
+      if (sourceImage) regenerateIcons();
+    });
+
+    previewAndroidBtn.addEventListener('click', () => {
+      previewAndroidBtn.classList.add('bg-lime-600', 'text-white');
+      previewAndroidBtn.classList.remove('border', 'border-gray-200', 'text-gray-600');
+      previewIosBtn.classList.remove('bg-lime-600', 'text-white');
+      previewIosBtn.classList.add('border', 'border-gray-200', 'text-gray-600');
+      androidView.classList.remove('hidden');
+      iosView.classList.add('hidden');
+    });
+
+    previewIosBtn.addEventListener('click', () => {
+      previewIosBtn.classList.add('bg-lime-600', 'text-white');
+      previewIosBtn.classList.remove('border', 'border-gray-200', 'text-gray-600');
+      previewAndroidBtn.classList.remove('bg-lime-600', 'text-white');
+      previewAndroidBtn.classList.add('border', 'border-gray-200', 'text-gray-600');
+      iosView.classList.remove('hidden');
+      androidView.classList.add('hidden');
+    });
+
+    async function copyText(text: string, icon: HTMLElement, check: HTMLElement, label: HTMLElement, defaultLabel: string) {
+      try {
+        await navigator.clipboard.writeText(text);
+        icon.classList.add('hidden');
+        check.classList.remove('hidden');
+        label.textContent = 'Copied';
+        setTimeout(() => {
+          icon.classList.remove('hidden');
+          check.classList.add('hidden');
+          label.textContent = defaultLabel;
+        }, 1500);
+      } catch {
+        // clipboard permission denied; ignore
+      }
+    }
+
+    copyManifestBtn.addEventListener('click', () => {
+      copyText(manifestOutput.value, copyManifestIcon, copyManifestCheck, copyManifestLabel, 'Copy manifest.json');
+    });
+
+    downloadManifestBtn.addEventListener('click', () => {
+      const blob = new Blob([manifestOutput.value], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'manifest.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    copyHeadtagsBtn.addEventListener('click', () => {
+      const tags = `<link rel="manifest" href="/manifest.json">\n<meta name="theme-color" content="${themeColorText.value}">`;
+      copyText(tags, copyHeadtagsIcon, copyHeadtagsCheck, copyHeadtagsLabel, 'Copy <head> tags');
+    });
+
+    resetBtn.addEventListener('click', () => {
+      appName.value = 'My Awesome App';
+      shortName.value = 'Awesome';
+      description.value = '';
+      startUrl.value = '/';
+      scope.value = '/';
+      displaySelect.value = 'standalone';
+      orientationSelect.value = 'any';
+      themeColor.value = '#65a30d';
+      themeColorText.value = '#65a30d';
+      bgColor.value = '#ffffff';
+      bgColorText.value = '#ffffff';
+      lang.value = 'en';
+      dirSelect.value = 'auto';
+      maskableToggle.checked = false;
+      sourceImage = null;
+      icons = [];
+      iconGrid.innerHTML = '';
+      iconGrid.classList.add('hidden');
+      androidIcon.src = '';
+      iosIcon.src = '';
+      updateManifest();
+    });
+
+    updateManifest();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-web-app-manifest-generator-widget]').forEach(initWebAppManifestGenerator);
+</script>

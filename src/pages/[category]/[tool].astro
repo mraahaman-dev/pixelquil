@@ -84,6 +84,11 @@ import MediaSitemapValidatorWidget from '../../components/tools/MediaSitemapVali
 import LiquidExporterWidget from "../../components/tools/LiquidExporterWidget.astro";
 import BundlePricingWidget from "../../components/tools/BundlePricingWidget.astro";
 import VariantMatrixWidget from "../../components/tools/VariantMatrixWidget.astro";
+import CartExplorerWidget from "../../components/tools/CartExplorerWidget.astro";
+import MimeLookupWidget from "../../components/tools/MimeLookupWidget.astro";
+import TitleTagPixelWidthSimulatorWidget from '../../components/tools/TitleTagPixelWidthSimulatorWidget.astro';
+import TrailingSlashConsistencyAuditorWidget from '../../components/tools/TrailingSlashConsistencyAuditorWidget.astro';
+import WebAppManifestGeneratorWidget from '../../components/tools/WebAppManifestGeneratorWidget.astro';
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -179,6 +184,11 @@ const widgets: Record<string, any> = {
     "liquid-snippet-exporter": LiquidExporterWidget,
     "bundle-pricing-calculator": BundlePricingWidget,
     "variant-matrix-sku-generator": VariantMatrixWidget,
+    "cart-object-explorer": CartExplorerWidget,
+    "mime-type-lookup-validator": MimeLookupWidget,
+    "title-tag-pixel-width-simulator": TitleTagPixelWidthSimulatorWidget,
+    "trailing-slash-consistency-auditor": TrailingSlashConsistencyAuditorWidget,
+    "web-app-manifest-generator": WebAppManifestGeneratorWidget,
     
 };
 

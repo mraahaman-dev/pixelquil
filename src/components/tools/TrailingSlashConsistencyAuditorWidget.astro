@@ -1,0 +1,377 @@
+<div data-trailing-slash-consistency-auditor-widget class="relative rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div data-loading-overlay class="hidden absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/85">
+    <svg class="h-6 w-6 animate-spin text-cyan-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    <span data-loading-text class="text-sm text-gray-500">Checking 0 of 0 URLs…</span>
+  </div>
+
+  <div class="space-y-6">
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">1. Input</h3>
+      <div class="space-y-3">
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input data-sitemap-url type="text" placeholder="https://example.com/sitemap.xml" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-cyan-500 focus:ring-cyan-500 focus:outline-none focus:ring-1" />
+          <button data-fetch-sitemap type="button" class="rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-600 hover:border-cyan-300 hover:text-cyan-600 whitespace-nowrap">Fetch URLs from Sitemap</button>
+        </div>
+        <p data-sitemap-error class="hidden text-xs text-red-600"></p>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">URLs to audit (one per line, max 40)</label>
+          <textarea data-url-list rows="6" placeholder="https://example.com/&#10;https://example.com/about&#10;https://example.com/blog/" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:border-cyan-500 focus:ring-cyan-500 focus:outline-none focus:ring-1"></textarea>
+        </div>
+        <div class="flex items-center gap-3">
+          <button data-sample-btn type="button" class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-cyan-300 hover:text-cyan-600">Try a sample</button>
+          <button data-reset-btn type="button" class="ml-auto text-xs text-gray-400 hover:text-red-600">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">2. Run Audit</h3>
+      <button data-run-btn type="button" class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700">Run Audit</button>
+      <div data-progress-wrap class="hidden mt-3">
+        <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span data-progress-text>Checking 0 of 0 URLs…</span>
+        </div>
+        <div class="h-2 w-full rounded-full bg-gray-100">
+          <div data-progress-bar class="h-2 rounded-full bg-cyan-600" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div data-results-section class="hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Results</h3>
+        <div class="flex gap-1 rounded-lg border border-gray-200 p-0.5">
+          <button data-filter-all type="button" class="rounded-md px-3 py-1 text-xs font-medium bg-cyan-600 text-white">All</button>
+          <button data-filter-issues type="button" class="rounded-md px-3 py-1 text-xs font-medium border border-gray-200 text-gray-600">Issues only</button>
+        </div>
+      </div>
+
+      <div data-policy-summary class="rounded-lg border p-3 mb-3 text-sm"></div>
+
+      <div data-results-list class="max-h-96 overflow-y-auto rounded-lg border border-gray-200 divide-y divide-gray-100"></div>
+
+      <div class="flex items-center justify-end mt-3">
+        <button data-copy-report type="button" class="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-cyan-300 hover:text-cyan-600">
+          <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <svg data-check-icon class="hidden h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span data-copy-label>Copy report</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  interface AuditResult {
+    url: string;
+    originalStatus: number | string | null;
+    canonical: string | null;
+    canonicalMatch: boolean | null;
+    counterpartUrl: string | null;
+    counterpartStatus: number | string | null;
+    verdict: string;
+  }
+
+  function initTrailingSlashAuditor(root: HTMLElement) {
+    const sitemapUrlInput = root.querySelector<HTMLInputElement>('[data-sitemap-url]')!;
+    const fetchSitemapBtn = root.querySelector<HTMLButtonElement>('[data-fetch-sitemap]')!;
+    const sitemapError = root.querySelector<HTMLElement>('[data-sitemap-error]')!;
+    const urlList = root.querySelector<HTMLTextAreaElement>('[data-url-list]')!;
+    const sampleBtn = root.querySelector<HTMLButtonElement>('[data-sample-btn]')!;
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset-btn]')!;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-run-btn]')!;
+    const progressWrap = root.querySelector<HTMLElement>('[data-progress-wrap]')!;
+    const progressText = root.querySelector<HTMLElement>('[data-progress-text]')!;
+    const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]')!;
+    const loadingOverlay = root.querySelector<HTMLElement>('[data-loading-overlay]')!;
+    const loadingText = root.querySelector<HTMLElement>('[data-loading-text]')!;
+    const resultsSection = root.querySelector<HTMLElement>('[data-results-section]')!;
+    const policySummary = root.querySelector<HTMLElement>('[data-policy-summary]')!;
+    const resultsList = root.querySelector<HTMLElement>('[data-results-list]')!;
+    const filterAllBtn = root.querySelector<HTMLButtonElement>('[data-filter-all]')!;
+    const filterIssuesBtn = root.querySelector<HTMLButtonElement>('[data-filter-issues]')!;
+    const copyReportBtn = root.querySelector<HTMLButtonElement>('[data-copy-report]')!;
+    const copyIcon = root.querySelector<HTMLElement>('[data-copy-icon]')!;
+    const checkIcon = root.querySelector<HTMLElement>('[data-check-icon]')!;
+    const copyLabel = root.querySelector<HTMLElement>('[data-copy-label]')!;
+
+    const MAX_URLS = 40;
+    const CONCURRENCY = 4;
+    let lastResults: AuditResult[] = [];
+    let currentFilter: 'all' | 'issues' = 'all';
+
+    function toggleSlash(urlStr: string): string | null {
+      try {
+        const u = new URL(urlStr);
+        if (u.pathname === '/' || u.pathname === '') return null;
+        if (u.pathname.endsWith('/')) {
+          u.pathname = u.pathname.slice(0, -1);
+        } else {
+          u.pathname = u.pathname + '/';
+        }
+        return u.toString();
+      } catch {
+        return null;
+      }
+    }
+
+    function normalize(urlStr: string): string {
+      try {
+        const u = new URL(urlStr);
+        return (u.host + u.pathname + u.search).toLowerCase();
+      } catch {
+        return urlStr.toLowerCase();
+      }
+    }
+
+    async function proxyFetch(url: string, method: 'GET' | 'HEAD') {
+      const res = await fetch(`/api/fetch-proxy/?url=${encodeURIComponent(url)}&method=${method}`);
+      if (!res.ok) throw new Error(`Proxy error ${res.status}`);
+      return res.json();
+    }
+
+    function extractCanonical(html: string): string | null {
+      const linkTags = html.match(/<link[^>]*>/gi) || [];
+      const canonicalTag = linkTags.find((tag) => /rel=["']canonical["']/i.test(tag));
+      if (!canonicalTag) return null;
+      const hrefMatch = canonicalTag.match(/href=["']([^"']+)["']/i);
+      return hrefMatch ? hrefMatch[1] : null;
+    }
+
+    function computeVerdict(r: Omit<AuditResult, 'verdict'>): string {
+      let base: string;
+      if (!r.counterpartUrl) {
+        base = 'N/A (root URL)';
+      } else if (typeof r.counterpartStatus === 'number' && r.counterpartStatus >= 300 && r.counterpartStatus < 400) {
+        base = 'Consistent (redirect enforced)';
+      } else if (r.counterpartStatus === 200) {
+        base = 'Inconsistent (duplicate accessible)';
+      } else if (typeof r.counterpartStatus === 'number' && r.counterpartStatus >= 400) {
+        base = 'Consistent (single form only)';
+      } else {
+        base = 'Unknown (fetch failed)';
+      }
+      if (r.canonicalMatch === false) {
+        return base.startsWith('Consistent') || base.startsWith('N/A') ? base + ' — canonical mismatch' : base + ' + canonical mismatch';
+      }
+      return base;
+    }
+
+    async function auditUrl(rawUrl: string): Promise<AuditResult> {
+      const original = rawUrl.trim();
+      let originalStatus: number | string | null = null;
+      let canonical: string | null = null;
+      let canonicalMatch: boolean | null = null;
+
+      try {
+        const origResp = await proxyFetch(original, 'GET');
+        originalStatus = origResp.status;
+        const canonicalHref = extractCanonical(origResp.body || '');
+        if (canonicalHref) {
+          try {
+            canonical = new URL(canonicalHref, original).toString();
+            canonicalMatch = normalize(canonical) === normalize(original);
+          } catch {
+            canonical = canonicalHref;
+            canonicalMatch = false;
+          }
+        }
+      } catch {
+        originalStatus = 'Error';
+      }
+
+      const counterpartUrl = toggleSlash(original);
+      let counterpartStatus: number | string | null = null;
+      if (counterpartUrl) {
+        try {
+          const cpResp = await proxyFetch(counterpartUrl, 'GET');
+          counterpartStatus = cpResp.status;
+        } catch {
+          counterpartStatus = 'Error';
+        }
+      }
+
+      const partial = { url: original, originalStatus, canonical, canonicalMatch, counterpartUrl, counterpartStatus };
+      return { ...partial, verdict: computeVerdict(partial) };
+    }
+
+    function updateProgress(done: number, total: number) {
+      progressText.textContent = `Checking ${done} of ${total} URLs…`;
+      loadingText.textContent = `Checking ${done} of ${total} URLs…`;
+      progressBar.style.width = `${Math.round((done / total) * 100)}%`;
+    }
+
+    async function runAudit(urls: string[]) {
+      loadingOverlay.classList.remove('hidden');
+      progressWrap.classList.remove('hidden');
+      resultsSection.classList.add('hidden');
+      updateProgress(0, urls.length);
+
+      const results: AuditResult[] = [];
+      const queue = [...urls];
+      let completed = 0;
+
+      async function worker() {
+        while (queue.length) {
+          const url = queue.shift();
+          if (!url) continue;
+          const r = await auditUrl(url);
+          results.push(r);
+          completed++;
+          updateProgress(completed, urls.length);
+        }
+      }
+
+      const workers = Array.from({ length: Math.min(CONCURRENCY, urls.length) }, () => worker());
+      await Promise.all(workers);
+
+      loadingOverlay.classList.add('hidden');
+      lastResults = results;
+      renderResults(results);
+    }
+
+    function renderResults(results: AuditResult[]) {
+      const trailingCount = results.filter((r) => r.url.endsWith('/')).length;
+      const nonTrailingCount = results.length - trailingCount;
+      const inferredPolicy = trailingCount >= nonTrailingCount ? 'trailing slash' : 'no trailing slash';
+      const consistentCount = results.filter((r) => r.verdict.startsWith('Consistent') || r.verdict.startsWith('N/A')).length;
+      const pct = Math.round((consistentCount / results.length) * 100);
+
+      let bannerClass = 'border-green-200 bg-green-50 text-green-800';
+      if (pct < 60) bannerClass = 'border-red-200 bg-red-50 text-red-800';
+      else if (pct < 90) bannerClass = 'border-amber-200 bg-amber-50 text-amber-800';
+
+      policySummary.className = `rounded-lg border p-3 mb-3 text-sm ${bannerClass}`;
+      policySummary.textContent = `Inferred site policy: ${inferredPolicy}. ${consistentCount} of ${results.length} URLs (${pct}%) are consistently enforced.`;
+
+      resultsList.innerHTML = '';
+      results.forEach((r) => {
+        const isIssue = r.verdict.includes('Inconsistent') || r.verdict.includes('mismatch') || r.verdict.startsWith('Unknown');
+        const row = document.createElement('div');
+        row.dataset.issue = isIssue ? 'true' : 'false';
+        row.className = 'p-3 text-sm space-y-1';
+
+        const badgeClass = r.verdict.startsWith('Consistent') || r.verdict.startsWith('N/A')
+          ? 'bg-green-100 text-green-700'
+          : r.verdict.startsWith('Unknown')
+          ? 'bg-gray-100 text-gray-600'
+          : 'bg-red-100 text-red-700';
+
+        row.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <span class="font-mono text-xs text-gray-700 break-all">${r.url}</span>
+            <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass}">${r.verdict}</span>
+          </div>
+          <div class="text-xs text-gray-500">
+            Status: ${r.originalStatus ?? '—'}${r.counterpartUrl ? ` · Counterpart (${r.counterpartUrl.endsWith('/') ? 'with slash' : 'no slash'}): ${r.counterpartStatus ?? '—'}` : ''}${r.canonical ? ` · Canonical: ${r.canonical}${r.canonicalMatch === false ? ' (mismatch)' : ''}` : ''}
+          </div>
+        `;
+        resultsList.appendChild(row);
+      });
+
+      applyFilter();
+      resultsSection.classList.remove('hidden');
+    }
+
+    function applyFilter() {
+      resultsList.querySelectorAll<HTMLElement>('[data-issue]').forEach((row) => {
+        const show = currentFilter === 'all' || row.dataset.issue === 'true';
+        row.classList.toggle('hidden', !show);
+      });
+    }
+
+    function getUrls(): string[] {
+      return urlList.value
+        .split('\n')
+        .map((u) => u.trim())
+        .filter(Boolean)
+        .slice(0, MAX_URLS);
+    }
+
+    runBtn.addEventListener('click', () => {
+      const urls = getUrls();
+      if (urls.length === 0) return;
+      runAudit(urls);
+    });
+
+    fetchSitemapBtn.addEventListener('click', async () => {
+      sitemapError.classList.add('hidden');
+      const sitemapUrl = sitemapUrlInput.value.trim();
+      if (!sitemapUrl) return;
+      try {
+        const resp = await proxyFetch(sitemapUrl, 'GET');
+        const doc = new DOMParser().parseFromString(resp.body || '', 'application/xml');
+        const locNodes = Array.from(doc.querySelectorAll('loc'));
+        if (locNodes.length === 0) {
+          sitemapError.textContent = 'No <loc> entries found. This may be a sitemap index; try pasting a child sitemap URL instead.';
+          sitemapError.classList.remove('hidden');
+          return;
+        }
+        const urls = locNodes.map((n) => n.textContent?.trim()).filter(Boolean).slice(0, MAX_URLS) as string[];
+        urlList.value = urls.join('\n');
+      } catch {
+        sitemapError.textContent = 'Could not fetch or parse that sitemap URL.';
+        sitemapError.classList.remove('hidden');
+      }
+    });
+
+    filterAllBtn.addEventListener('click', () => {
+      currentFilter = 'all';
+      filterAllBtn.classList.add('bg-cyan-600', 'text-white');
+      filterAllBtn.classList.remove('border', 'border-gray-200', 'text-gray-600');
+      filterIssuesBtn.classList.remove('bg-cyan-600', 'text-white');
+      filterIssuesBtn.classList.add('border', 'border-gray-200', 'text-gray-600');
+      applyFilter();
+    });
+
+    filterIssuesBtn.addEventListener('click', () => {
+      currentFilter = 'issues';
+      filterIssuesBtn.classList.add('bg-cyan-600', 'text-white');
+      filterIssuesBtn.classList.remove('border', 'border-gray-200', 'text-gray-600');
+      filterAllBtn.classList.remove('bg-cyan-600', 'text-white');
+      filterAllBtn.classList.add('border', 'border-gray-200', 'text-gray-600');
+      applyFilter();
+    });
+
+    sampleBtn.addEventListener('click', () => {
+      urlList.value = [
+        'https://example.com/',
+        'https://example.com/about',
+        'https://example.com/blog/',
+        'https://example.com/contact/',
+        'https://example.com/products',
+      ].join('\n');
+    });
+
+    resetBtn.addEventListener('click', () => {
+      urlList.value = '';
+      sitemapUrlInput.value = '';
+      sitemapError.classList.add('hidden');
+      progressWrap.classList.add('hidden');
+      resultsSection.classList.add('hidden');
+      lastResults = [];
+    });
+
+    copyReportBtn.addEventListener('click', async () => {
+      if (lastResults.length === 0) return;
+      const lines = lastResults.map(
+        (r) => `${r.url} — ${r.verdict} (status ${r.originalStatus}${r.counterpartUrl ? `, counterpart ${r.counterpartStatus}` : ''}${r.canonical ? `, canonical ${r.canonical}` : ''})`
+      );
+      try {
+        await navigator.clipboard.writeText(lines.join('\n'));
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        copyLabel.textContent = 'Copied';
+        setTimeout(() => {
+          copyIcon.classList.remove('hidden');
+          checkIcon.classList.add('hidden');
+          copyLabel.textContent = 'Copy report';
+        }, 1500);
+      } catch {
+        // clipboard permission denied; ignore
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-trailing-slash-consistency-auditor-widget]').forEach(initTrailingSlashAuditor);
+</script>

@@ -1,0 +1,213 @@
+<div data-title-tag-pixel-width-simulator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="space-y-6">
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">1. Your Title Tag</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title tag text</label>
+          <textarea data-title-input rows="2" placeholder="Enter your page title tag..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:ring-rose-500 focus:outline-none focus:ring-1"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Page URL (optional, shown in preview)</label>
+          <input data-url-input type="text" placeholder="example.com/your-page" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-500 focus:ring-rose-500 focus:outline-none focus:ring-1" />
+        </div>
+        <div class="flex items-center gap-3">
+          <button data-sample-btn type="button" class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-rose-300 hover:text-rose-600">Try a sample</button>
+          <button data-reset-btn type="button" class="ml-auto text-xs text-gray-400 hover:text-red-600">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">2. Live Preview</h3>
+        <div class="flex gap-1 rounded-lg border border-gray-200 p-0.5">
+          <button data-device-desktop type="button" class="rounded-md px-3 py-1 text-xs font-medium bg-rose-600 text-white">Desktop</button>
+          <button data-device-mobile type="button" class="rounded-md px-3 py-1 text-xs font-medium border border-gray-200 text-gray-600">Mobile</button>
+        </div>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-white p-4">
+        <div class="flex items-center gap-1 text-sm text-gray-700 mb-1">
+          <span class="inline-block h-4 w-4 rounded-full bg-gray-200"></span>
+          <span data-serp-url class="truncate">example.com/page</span>
+        </div>
+        <div data-serp-title class="text-xl leading-snug mb-1" style="color:#1a0dab; font-family: Arial, sans-serif;">Your title tag preview will appear here</div>
+        <div class="text-sm text-gray-600">This is a simulated snippet. Google may show a different auto-generated description depending on the page and search query.</div>
+      </div>
+      <div class="mt-2 flex items-center gap-2">
+        <span data-truncation-badge class="inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Fits</span>
+        <span data-warning-text class="hidden text-xs text-red-600"></span>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">3. Pixel &amp; Character Analysis</h3>
+      <div class="space-y-3">
+        <div>
+          <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+            <span>Desktop</span>
+            <span data-desktop-px>0px / 580px</span>
+          </div>
+          <div class="h-2 w-full rounded-full bg-gray-100">
+            <div data-desktop-bar class="h-2 rounded-full bg-rose-600" style="width: 0%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+            <span>Mobile</span>
+            <span data-mobile-px>0px / 640px</span>
+          </div>
+          <div class="h-2 w-full rounded-full bg-gray-100">
+            <div data-mobile-bar class="h-2 rounded-full bg-rose-600" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-1">
+          <span data-char-count class="text-sm text-gray-600">0 characters</span>
+          <button data-copy-btn type="button" class="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-rose-300 hover:text-rose-600">
+            <svg data-copy-icon class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg data-check-icon class="hidden h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span data-copy-label>Copy title</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initTitleTagPixelWidthSimulator(root: HTMLElement) {
+    const titleInput = root.querySelector<HTMLTextAreaElement>('[data-title-input]')!;
+    const urlInput = root.querySelector<HTMLInputElement>('[data-url-input]')!;
+    const sampleBtn = root.querySelector<HTMLButtonElement>('[data-sample-btn]')!;
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset-btn]')!;
+    const desktopBtn = root.querySelector<HTMLButtonElement>('[data-device-desktop]')!;
+    const mobileBtn = root.querySelector<HTMLButtonElement>('[data-device-mobile]')!;
+    const serpUrl = root.querySelector<HTMLElement>('[data-serp-url]')!;
+    const serpTitle = root.querySelector<HTMLElement>('[data-serp-title]')!;
+    const truncBadge = root.querySelector<HTMLElement>('[data-truncation-badge]')!;
+    const warningText = root.querySelector<HTMLElement>('[data-warning-text]')!;
+    const desktopBar = root.querySelector<HTMLElement>('[data-desktop-bar]')!;
+    const mobileBar = root.querySelector<HTMLElement>('[data-mobile-bar]')!;
+    const desktopPx = root.querySelector<HTMLElement>('[data-desktop-px]')!;
+    const mobilePx = root.querySelector<HTMLElement>('[data-mobile-px]')!;
+    const charCount = root.querySelector<HTMLElement>('[data-char-count]')!;
+    const copyBtn = root.querySelector<HTMLButtonElement>('[data-copy-btn]')!;
+    const copyIcon = root.querySelector<HTMLElement>('[data-copy-icon]')!;
+    const checkIcon = root.querySelector<HTMLElement>('[data-check-icon]')!;
+    const copyLabel = root.querySelector<HTMLElement>('[data-copy-label]')!;
+
+    let device: 'desktop' | 'mobile' = 'desktop';
+    const DESKTOP_LIMIT = 580;
+    const MOBILE_LIMIT = 640;
+    const FONT = '20px Arial, sans-serif';
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+
+    function measure(text: string): number {
+      ctx.font = FONT;
+      return ctx.measureText(text).width;
+    }
+
+    function truncateToPixels(text: string, limit: number): string {
+      if (measure(text) <= limit) return text;
+      let t = text;
+      while (t.length > 0 && measure(t + '…') > limit) {
+        t = t.slice(0, -1);
+      }
+      return t.trimEnd() + '…';
+    }
+
+    function update() {
+      const title = titleInput.value || '';
+      const url = urlInput.value || 'example.com/page';
+      const widthPx = Math.round(measure(title));
+
+      desktopPx.textContent = `${widthPx}px / ${DESKTOP_LIMIT}px`;
+      mobilePx.textContent = `${widthPx}px / ${MOBILE_LIMIT}px`;
+      desktopBar.style.width = `${Math.min(100, (widthPx / DESKTOP_LIMIT) * 100)}%`;
+      mobileBar.style.width = `${Math.min(100, (widthPx / MOBILE_LIMIT) * 100)}%`;
+      desktopBar.classList.toggle('bg-red-500', widthPx > DESKTOP_LIMIT);
+      desktopBar.classList.toggle('bg-rose-600', widthPx <= DESKTOP_LIMIT);
+      mobileBar.classList.toggle('bg-red-500', widthPx > MOBILE_LIMIT);
+      mobileBar.classList.toggle('bg-rose-600', widthPx <= MOBILE_LIMIT);
+
+      charCount.textContent = `${title.length} characters`;
+
+      const limit = device === 'desktop' ? DESKTOP_LIMIT : MOBILE_LIMIT;
+      const displayTitle = truncateToPixels(title, limit);
+      const isTruncated = displayTitle !== title && title.length > 0;
+
+      serpTitle.textContent = title ? displayTitle : 'Your title tag preview will appear here';
+      serpUrl.textContent = url;
+
+      if (isTruncated) {
+        truncBadge.textContent = 'Truncated';
+        truncBadge.classList.remove('bg-green-100', 'text-green-700');
+        truncBadge.classList.add('bg-red-100', 'text-red-700');
+        warningText.classList.remove('hidden');
+        warningText.textContent = `This title is ${widthPx - limit}px over the ${device} limit and will likely get cut off.`;
+      } else {
+        truncBadge.textContent = 'Fits';
+        truncBadge.classList.remove('bg-red-100', 'text-red-700');
+        truncBadge.classList.add('bg-green-100', 'text-green-700');
+        warningText.classList.add('hidden');
+      }
+    }
+
+    function setDevice(next: 'desktop' | 'mobile') {
+      device = next;
+      const activeClasses = ['bg-rose-600', 'text-white'];
+      const inactiveClasses = ['border', 'border-gray-200', 'text-gray-600'];
+      if (next === 'desktop') {
+        desktopBtn.classList.add(...activeClasses);
+        desktopBtn.classList.remove(...inactiveClasses);
+        mobileBtn.classList.remove(...activeClasses);
+        mobileBtn.classList.add(...inactiveClasses);
+      } else {
+        mobileBtn.classList.add(...activeClasses);
+        mobileBtn.classList.remove(...inactiveClasses);
+        desktopBtn.classList.remove(...activeClasses);
+        desktopBtn.classList.add(...inactiveClasses);
+      }
+      update();
+    }
+
+    titleInput.addEventListener('input', update);
+    urlInput.addEventListener('input', update);
+    desktopBtn.addEventListener('click', () => setDevice('desktop'));
+    mobileBtn.addEventListener('click', () => setDevice('mobile'));
+
+    sampleBtn.addEventListener('click', () => {
+      titleInput.value = 'Best Wireless Headphones 2026: Top 10 Tested & Reviewed for Sound Quality';
+      urlInput.value = 'example.com/best-wireless-headphones';
+      update();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      titleInput.value = '';
+      urlInput.value = '';
+      update();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(titleInput.value || '');
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        copyLabel.textContent = 'Copied';
+        setTimeout(() => {
+          copyIcon.classList.remove('hidden');
+          checkIcon.classList.add('hidden');
+          copyLabel.textContent = 'Copy title';
+        }, 1500);
+      } catch (e) {
+        // clipboard permissions denied; silently ignore
+      }
+    });
+
+    update();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-title-tag-pixel-width-simulator-widget]').forEach(initTitleTagPixelWidthSimulator);
+</script>

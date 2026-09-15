@@ -1,0 +1,323 @@
+
+<div data-cart-explorer-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="mb-4 inline-flex rounded-lg border border-gray-200 p-0.5 text-xs">
+    <button type="button" data-mode="reference" class="rounded-md bg-teal-600 px-2.5 py-1 font-medium text-white">Reference</button>
+    <button type="button" data-mode="live" class="rounded-md px-2.5 py-1 font-medium text-gray-500">Your Cart JSON</button>
+  </div>
+
+  <div data-panel-reference>
+    <input
+      data-search
+      type="text"
+      placeholder="Search properties…"
+      class="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+    />
+    <div data-cart-tree class="space-y-1.5"></div>
+  </div>
+
+  <div data-panel-live class="hidden">
+    <p class="mb-2 text-xs text-gray-500">
+      Visit <code>yourstore.com/cart.js</code> in a browser tab while items are in your cart, copy the raw JSON, and paste it below.
+    </p>
+    <textarea
+      data-json-input
+      rows="6"
+      placeholder="Paste your /cart.js JSON here…"
+      class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+    ></textarea>
+    <div class="mt-2 flex items-center gap-2">
+      <button type="button" data-load-sample-btn class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-teal-300 hover:text-teal-600">
+        Load sample
+      </button>
+      <button type="button" data-explore-btn class="rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-700">
+        Explore
+      </button>
+    </div>
+    <p data-json-error class="mt-1.5 hidden text-xs text-red-600"></p>
+    <div data-live-tree class="mt-3 space-y-1"></div>
+  </div>
+</div>
+
+<script>
+  type RefEntry = { name: string; type: string; desc: string; example: string; deprecated?: boolean };
+
+  const CART_PROPERTIES: RefEntry[] = [
+    { name: "attributes", type: "object", desc: "Additional attributes entered by the customer with the cart.", example: `{{ cart.attributes.cauldron-engraving }}` },
+    { name: "cart_level_discount_applications", type: "array of discount_application", desc: "The cart-specific discount applications for the cart.", example: `{% for d in cart.cart_level_discount_applications %}{{ d.title }}{% endfor %}` },
+    { name: "checkout_charge_amount", type: "number", desc: "The amount the customer will be charged at checkout, in the currency's subunit.", example: `{{ cart.checkout_charge_amount | money }}` },
+    { name: "currency", type: "currency", desc: "The currency of the cart (matches the customer's local currency on multi-currency stores).", example: `{{ cart.currency.iso_code }}` },
+    { name: "discount_applications", type: "array of discount_application", desc: "The discount applications for the cart.", example: `{% for d in cart.discount_applications %}{{ d.title }}{% endfor %}` },
+    { name: "duties_included", type: "boolean", desc: "True if duties are included in the prices of products in the cart.", example: `{% if cart.duties_included %}Duties included{% endif %}` },
+    { name: "empty?", type: "boolean", desc: "True if there are no items in the cart.", example: `{% if cart.empty? %}Your cart is empty{% endif %}` },
+    { name: "item_count", type: "number", desc: "The number of items in the cart.", example: `{{ cart.item_count }} items` },
+    { name: "items", type: "array of line_item", desc: "The line items in the cart. Expand below for common line_item properties.", example: `{% for item in cart.items %}{{ item.title }}{% endfor %}` },
+    { name: "items_subtotal_price", type: "number", desc: "Total price of all items after line item discounts, before taxes/cart discounts/shipping.", example: `{{ cart.items_subtotal_price | money }}` },
+    { name: "note", type: "string", desc: "Additional information captured with the cart (gift notes, etc).", example: `{{ cart.note }}` },
+    { name: "original_total_price", type: "number", desc: "Total price of all items before any discounts have been applied.", example: `{{ cart.original_total_price | money }}` },
+    { name: "requires_shipping", type: "boolean", desc: "True if any product in the cart requires shipping.", example: `{% if cart.requires_shipping %}Shipping required{% endif %}` },
+    { name: "taxes_included", type: "boolean", desc: "True if taxes are included in the prices of products in the cart.", example: `{% if cart.taxes_included %}Tax included{% endif %}` },
+    { name: "total_discount", type: "number", desc: "The total amount of all discounts (the amount saved) for the cart.", example: `{{ cart.total_discount | money }}` },
+    { name: "total_price", type: "number", desc: "Total price of all items after discounts have been applied — the number usually shown at checkout.", example: `{{ cart.total_price | money }}` },
+    { name: "total_weight", type: "number", desc: "The total weight of all items in the cart, in grams.", example: `{{ cart.total_weight | weight_with_unit }}` },
+    { name: "discounts", type: "array of discount", desc: "The discounts applied to the cart.", example: `{% for d in cart.discounts %}{{ d.title }}{% endfor %}`, deprecated: true },
+  ];
+
+  const LINE_ITEM_PROPERTIES: RefEntry[] = [
+    { name: "id", type: "number", desc: "A unique identifier for this specific line item.", example: `{{ item.id }}` },
+    { name: "key", type: "string", desc: "A unique key combining variant ID and line item properties — used to target this exact line for cart updates.", example: `{{ item.key }}` },
+    { name: "title", type: "string", desc: "Product title, followed by a dash and the variant title (omitted for \"Default Title\").", example: `{{ item.title }}` },
+    { name: "product", type: "product", desc: "The full product object this line item belongs to.", example: `{{ item.product.title }}` },
+    { name: "product_id", type: "number", desc: "The ID of the product this line item belongs to.", example: `{{ item.product_id }}` },
+    { name: "variant", type: "variant", desc: "The full variant object for this line item.", example: `{{ item.variant.sku }}` },
+    { name: "variant_id", type: "number", desc: "The ID of the specific variant added to the cart.", example: `{{ item.variant_id }}` },
+    { name: "variant_title", type: "string", desc: "The variant's option values joined by \" / \" (e.g. \"Small / Red\").", example: `{{ item.variant_title }}` },
+    { name: "sku", type: "string", desc: "The SKU of the variant.", example: `{{ item.sku }}` },
+    { name: "vendor", type: "string", desc: "The vendor of the product.", example: `{{ item.vendor }}` },
+    { name: "quantity", type: "number", desc: "The quantity of this variant in the cart.", example: `{{ item.quantity }}` },
+    { name: "price", type: "number", desc: "The price for a single unit of this line item.", example: `{{ item.price | money }}` },
+    { name: "line_price", type: "number", desc: "Price multiplied by quantity for this line item.", example: `{{ item.line_price | money }}` },
+    { name: "original_line_price", type: "number", desc: "Combined price of the line before any discounts were applied.", example: `{{ item.original_line_price | money }}` },
+    { name: "final_line_price", type: "number", desc: "Combined price of the line including all line-level discount amounts.", example: `{{ item.final_line_price | money }}` },
+    { name: "total_discount", type: "number", desc: "Total discount amount applied to this line item.", example: `{{ item.total_discount | money }}` },
+    { name: "grams", type: "number", desc: "Weight of a single unit of this line item, in grams.", example: `{{ item.grams }}` },
+    { name: "image", type: "string", desc: "URL of the image associated with this line item.", example: `{{ item.image | img_url: 'small' }}` },
+    { name: "url", type: "string", desc: "The relative URL of this line item's variant.", example: `{{ item.url }}` },
+    { name: "properties", type: "array", desc: "Custom key-value data the customer entered on the product page (personalization, engraving text, etc).", example: `{% for p in item.properties %}{{ p.first }}: {{ p.last }}{% endfor %}` },
+    { name: "requires_shipping", type: "boolean", desc: "True if this line item's variant requires shipping.", example: `{% if item.requires_shipping %}Ships{% endif %}` },
+    { name: "taxable", type: "boolean", desc: "True if this line item's variant has taxes enabled.", example: `{% if item.taxable %}Taxable{% endif %}` },
+    { name: "gift_card", type: "boolean", desc: "True if this line item is a gift card product.", example: `{% if item.gift_card %}Gift card{% endif %}` },
+    { name: "selling_plan_allocation", type: "selling_plan_allocation", desc: "Present when this line item is part of a subscription/selling plan.", example: `{{ item.selling_plan_allocation.selling_plan.name }}` },
+  ];
+
+  function initCartExplorer(root: HTMLElement) {
+    const modeButtons = root.querySelectorAll<HTMLButtonElement>("[data-mode]");
+    const panelReference = root.querySelector<HTMLElement>("[data-panel-reference]")!;
+    const panelLive = root.querySelector<HTMLElement>("[data-panel-live]")!;
+    const searchInput = root.querySelector<HTMLInputElement>("[data-search]")!;
+    const cartTree = root.querySelector<HTMLElement>("[data-cart-tree]")!;
+    const jsonInput = root.querySelector<HTMLTextAreaElement>("[data-json-input]")!;
+    const loadSampleBtn = root.querySelector<HTMLButtonElement>("[data-load-sample-btn]")!;
+    const exploreBtn = root.querySelector<HTMLButtonElement>("[data-explore-btn]")!;
+    const jsonError = root.querySelector<HTMLElement>("[data-json-error]")!;
+    const liveTree = root.querySelector<HTMLElement>("[data-live-tree]")!;
+
+    modeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.getAttribute("data-mode");
+        modeButtons.forEach((b) => {
+          const active = b === btn;
+          b.className = active
+            ? "rounded-md bg-teal-600 px-2.5 py-1 font-medium text-white"
+            : "rounded-md px-2.5 py-1 font-medium text-gray-500";
+        });
+        panelReference.classList.toggle("hidden", mode !== "reference");
+        panelLive.classList.toggle("hidden", mode !== "live");
+      });
+    });
+
+    function propRow(entry: RefEntry): HTMLElement {
+      const row = document.createElement("div");
+      row.className = "rounded-lg border border-gray-200 p-2.5";
+
+      const head = document.createElement("div");
+      head.className = "flex flex-wrap items-baseline gap-2";
+      const name = document.createElement("code");
+      name.className = "text-sm font-semibold text-gray-900";
+      name.textContent = entry.name;
+      const type = document.createElement("span");
+      type.className = "text-[11px] text-gray-400";
+      type.textContent = entry.type;
+      head.appendChild(name);
+      head.appendChild(type);
+      if (entry.deprecated) {
+        const dep = document.createElement("span");
+        dep.className = "rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700";
+        dep.textContent = "deprecated";
+        head.appendChild(dep);
+      }
+      row.appendChild(head);
+
+      const desc = document.createElement("p");
+      desc.className = "mt-1 text-xs text-gray-600";
+      desc.textContent = entry.desc;
+      row.appendChild(desc);
+
+      const exampleRow = document.createElement("div");
+      exampleRow.className = "mt-1.5 flex items-center gap-2";
+      const example = document.createElement("code");
+      example.className = "flex-1 truncate rounded bg-gray-900 px-2 py-1 text-[11px] text-teal-300";
+      example.textContent = entry.example;
+      const copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "shrink-0 text-[11px] text-gray-400 hover:text-teal-600";
+      copyBtn.textContent = "Copy";
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(entry.example);
+          copyBtn.textContent = "Copied";
+          setTimeout(() => (copyBtn.textContent = "Copy"), 1200);
+        } catch {
+          // ignore
+        }
+      });
+      exampleRow.appendChild(example);
+      exampleRow.appendChild(copyBtn);
+      row.appendChild(exampleRow);
+
+      if (entry.name === "items") {
+        const note = document.createElement("p");
+        note.className = "mt-2 text-[11px] text-gray-400";
+        note.textContent = "Common line_item properties (not exhaustive — see shopify.dev for the complete list):";
+        row.appendChild(note);
+
+        const subList = document.createElement("div");
+        subList.className = "mt-1.5 space-y-1.5 border-l-2 border-gray-100 pl-3";
+        LINE_ITEM_PROPERTIES.forEach((li) => subList.appendChild(propRow(li)));
+        row.appendChild(subList);
+      }
+
+      return row;
+    }
+
+    function renderReference(filter: string) {
+      cartTree.innerHTML = "";
+      const q = filter.trim().toLowerCase();
+      const filtered = q
+        ? CART_PROPERTIES.filter(
+            (e) => e.name.toLowerCase().includes(q) || e.desc.toLowerCase().includes(q) ||
+              (e.name === "items" && LINE_ITEM_PROPERTIES.some((li) => li.name.toLowerCase().includes(q)))
+          )
+        : CART_PROPERTIES;
+      if (filtered.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "text-xs text-gray-400";
+        empty.textContent = "No matching properties.";
+        cartTree.appendChild(empty);
+        return;
+      }
+      filtered.forEach((entry) => cartTree.appendChild(propRow(entry)));
+    }
+
+    searchInput.addEventListener("input", () => renderReference(searchInput.value));
+
+    const SAMPLE_CART = {
+      attributes: {},
+      cart_level_discount_applications: [],
+      checkout_charge_amount: 4200,
+      currency: "USD",
+      discount_applications: [],
+      duties_included: false,
+      "empty?": false,
+      item_count: 2,
+      items: [
+        {
+          id: 44012345678901,
+          key: "44012345678901:abc123",
+          title: "Classic Canvas Tote - Black",
+          product_id: 8123456789,
+          variant_id: 44012345678901,
+          variant_title: "Black",
+          sku: "TOTE-BLK",
+          vendor: "Your Store",
+          quantity: 2,
+          price: 3800,
+          line_price: 7600,
+          original_line_price: 7600,
+          final_line_price: 7600,
+          total_discount: 0,
+          grams: 450,
+          properties: {},
+          requires_shipping: true,
+          taxable: true,
+          gift_card: false,
+        },
+      ],
+      items_subtotal_price: 7600,
+      note: "",
+      original_total_price: 7600,
+      requires_shipping: true,
+      taxes_included: false,
+      total_discount: 0,
+      total_price: 7600,
+      total_weight: 900,
+    };
+
+    function buildLiquidPath(path: (string | number)[]): string {
+      let out = "cart";
+      for (const seg of path) {
+        out += typeof seg === "number" ? `[${seg}]` : `.${seg}`;
+      }
+      return out;
+    }
+
+    function renderJsonNode(value: unknown, path: (string | number)[]): HTMLElement {
+      const wrap = document.createElement("div");
+
+      if (value !== null && typeof value === "object") {
+        const isArray = Array.isArray(value);
+        const entries: [string | number, unknown][] = isArray
+          ? (value as unknown[]).map((v, i) => [i, v])
+          : Object.entries(value as Record<string, unknown>);
+
+        const details = document.createElement("details");
+        details.open = path.length < 2;
+        const summary = document.createElement("summary");
+        summary.className = "cursor-pointer text-xs font-medium text-gray-700";
+        summary.textContent = `${path.length ? path[path.length - 1] : "cart"} (${isArray ? `array[${entries.length}]` : "object"})`;
+        details.appendChild(summary);
+
+        const children = document.createElement("div");
+        children.className = "ml-4 mt-1 space-y-1 border-l-2 border-gray-100 pl-3";
+        entries.forEach(([key, v]) => children.appendChild(renderJsonNode(v, [...path, key])));
+        details.appendChild(children);
+        wrap.appendChild(details);
+      } else {
+        const row = document.createElement("div");
+        row.className = "flex flex-wrap items-center gap-2 text-xs";
+        const key = document.createElement("code");
+        key.className = "font-medium text-gray-700";
+        key.textContent = String(path[path.length - 1]);
+        const val = document.createElement("span");
+        val.className = "text-gray-500";
+        val.textContent = JSON.stringify(value);
+        const liquidPath = document.createElement("code");
+        liquidPath.className = "rounded bg-gray-900 px-1.5 py-0.5 text-[10px] text-teal-300";
+        liquidPath.textContent = buildLiquidPath(path);
+        row.appendChild(key);
+        row.appendChild(val);
+        row.appendChild(liquidPath);
+        wrap.appendChild(row);
+      }
+
+      return wrap;
+    }
+
+    function exploreLiveJson() {
+      let data: unknown;
+      try {
+        data = jsonInput.value.trim() ? JSON.parse(jsonInput.value) : null;
+        jsonError.classList.add("hidden");
+      } catch (e) {
+        jsonError.textContent = "That's not valid JSON: " + (e as Error).message;
+        jsonError.classList.remove("hidden");
+        return;
+      }
+      liveTree.innerHTML = "";
+      if (data === null) return;
+      liveTree.appendChild(renderJsonNode(data, []));
+    }
+
+    loadSampleBtn.addEventListener("click", () => {
+      jsonInput.value = JSON.stringify(SAMPLE_CART, null, 2);
+      exploreLiveJson();
+    });
+
+    exploreBtn.addEventListener("click", exploreLiveJson);
+
+    renderReference("");
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-cart-explorer-widget]")
+    .forEach(initCartExplorer);
+</script>

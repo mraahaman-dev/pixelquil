@@ -1,0 +1,246 @@
+
+<div data-mime-lookup-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="mb-6">
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Look Up by Extension or Filename</p>
+    <input
+      data-ext-input
+      type="text"
+      placeholder="e.g. .svg, json, image.webp"
+      class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+    />
+    <div data-ext-results class="mt-2 space-y-1.5"></div>
+  </div>
+
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Validate a MIME Type String</p>
+    <input
+      data-validate-input
+      type="text"
+      placeholder="e.g. image/jpg, text/javascript, application/json; charset=utf-8"
+      class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+    />
+    <div data-validate-result class="mt-2"></div>
+  </div>
+</div>
+
+<script>
+  type MimeEntry = { ext: string; type: string; alt?: string[]; note?: string };
+
+  const MIME_DB: MimeEntry[] = [
+    { ext: "html", type: "text/html" },
+    { ext: "htm", type: "text/html" },
+    { ext: "css", type: "text/css" },
+    { ext: "js", type: "text/javascript", alt: ["application/javascript (obsoleted by RFC 9239 — use text/javascript)"] },
+    { ext: "mjs", type: "text/javascript" },
+    { ext: "json", type: "application/json" },
+    { ext: "jsonld", type: "application/ld+json" },
+    { ext: "xml", type: "application/xml", note: "text/xml is also valid for human-readable XML; application/xml is preferred for machine-generated XML." },
+    { ext: "txt", type: "text/plain" },
+    { ext: "csv", type: "text/csv" },
+    { ext: "md", type: "text/markdown" },
+    { ext: "pdf", type: "application/pdf" },
+    { ext: "zip", type: "application/zip" },
+    { ext: "gz", type: "application/gzip", alt: ["application/x-gzip (legacy alias)"] },
+    { ext: "tar", type: "application/x-tar" },
+    { ext: "rar", type: "application/vnd.rar" },
+    { ext: "7z", type: "application/x-7z-compressed" },
+    { ext: "wasm", type: "application/wasm" },
+    { ext: "webmanifest", type: "application/manifest+json" },
+    { ext: "jpg", type: "image/jpeg" },
+    { ext: "jpeg", type: "image/jpeg" },
+    { ext: "png", type: "image/png" },
+    { ext: "gif", type: "image/gif" },
+    { ext: "webp", type: "image/webp" },
+    { ext: "avif", type: "image/avif" },
+    { ext: "svg", type: "image/svg+xml" },
+    { ext: "ico", type: "image/vnd.microsoft.icon", alt: ["image/x-icon (widely supported legacy alias)"] },
+    { ext: "bmp", type: "image/bmp" },
+    { ext: "tiff", type: "image/tiff" },
+    { ext: "mp3", type: "audio/mpeg" },
+    { ext: "wav", type: "audio/wav" },
+    { ext: "ogg", type: "audio/ogg" },
+    { ext: "opus", type: "audio/opus" },
+    { ext: "m4a", type: "audio/mp4" },
+    { ext: "mp4", type: "video/mp4" },
+    { ext: "webm", type: "video/webm" },
+    { ext: "ogv", type: "video/ogg" },
+    { ext: "mov", type: "video/quicktime" },
+    { ext: "avi", type: "video/x-msvideo" },
+    { ext: "woff", type: "font/woff" },
+    { ext: "woff2", type: "font/woff2" },
+    { ext: "ttf", type: "font/ttf", alt: ["application/x-font-ttf (legacy alias)"] },
+    { ext: "otf", type: "font/otf" },
+    { ext: "eot", type: "application/vnd.ms-fontobject" },
+    { ext: "vtt", type: "text/vtt" },
+    { ext: "yaml", type: "application/yaml", note: "Not formally IANA-registered as of writing; text/yaml is also commonly seen. Check your specific consumer's expectations." },
+    { ext: "yml", type: "application/yaml" },
+    { ext: "doc", type: "application/msword" },
+    { ext: "docx", type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+    { ext: "xls", type: "application/vnd.ms-excel" },
+    { ext: "xlsx", type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+    { ext: "ppt", type: "application/vnd.ms-powerpoint" },
+    { ext: "pptx", type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+    { ext: "epub", type: "application/epub+zip" },
+    { ext: "apk", type: "application/vnd.android.package-archive" },
+    { ext: "exe", type: "application/vnd.microsoft.portable-executable" },
+    { ext: "bin", type: "application/octet-stream" },
+  ];
+
+  // Common wrong -> correct mappings, for the validator's "did you mean" hints.
+  const COMMON_MISTAKES: Record<string, string> = {
+    "image/jpg": "image/jpeg",
+    "image/svg": "image/svg+xml",
+    "audio/mp3": "audio/mpeg",
+    "application/javascript": "text/javascript (application/javascript was obsoleted by RFC 9239)",
+    "application/x-javascript": "text/javascript",
+    "text/json": "application/json",
+    "application/x-gzip": "application/gzip",
+    "application/font-woff": "font/woff",
+    "application/font-woff2": "font/woff2",
+    "application/x-font-ttf": "font/ttf",
+    "application/x-font-otf": "font/otf",
+    "image/x-png": "image/png",
+    "audio/x-wav": "audio/wav",
+  };
+
+  const KNOWN_TYPES = new Set([...MIME_DB.map((e) => e.type.toLowerCase()), ...Object.values(COMMON_MISTAKES).map((v) => v.split(" ")[0].toLowerCase())]);
+
+  function cleanExtQuery(q: string): string {
+    let s = q.trim().toLowerCase();
+    if (s.startsWith(".")) s = s.slice(1);
+    const dotIdx = s.lastIndexOf(".");
+    if (dotIdx !== -1) s = s.slice(dotIdx + 1);
+    return s;
+  }
+
+  function initMimeLookup(root: HTMLElement) {
+    const extInput = root.querySelector<HTMLInputElement>("[data-ext-input]")!;
+    const extResults = root.querySelector<HTMLElement>("[data-ext-results]")!;
+    const validateInput = root.querySelector<HTMLInputElement>("[data-validate-input]")!;
+    const validateResult = root.querySelector<HTMLElement>("[data-validate-result]")!;
+
+    function copyableRow(label: string, code: string, tone: "green" | "amber" | "gray" = "gray"): HTMLElement {
+      const row = document.createElement("div");
+      const toneClasses = {
+        green: "border-green-200 bg-green-50",
+        amber: "border-amber-200 bg-amber-50",
+        gray: "border-gray-200",
+      }[tone];
+      row.className = `flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${toneClasses}`;
+
+      const text = document.createElement("div");
+      text.className = "flex-1";
+      const codeEl = document.createElement("code");
+      codeEl.className = "font-mono text-gray-900";
+      codeEl.textContent = code;
+      text.appendChild(codeEl);
+      if (label) {
+        const labelEl = document.createElement("p");
+        labelEl.className = "text-[11px] text-gray-500";
+        labelEl.textContent = label;
+        text.appendChild(labelEl);
+      }
+      row.appendChild(text);
+
+      const copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "shrink-0 text-xs text-gray-400 hover:text-indigo-600";
+      copyBtn.textContent = "Copy";
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.textContent = "Copied";
+          setTimeout(() => (copyBtn.textContent = "Copy"), 1200);
+        } catch {
+          // ignore
+        }
+      });
+      row.appendChild(copyBtn);
+      return row;
+    }
+
+    function renderExtLookup() {
+      const q = cleanExtQuery(extInput.value);
+      extResults.innerHTML = "";
+      if (!q) return;
+
+      const matches = MIME_DB.filter((e) => e.ext === q);
+      if (matches.length === 0) {
+        const notFound = document.createElement("p");
+        notFound.className = "text-xs text-gray-400";
+        notFound.textContent = `No entry for ".${q}" in this tool's reference set — check the IANA media types registry for anything obscure or vendor-specific.`;
+        extResults.appendChild(notFound);
+        return;
+      }
+
+      matches.forEach((entry) => {
+        extResults.appendChild(copyableRow(`.${entry.ext}`, entry.type, "green"));
+        if (entry.alt) {
+          entry.alt.forEach((alt) => {
+            const altRow = document.createElement("p");
+            altRow.className = "ml-1 text-[11px] text-gray-500";
+            altRow.textContent = `Also seen: ${alt}`;
+            extResults.appendChild(altRow);
+          });
+        }
+        if (entry.note) {
+          const noteEl = document.createElement("p");
+          noteEl.className = "ml-1 text-[11px] text-gray-500";
+          noteEl.textContent = entry.note;
+          extResults.appendChild(noteEl);
+        }
+      });
+    }
+
+    function renderValidation() {
+      const raw = validateInput.value.trim();
+      validateResult.innerHTML = "";
+      if (!raw) return;
+
+      const syntaxPattern = /^[a-z0-9][a-z0-9!#$&^_.+-]*\/[a-z0-9][a-z0-9!#$&^_.+-]*(\s*;\s*[a-z0-9-]+=.+)*$/i;
+      const lower = raw.toLowerCase();
+      const baseType = lower.split(";")[0].trim();
+
+      if (!syntaxPattern.test(raw.trim())) {
+        validateResult.appendChild(
+          copyableRow("Doesn't match the type/subtype[;parameter=value] pattern from RFC 6838.", raw, "amber")
+        );
+        return;
+      }
+
+      if (raw !== lower) {
+        const caseNote = document.createElement("p");
+        caseNote.className = "mb-2 text-xs text-amber-700";
+        caseNote.textContent = "MIME types are case-insensitive per spec, but lowercase is the near-universal convention — consider using lowercase.";
+        validateResult.appendChild(caseNote);
+      }
+
+      if (COMMON_MISTAKES[baseType]) {
+        validateResult.appendChild(
+          copyableRow(`"${baseType}" is a common but non-standard type. Suggested:`, COMMON_MISTAKES[baseType], "amber")
+        );
+        return;
+      }
+
+      if (KNOWN_TYPES.has(baseType)) {
+        validateResult.appendChild(copyableRow("Recognized, standard MIME type.", raw, "green"));
+        return;
+      }
+
+      validateResult.appendChild(
+        copyableRow(
+          "Syntax looks valid, but this isn't in this tool's known-types list — it may still be a legitimate, less common, or vendor-specific type. Check the IANA registry to confirm.",
+          raw,
+          "gray"
+        )
+      );
+    }
+
+    extInput.addEventListener("input", renderExtLookup);
+    validateInput.addEventListener("input", renderValidation);
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-mime-lookup-widget]")
+    .forEach(initMimeLookup);
+</script>
