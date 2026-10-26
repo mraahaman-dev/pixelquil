@@ -1,0 +1,409 @@
+<div data-icon-sizing-ratio-calculator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Text styles</p>
+    <button type="button" data-preset="tailwind" class="rounded-lg border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-teal-500 hover:bg-teal-50">Tailwind scale</button>
+    <button type="button" data-preset="ratio" class="rounded-lg border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-teal-500 hover:bg-teal-50">1.5 line-height scale</button>
+    <button type="button" data-reset class="ml-auto text-sm text-gray-400 hover:text-red-600">Reset</button>
+  </div>
+  <p class="mt-1 text-xs text-gray-500">Enter each text style in your design system with its font size and line height in pixels.</p>
+  <div data-rows class="mt-3 overflow-x-auto"></div>
+  <button type="button" data-add-row class="mt-3 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:border-teal-500 hover:bg-teal-50">+ Add text style</button>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Icon rules</p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <div class="block text-sm text-gray-700">
+      Icon size as a ratio of line height
+      <div class="mt-1 flex items-center gap-3">
+        <input data-ratio-range type="range" min="0.5" max="1.5" step="0.05" value="0.85" class="w-full accent-teal-600" />
+        <input data-ratio type="number" min="0.1" max="3" step="0.05" value="0.85" class="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+      </div>
+    </div>
+    <label class="block text-sm text-gray-700">
+      Snap icon sizes to
+      <select data-snap class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <option value="none">No snapping (exact value)</option>
+        <option value="round">Nearest whole pixel</option>
+        <option value="even">Nearest even pixel</option>
+        <option value="grid4" selected>Nearest 4px grid</option>
+        <option value="preferred">Preferred size list</option>
+      </select>
+    </label>
+    <label data-preferred-wrap class="hidden text-sm text-gray-700 sm:col-span-2">
+      Preferred icon sizes (px, comma separated)
+      <input data-preferred type="text" value="12, 14, 16, 20, 24, 28, 32, 40, 48" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Gap between icon and text (em of the font size)
+      <input data-gap type="number" min="0" max="2" step="0.05" value="0.25" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+    </label>
+  </div>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">3. Results</p>
+  <div data-results class="mt-3 overflow-x-auto"></div>
+  <p class="mt-5 text-sm font-medium text-gray-700">Live preview</p>
+  <p class="text-xs text-gray-500">The tinted box is the line box. If an icon is taller than the line height, the box grows.</p>
+  <div data-preview class="mt-2"></div>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Export tokens</p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-3">
+    <label class="block text-sm text-gray-700">
+      Output unit
+      <select data-unit class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <option value="px">px</option>
+        <option value="rem">rem</option>
+        <option value="em">em (scales with the text)</option>
+      </select>
+    </label>
+    <label data-root-wrap class="hidden text-sm text-gray-700">
+      Root font size (px)
+      <input data-root type="number" min="1" step="1" value="16" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+    </label>
+    <label class="flex items-end gap-2 pb-2 text-sm text-gray-700">
+      <input data-helpers type="checkbox" checked class="h-4 w-4 accent-teal-600" />
+      Include helper classes
+    </label>
+  </div>
+  <div class="mt-3 flex flex-wrap gap-2">
+    <button type="button" data-fmt="css" class="rounded-full border px-3 py-1 text-sm">CSS variables</button>
+    <button type="button" data-fmt="tailwind" class="rounded-full border px-3 py-1 text-sm">Tailwind v4</button>
+    <button type="button" data-fmt="scss" class="rounded-full border px-3 py-1 text-sm">SCSS map</button>
+    <button type="button" data-fmt="json" class="rounded-full border px-3 py-1 text-sm">JSON tokens</button>
+  </div>
+  <textarea data-output readonly spellcheck="false" class="mt-3 h-56 w-full rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-800 focus:outline-none"></textarea>
+  <div class="mt-3">
+    <button type="button" data-copy class="inline-flex items-center gap-1.5 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700">
+      <svg data-copy-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <svg data-copy-done xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      <span data-copy-label>Copy</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  type Row = { name: string; fs: number; lh: number };
+  type Res = { slug: string; name: string; fs: number; lh: number; raw: number; icon: number; ratio: number; gap: number; offset: number; warns: string[] };
+
+  const TAILWIND: Row[] = [
+    { name: "xs", fs: 12, lh: 16 },
+    { name: "sm", fs: 14, lh: 20 },
+    { name: "base", fs: 16, lh: 24 },
+    { name: "lg", fs: 18, lh: 28 },
+    { name: "xl", fs: 20, lh: 28 },
+    { name: "2xl", fs: 24, lh: 32 },
+    { name: "3xl", fs: 30, lh: 36 },
+  ];
+  const RATIO15: Row[] = [
+    ["xs", 12],
+    ["sm", 14],
+    ["base", 16],
+    ["lg", 18],
+    ["xl", 20],
+    ["2xl", 24],
+    ["3xl", 32],
+  ].map((p) => ({ name: p[0] as string, fs: p[1] as number, lh: Math.round((p[1] as number) * 1.5 / 2) * 2 }));
+  const DEFAULT_PREFERRED = [12, 14, 16, 20, 24, 28, 32, 40, 48];
+
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const n3 = (n: number) => String(Math.round(n * 1000) / 1000);
+
+  function initIconSizing(root: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+    const rowsEl = $<HTMLElement>("[data-rows]");
+    const ratioEl = $<HTMLInputElement>("[data-ratio]");
+    const rangeEl = $<HTMLInputElement>("[data-ratio-range]");
+    const snapEl = $<HTMLSelectElement>("[data-snap]");
+    const prefWrap = $<HTMLElement>("[data-preferred-wrap]");
+    const prefEl = $<HTMLInputElement>("[data-preferred]");
+    const gapEl = $<HTMLInputElement>("[data-gap]");
+    const unitEl = $<HTMLSelectElement>("[data-unit]");
+    const rootWrap = $<HTMLElement>("[data-root-wrap]");
+    const rootEl = $<HTMLInputElement>("[data-root]");
+    const helpersEl = $<HTMLInputElement>("[data-helpers]");
+    const resultsEl = $<HTMLElement>("[data-results]");
+    const previewEl = $<HTMLElement>("[data-preview]");
+    const outEl = $<HTMLTextAreaElement>("[data-output]");
+    const copyBtn = $<HTMLButtonElement>("[data-copy]");
+    const copyIcon = $<SVGElement>("[data-copy-icon]");
+    const copyDone = $<SVGElement>("[data-copy-done]");
+    const copyLabel = $<HTMLElement>("[data-copy-label]");
+    const fmtBtns = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-fmt]"));
+
+    let rows: Row[] = TAILWIND.map((r) => ({ ...r }));
+    let fmt: "css" | "tailwind" | "scss" | "json" = "css";
+
+    const inputCls =
+      "w-24 rounded-md border border-gray-200 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500";
+
+    function renderRows() {
+      let h =
+        '<table class="min-w-full text-sm"><thead><tr><th class="px-2 py-2 text-left text-xs font-semibold text-gray-500">Style name</th><th class="px-2 py-2 text-left text-xs font-semibold text-gray-500">Font size (px)</th><th class="px-2 py-2 text-left text-xs font-semibold text-gray-500">Line height (px)</th><th></th></tr></thead><tbody>';
+      rows.forEach((r, i) => {
+        h +=
+          '<tr class="border-t border-gray-100"><td class="px-2 py-1.5"><input type="text" data-f="name" data-i="' + i + '" value="' + esc(r.name) + '" class="w-28 rounded-md border border-gray-200 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" /></td>' +
+          '<td class="px-2 py-1.5"><input type="number" min="1" step="any" data-f="fs" data-i="' + i + '" value="' + r.fs + '" class="' + inputCls + '" /></td>' +
+          '<td class="px-2 py-1.5"><input type="number" min="1" step="any" data-f="lh" data-i="' + i + '" value="' + r.lh + '" class="' + inputCls + '" /></td>' +
+          '<td class="px-2 py-1.5">' + (rows.length > 1 ? '<button type="button" data-rm="' + i + '" aria-label="Remove style" class="px-1 text-gray-300 hover:text-red-600">×</button>' : "") + "</td></tr>";
+      });
+      h += "</tbody></table>";
+      rowsEl.innerHTML = h;
+    }
+
+    function preferredList(): number[] {
+      const list = prefEl.value
+        .split(/[\s,]+/)
+        .map(Number)
+        .filter((n) => isFinite(n) && n > 0)
+        .sort((a, b) => a - b);
+      return list.length ? list : DEFAULT_PREFERRED;
+    }
+
+    function snap(raw: number): number {
+      const mode = snapEl.value;
+      if (mode === "none") return Math.round(raw * 100) / 100;
+      if (mode === "round") return Math.max(1, Math.round(raw));
+      if (mode === "even") return Math.max(2, Math.round(raw / 2) * 2);
+      if (mode === "grid4") return Math.max(4, Math.round(raw / 4) * 4);
+      const list = preferredList();
+      let best = list[0];
+      list.forEach((v) => {
+        if (Math.abs(v - raw) < Math.abs(best - raw)) best = v;
+      });
+      return best;
+    }
+
+    function compute(): Res[] {
+      const ratio = Math.min(3, Math.max(0.1, parseFloat(ratioEl.value) || 0.85));
+      const gapEm = Math.max(0, parseFloat(gapEl.value) || 0);
+      const used: Record<string, number> = {};
+      const out: Res[] = [];
+      rows.forEach((r, i) => {
+        if (!(r.fs > 0) || !(r.lh > 0)) return;
+        let slug = r.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "style-" + (i + 1);
+        used[slug] = (used[slug] || 0) + 1;
+        if (used[slug] > 1) slug += "-" + used[slug];
+        const raw = r.lh * ratio;
+        const icon = snap(raw);
+        const gap = snapEl.value === "none" ? Math.round(r.fs * gapEm * 100) / 100 : Math.round(r.fs * gapEm);
+        const warns: string[] = [];
+        if (icon > r.lh) warns.push("Taller than the line height");
+        const dev = Math.abs(icon - raw) / raw;
+        if (snapEl.value !== "none" && dev > 0.1) warns.push("Snapped " + Math.round(dev * 100) + "% away from target");
+        out.push({ slug, name: r.name || slug, fs: r.fs, lh: r.lh, raw, icon, ratio: icon / r.lh, gap, offset: (r.lh - icon) / 2, warns });
+      });
+      return out;
+    }
+
+    function val(px: number, res: Res): string {
+      const u = unitEl.value;
+      if (u === "rem") return n3(px / (parseFloat(rootEl.value) || 16)) + "rem";
+      if (u === "em") return n3(px / res.fs) + "em";
+      return n3(px) + "px";
+    }
+
+    function snapLabel(): string {
+      const m = snapEl.value;
+      return m === "none" ? "no snapping" : m === "round" ? "whole pixels" : m === "even" ? "even pixels" : m === "grid4" ? "a 4px grid" : "the preferred size list";
+    }
+
+    function buildOutput(res: Res[]): string {
+      if (!res.length) return "";
+      const ratio = n3(Math.min(3, Math.max(0.1, parseFloat(ratioEl.value) || 0.85)));
+      const head = "Icon size = line height x " + ratio + ", snapped to " + snapLabel();
+      const emNote = unitEl.value === "em" ? " (em values resolve against the font size of the element they are used on)" : "";
+      if (fmt === "css") {
+        let s = "/* " + head + emNote + " */\n:root {\n";
+        res.forEach((r) => {
+          s += "  --icon-size-" + r.slug + ": " + val(r.icon, r) + ";\n";
+          s += "  --icon-gap-" + r.slug + ": " + val(r.gap, r) + ";\n";
+        });
+        s += "}";
+        if (helpersEl.checked) {
+          res.forEach((r) => {
+            s += "\n\n.icon-" + r.slug + " {\n  width: var(--icon-size-" + r.slug + ");\n  height: var(--icon-size-" + r.slug + ");\n  flex-shrink: 0;\n}";
+          });
+        }
+        return s;
+      }
+      if (fmt === "tailwind") {
+        let s = "/* " + head + emNote + ". Use as size-icon-" + res[0].slug + ", w-icon-" + res[0].slug + " or h-icon-" + res[0].slug + " */\n@theme {\n";
+        res.forEach((r) => {
+          s += "  --spacing-icon-" + r.slug + ": " + val(r.icon, r) + ";\n";
+          s += "  --spacing-icon-gap-" + r.slug + ": " + val(r.gap, r) + ";\n";
+        });
+        s += "}";
+        return s;
+      }
+      if (fmt === "scss") {
+        let s = "// " + head + emNote + "\n$icon-sizes: (\n";
+        res.forEach((r, i) => {
+          s += '  "' + r.slug + '": ' + val(r.icon, r) + (i < res.length - 1 ? "," : "") + "\n";
+        });
+        s += ");\n\n$icon-gaps: (\n";
+        res.forEach((r, i) => {
+          s += '  "' + r.slug + '": ' + val(r.gap, r) + (i < res.length - 1 ? "," : "") + "\n";
+        });
+        s += ");";
+        if (helpersEl.checked) {
+          s += "\n\n@each $name, $size in $icon-sizes {\n  .icon-#{$name} {\n    width: $size;\n    height: $size;\n    flex-shrink: 0;\n  }\n}";
+        }
+        return s;
+      }
+      const size: Record<string, unknown> = {};
+      const gap: Record<string, unknown> = {};
+      res.forEach((r) => {
+        size[r.slug] = { $value: val(r.icon, r), $type: "dimension" };
+        gap[r.slug] = { $value: val(r.gap, r), $type: "dimension" };
+      });
+      return JSON.stringify({ icon: { size, gap } }, null, 2);
+    }
+
+    function renderResults(res: Res[]) {
+      if (!res.length) {
+        resultsEl.innerHTML = '<p class="text-sm text-gray-400">Add at least one text style with a font size and line height.</p>';
+        return;
+      }
+      let h =
+        '<table class="min-w-full text-sm"><thead><tr>' +
+        ["Style", "Font / line", "Target icon", "Icon size", "Icon / line", "Gap", "Centering offset", "Notes"]
+          .map((t) => '<th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">' + t + "</th>")
+          .join("") +
+        "</tr></thead><tbody>";
+      res.forEach((r) => {
+        h +=
+          '<tr class="border-t border-gray-100"><td class="px-3 py-2 font-medium text-gray-800">' + esc(r.name) +
+          '</td><td class="px-3 py-2 text-gray-600">' + n3(r.fs) + " / " + n3(r.lh) + " px" +
+          '</td><td class="px-3 py-2 text-gray-500">' + n3(r.raw) + " px" +
+          '</td><td class="px-3 py-2 font-semibold text-teal-700">' + n3(r.icon) + " px" +
+          '</td><td class="px-3 py-2 text-gray-600">' + n3(r.ratio) +
+          '</td><td class="px-3 py-2 text-gray-600">' + n3(r.gap) + " px" +
+          '</td><td class="px-3 py-2 text-gray-600">' + n3(r.offset) + " px" +
+          '</td><td class="px-3 py-2 text-xs text-amber-600">' + (r.warns.length ? esc(r.warns.join("; ")) : '<span class="text-gray-300">OK</span>') +
+          "</td></tr>";
+      });
+      h += "</tbody></table>";
+      resultsEl.innerHTML = h;
+    }
+
+    function renderPreview(res: Res[]) {
+      let h = "";
+      res.forEach((r) => {
+        h +=
+          '<div class="flex items-center gap-4 border-t border-gray-100 py-2"><span class="w-14 shrink-0 text-xs text-gray-400">' + esc(r.name) +
+          '</span><div class="inline-flex items-center bg-teal-50 text-gray-800" style="font-size:' + r.fs + "px;line-height:" + r.lh + "px;gap:" + r.gap + 'px">' +
+          '<svg class="shrink-0 text-teal-600" width="' + r.icon + '" height="' + r.icon + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12l3 3 5-6"></path></svg>' +
+          "<span>Icon next to text</span></div></div>";
+      });
+      previewEl.innerHTML = h;
+    }
+
+    function refresh() {
+      prefWrap.classList.toggle("hidden", snapEl.value !== "preferred");
+      rootWrap.classList.toggle("hidden", unitEl.value !== "rem");
+      const res = compute();
+      renderResults(res);
+      renderPreview(res);
+      outEl.value = buildOutput(res);
+      fmtBtns.forEach((b) => {
+        const on = b.dataset.fmt === fmt;
+        b.classList.toggle("bg-teal-600", on);
+        b.classList.toggle("text-white", on);
+        b.classList.toggle("border-teal-600", on);
+        b.classList.toggle("bg-white", !on);
+        b.classList.toggle("text-gray-600", !on);
+        b.classList.toggle("border-gray-200", !on);
+      });
+    }
+
+    rowsEl.addEventListener("input", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.dataset.f === undefined) return;
+      const r = rows[Number(t.dataset.i)];
+      if (t.dataset.f === "name") r.name = t.value;
+      else if (t.dataset.f === "fs") r.fs = parseFloat(t.value) || 0;
+      else r.lh = parseFloat(t.value) || 0;
+      refresh();
+    });
+
+    rowsEl.addEventListener("click", (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>("[data-rm]");
+      if (!b) return;
+      rows.splice(Number(b.dataset.rm), 1);
+      renderRows();
+      refresh();
+    });
+
+    $<HTMLElement>("[data-add-row]").addEventListener("click", () => {
+      const last = rows[rows.length - 1];
+      rows.push({ name: "style-" + (rows.length + 1), fs: last ? last.fs + 2 : 16, lh: last ? last.lh + 4 : 24 });
+      renderRows();
+      refresh();
+    });
+
+    root.querySelectorAll<HTMLButtonElement>("[data-preset]").forEach((b) =>
+      b.addEventListener("click", () => {
+        rows = (b.dataset.preset === "tailwind" ? TAILWIND : RATIO15).map((r) => ({ ...r }));
+        renderRows();
+        refresh();
+      }),
+    );
+
+    $<HTMLElement>("[data-reset]").addEventListener("click", () => {
+      rows = TAILWIND.map((r) => ({ ...r }));
+      ratioEl.value = "0.85";
+      rangeEl.value = "0.85";
+      snapEl.value = "grid4";
+      prefEl.value = "12, 14, 16, 20, 24, 28, 32, 40, 48";
+      gapEl.value = "0.25";
+      unitEl.value = "px";
+      rootEl.value = "16";
+      helpersEl.checked = true;
+      renderRows();
+      refresh();
+    });
+
+    ratioEl.addEventListener("input", () => {
+      rangeEl.value = ratioEl.value;
+      refresh();
+    });
+    rangeEl.addEventListener("input", () => {
+      ratioEl.value = rangeEl.value;
+      refresh();
+    });
+    [snapEl, prefEl, gapEl, unitEl, rootEl, helpersEl].forEach((el) => {
+      el.addEventListener("input", refresh);
+      el.addEventListener("change", refresh);
+    });
+
+    fmtBtns.forEach((b) =>
+      b.addEventListener("click", () => {
+        fmt = b.dataset.fmt as typeof fmt;
+        refresh();
+      }),
+    );
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(outEl.value);
+      } catch {
+        outEl.select();
+        document.execCommand("copy");
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy";
+      }, 1500);
+    });
+
+    renderRows();
+    refresh();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-icon-sizing-ratio-calculator-widget]")
+    .forEach(initIconSizing);
+</script>

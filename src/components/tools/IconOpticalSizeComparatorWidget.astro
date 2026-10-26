@@ -1,0 +1,509 @@
+<div data-icon-optical-size-comparator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Add icons</p>
+    <button type="button" data-sample class="rounded-lg border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-rose-500 hover:bg-rose-50">Try a sample</button>
+    <button type="button" data-clear class="ml-auto text-sm text-gray-400 hover:text-red-600">Clear all</button>
+  </div>
+  <div class="mt-3 grid gap-4 md:grid-cols-2">
+    <div>
+      <div data-drop tabindex="0" role="button" class="flex h-full min-h-[8rem] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-4 py-5 text-center text-sm text-gray-500 hover:border-rose-500 hover:bg-rose-50">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mb-1 h-6 w-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"></path><path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path></svg>
+        Drop several .svg icon files here or click to browse
+        <input data-file type="file" multiple accept=".svg,image/svg+xml" class="hidden" />
+      </div>
+    </div>
+    <textarea data-text spellcheck="false" placeholder="Or paste one or more icons as SVG code" class="h-32 w-full rounded-lg border border-gray-200 p-3 font-mono text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+  </div>
+  <div data-chips class="mt-3 flex flex-wrap gap-2"></div>
+  <p data-error class="mt-2 hidden text-xs text-red-600"></p>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Comparison settings</p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <label class="block text-sm text-gray-700">
+      Display size: <span data-size-val class="font-medium">48</span> px
+      <input data-size type="range" min="16" max="96" step="4" value="48" class="mt-2 w-full accent-rose-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Stroke weights to compare (in each icon's own units)
+      <input data-weights type="text" value="1, 1.5, 2, 3" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Match perceived size by
+      <select data-method class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+        <option value="blend" selected>Blend of ink area and ink bounds</option>
+        <option value="area">Ink area (how much is filled)</option>
+        <option value="box">Ink bounds (how far it reaches)</option>
+      </select>
+    </label>
+    <div class="flex flex-col justify-end gap-2 text-sm text-gray-700">
+      <label class="flex items-center gap-2"><input data-apply type="checkbox" class="h-4 w-4 accent-rose-600" /> Apply the suggested optical scale</label>
+      <label class="flex items-center gap-2"><input data-bounds type="checkbox" checked class="h-4 w-4 accent-rose-600" /> Show measured ink bounds</label>
+    </div>
+  </div>
+
+  <div class="mt-6 flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Side by side</p>
+    <span data-status class="hidden items-center gap-1.5 text-xs text-gray-400">
+      <svg class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>
+      Measuring...
+    </span>
+  </div>
+  <p data-summary class="mt-2 text-sm text-gray-600"></p>
+  <div data-grid class="mt-3 overflow-x-auto"></div>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Export</p>
+  <div class="mt-3 flex flex-wrap items-center gap-2">
+    <button type="button" data-copy class="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">
+      <svg data-copy-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <svg data-copy-done xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      <span data-copy-label>Copy report</span>
+    </button>
+    <button type="button" data-csv class="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-rose-500 hover:bg-rose-50">Download CSV</button>
+  </div>
+</div>
+
+<script>
+  type Icon = { name: string; text: string };
+  type Metrics = { cov: number; x0: number; y0: number; x1: number; y1: number; cx: number; cy: number };
+  type Cell = { src: string; m: Metrics | null; err: string };
+
+  const RES = 128;
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  const S = 'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+  const SAMPLE: Icon[] = [
+    { name: "circle", text: "<svg " + S + '><circle cx="12" cy="12" r="9"/></svg>' },
+    { name: "square", text: "<svg " + S + '><rect x="3" y="3" width="18" height="18" rx="2"/></svg>' },
+    { name: "triangle", text: "<svg " + S + '><path d="M12 3l10 18H2z"/></svg>' },
+    { name: "plus", text: "<svg " + S + '><path d="M12 5v14M5 12h14"/></svg>' },
+    { name: "diamond", text: "<svg " + S + '><path d="M12 2l10 10-10 10L2 12z"/></svg>' },
+    { name: "check", text: "<svg " + S + '><path d="M5 12l5 5 9-10"/></svg>' },
+    { name: "dot-filled", text: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor"/></svg>' },
+  ];
+
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+  const f1 = (n: number) => (Math.round(n * 10) / 10).toFixed(1);
+  const f2 = (n: number) => (Math.round(n * 100) / 100).toFixed(2);
+  const median = (a: number[]) => {
+    if (!a.length) return 0;
+    const s = a.slice().sort((x, y) => x - y);
+    const m = Math.floor(s.length / 2);
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  };
+
+  function normalizeSvg(text: string, o: { size: number; weight: number | null; color: string }): string | null {
+    let t = text.trim();
+    const m = t.match(/<svg[^>]*>/i);
+    if (!m) return null;
+    let tag = m[0];
+    let fixed = tag;
+    if (!/xmlns\s*=/.test(tag)) fixed = fixed.replace(/<svg/i, '<svg xmlns="http://www.w3.org/2000/svg"');
+    if (/xlink:/.test(t) && !/xmlns:xlink/.test(tag)) fixed = fixed.replace(/<svg/i, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    if (fixed !== tag) t = t.replace(tag, fixed);
+    const doc = new DOMParser().parseFromString(t, "image/svg+xml");
+    if (doc.querySelector("parsererror")) return null;
+    const root = doc.documentElement;
+    if (root.localName.toLowerCase() !== "svg") return null;
+    root.querySelectorAll("script, foreignObject").forEach((n) => n.remove());
+    if (!root.getAttribute("viewBox")) {
+      const w = parseFloat(root.getAttribute("width") || "");
+      const h = parseFloat(root.getAttribute("height") || "");
+      root.setAttribute("viewBox", isFinite(w) && isFinite(h) && w > 0 && h > 0 ? "0 0 " + w + " " + h : "0 0 24 24");
+    }
+    root.setAttribute("width", String(o.size));
+    root.setAttribute("height", String(o.size));
+    root.setAttribute("color", o.color);
+    if (o.weight !== null) {
+      const st = doc.createElementNS(SVG_NS, "style");
+      st.textContent = "*{stroke-width:" + o.weight + "}";
+      root.insertBefore(st, root.firstChild);
+    }
+    const out = new XMLSerializer().serializeToString(root);
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(out);
+  }
+
+  function measure(data: Uint8ClampedArray, n: number): Metrics | null {
+    let sum = 0, sx = 0, sy = 0;
+    let x0 = n, y0 = n, x1 = -1, y1 = -1;
+    for (let y = 0; y < n; y++) {
+      for (let x = 0; x < n; x++) {
+        const a = data[(y * n + x) * 4 + 3];
+        if (a > 0) {
+          const w = a / 255;
+          sum += w;
+          sx += w * (x + 0.5);
+          sy += w * (y + 0.5);
+        }
+        if (a > 32) {
+          if (x < x0) x0 = x;
+          if (x > x1) x1 = x;
+          if (y < y0) y0 = y;
+          if (y > y1) y1 = y;
+        }
+      }
+    }
+    if (x1 < 0 || sum <= 0) return null;
+    return { cov: sum / (n * n), x0: x0 / n, y0: y0 / n, x1: (x1 + 1) / n, y1: (y1 + 1) / n, cx: sx / sum / n, cy: sy / sum / n };
+  }
+
+  function rasterize(src: string, n: number): Promise<Uint8ClampedArray> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = n;
+        c.height = n;
+        const ctx = c.getContext("2d", { willReadFrequently: true });
+        if (!ctx) {
+          reject(new Error("no canvas"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, n, n);
+        try {
+          resolve(ctx.getImageData(0, 0, n, n).data);
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = () => reject(new Error("load"));
+      img.src = src;
+    });
+  }
+
+  const ext = (m: Metrics) => Math.max(m.x1 - m.x0, m.y1 - m.y0);
+
+  function initOpticalComparator(root: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+    const dropEl = $<HTMLElement>("[data-drop]");
+    const fileEl = $<HTMLInputElement>("[data-file]");
+    const textEl = $<HTMLTextAreaElement>("[data-text]");
+    const chipsEl = $<HTMLElement>("[data-chips]");
+    const errEl = $<HTMLElement>("[data-error]");
+    const sizeEl = $<HTMLInputElement>("[data-size]");
+    const sizeVal = $<HTMLElement>("[data-size-val]");
+    const weightsEl = $<HTMLInputElement>("[data-weights]");
+    const methodEl = $<HTMLSelectElement>("[data-method]");
+    const applyEl = $<HTMLInputElement>("[data-apply]");
+    const boundsEl = $<HTMLInputElement>("[data-bounds]");
+    const statusEl = $<HTMLElement>("[data-status]");
+    const summaryEl = $<HTMLElement>("[data-summary]");
+    const gridEl = $<HTMLElement>("[data-grid]");
+    const copyBtn = $<HTMLButtonElement>("[data-copy]");
+    const copyIcon = $<SVGElement>("[data-copy-icon]");
+    const copyDone = $<SVGElement>("[data-copy-done]");
+    const copyLabel = $<HTMLElement>("[data-copy-label]");
+
+    let uploaded: Icon[] = [];
+    let shownNames: string[] = [];
+    let colLabels: string[] = [];
+    let cells: Cell[][] = [];
+    let runId = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    function pastedIcons(): Icon[] {
+      const found = textEl.value.match(/<svg[\s\S]*?<\/svg>/gi) || [];
+      return found.map((t, i) => ({ name: "pasted-" + (i + 1), text: t }));
+    }
+    const allIcons = () => uploaded.concat(pastedIcons()).slice(0, 40);
+
+    function weightList(): number[] {
+      const out: number[] = [];
+      weightsEl.value.split(/[\s,]+/).forEach((s) => {
+        const n = parseFloat(s);
+        if (isFinite(n) && n > 0 && n <= 16 && !out.includes(n)) out.push(n);
+      });
+      return out.slice(0, 6);
+    }
+
+    function renderChips() {
+      chipsEl.innerHTML = uploaded
+        .map(
+          (ic, i) =>
+            '<span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">' +
+            esc(ic.name) +
+            '<button type="button" data-rm="' + i + '" aria-label="Remove icon" class="text-gray-400 hover:text-red-600">×</button></span>',
+        )
+        .join("");
+    }
+
+    function suggest(m: Metrics, ci: number): { s: number; limited: boolean } {
+      const ms = cells.map((r) => r[ci].m).filter((x): x is Metrics => !!x);
+      const tCov = median(ms.map((x) => x.cov));
+      const tExt = median(ms.map(ext));
+      const sArea = Math.sqrt(tCov / m.cov);
+      const sBox = tExt / ext(m);
+      const method = methodEl.value;
+      let s = method === "area" ? sArea : method === "box" ? sBox : Math.sqrt(sArea * sBox);
+      s = clamp(s, 0.6, 1.6);
+      const maxS = 1 / ext(m);
+      let limited = false;
+      if (s > maxS) {
+        s = maxS;
+        limited = true;
+      }
+      return { s, limited };
+    }
+
+    function render() {
+      sizeVal.textContent = sizeEl.value;
+      if (!cells.length) {
+        summaryEl.textContent = "";
+        gridEl.innerHTML = '<p class="text-sm text-gray-400">Add two or more icons, or try the sample, to compare how large they feel.</p>';
+        return;
+      }
+      const N = Number(sizeEl.value);
+      const B = Math.ceil(N * 1.5);
+      const apply = applyEl.checked;
+      const bounds = boundsEl.checked;
+
+      const base = cells.map((r) => r[0].m).filter((x): x is Metrics => !!x);
+      if (base.length) {
+        const covs = base.map((x) => x.cov * 100);
+        summaryEl.textContent =
+          shownNames.length + " icons, " + colLabels.length + " columns. As drawn, ink coverage ranges from " + f1(Math.min.apply(null, covs)) + "% to " + f1(Math.max.apply(null, covs)) +
+          "%. Each suggestion matches the median of its column.";
+      } else summaryEl.textContent = "";
+
+      let h = '<table class="min-w-full text-sm"><thead><tr><th class="px-2 py-2 text-left text-xs font-semibold text-gray-500">Icon</th>';
+      colLabels.forEach((l) => (h += '<th class="px-2 py-2 text-center text-xs font-semibold text-gray-500">' + esc(l) + "</th>"));
+      h += "</tr></thead><tbody>";
+      cells.forEach((row, ri) => {
+        h += '<tr class="border-t border-gray-100"><td class="px-2 py-2 text-xs font-medium text-gray-700">' + esc(shownNames[ri]) + "</td>";
+        row.forEach((c, ci) => {
+          h += '<td class="px-2 py-2 text-center align-top">';
+          if (!c.m) {
+            h += '<p class="text-xs text-red-500">' + esc(c.err || "No result") + "</p></td>";
+            return;
+          }
+          const sg = suggest(c.m, ci);
+          const sc = apply ? sg.s : 1;
+          h +=
+            '<div class="relative mx-auto flex items-center justify-center rounded-md border border-gray-100 bg-gray-50" style="width:' + B + "px;height:" + B + 'px">' +
+            '<div class="relative" style="width:' + N + "px;height:" + N + "px;transform:scale(" + f2(sc) + ')">' +
+            '<img alt="" class="absolute inset-0 h-full w-full" src="' + c.src + '" />';
+          if (bounds) {
+            h +=
+              '<div class="pointer-events-none absolute border border-dashed border-rose-400" style="left:' + f1(c.m.x0 * 100) + "%;top:" + f1(c.m.y0 * 100) +
+              "%;width:" + f1((c.m.x1 - c.m.x0) * 100) + "%;height:" + f1((c.m.y1 - c.m.y0) * 100) + '%"></div>';
+          }
+          h += "</div></div>";
+          const off = Math.abs(sg.s - 1) > 0.15 ? "text-amber-600" : "text-gray-500";
+          h +=
+            '<p class="mt-1 text-[11px] text-gray-500">Ink ' + f1(c.m.cov * 100) + '%</p><p class="text-[11px] ' + off + '">Scale ×' + f2(sg.s) + (sg.limited ? "*" : "") + "</p>";
+          h += "</td>";
+        });
+        h += "</tr>";
+      });
+      h += "</tbody></table>";
+      h += '<p class="mt-2 text-xs text-gray-400">A scale marked with * is capped so the icon still fits its box. Amber means the icon is more than 15% away from the median.</p>';
+      gridEl.innerHTML = h;
+    }
+
+    async function analyze() {
+      const my = ++runId;
+      const list = allIcons();
+      renderChips();
+      if (!list.length) {
+        cells = [];
+        statusEl.classList.add("hidden");
+        statusEl.classList.remove("inline-flex");
+        render();
+        return;
+      }
+      const ws = weightList();
+      const cols: (number | null)[] = [null, ...ws];
+      const out: Cell[][] = [];
+      for (const ic of list) {
+        const row = await Promise.all(
+          cols.map(async (w): Promise<Cell> => {
+            const src = normalizeSvg(ic.text, { size: RES, weight: w, color: "#1f2937" });
+            if (!src) return { src: "", m: null, err: "Not valid SVG" };
+            try {
+              const m = measure(await rasterize(src, RES), RES);
+              return { src, m, err: m ? "" : "Nothing visible" };
+            } catch {
+              return { src, m: null, err: "Could not render" };
+            }
+          }),
+        );
+        if (my !== runId) return;
+        out.push(row);
+      }
+      cells = out;
+      shownNames = list.map((i) => i.name);
+      colLabels = cols.map((w) => (w === null ? "As drawn" : "Stroke " + w));
+      statusEl.classList.add("hidden");
+      statusEl.classList.remove("inline-flex");
+      render();
+    }
+
+    function schedule() {
+      statusEl.classList.remove("hidden");
+      statusEl.classList.add("inline-flex");
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(analyze, 300);
+    }
+
+    async function addFiles(files: FileList | null | undefined) {
+      errEl.classList.add("hidden");
+      if (!files) return;
+      const msgs: string[] = [];
+      for (const f of Array.from(files)) {
+        if (!/\.svg$/i.test(f.name) && f.type !== "image/svg+xml") {
+          msgs.push(f.name + " is not an SVG file.");
+          continue;
+        }
+        if (f.size > 1000000) {
+          msgs.push(f.name + " is over 1 MB.");
+          continue;
+        }
+        if (uploaded.length >= 40) {
+          msgs.push("Only the first 40 icons are used.");
+          break;
+        }
+        try {
+          uploaded.push({ name: f.name.replace(/\.svg$/i, ""), text: await f.text() });
+        } catch {
+          msgs.push("Could not read " + f.name + ".");
+        }
+      }
+      if (msgs.length) {
+        errEl.textContent = msgs.join(" ");
+        errEl.classList.remove("hidden");
+      }
+      schedule();
+    }
+
+    dropEl.addEventListener("click", () => fileEl.click());
+    dropEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fileEl.click();
+      }
+    });
+    fileEl.addEventListener("click", (e) => e.stopPropagation());
+    fileEl.addEventListener("change", () => {
+      addFiles(fileEl.files);
+      fileEl.value = "";
+    });
+    dropEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropEl.classList.add("border-rose-500", "bg-rose-50");
+    });
+    dropEl.addEventListener("dragleave", () => dropEl.classList.remove("border-rose-500", "bg-rose-50"));
+    dropEl.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropEl.classList.remove("border-rose-500", "bg-rose-50");
+      addFiles(e.dataTransfer?.files);
+    });
+
+    textEl.addEventListener("input", schedule);
+    weightsEl.addEventListener("input", schedule);
+    [sizeEl, methodEl, applyEl, boundsEl].forEach((e) => {
+      e.addEventListener("input", render);
+      e.addEventListener("change", render);
+    });
+
+    chipsEl.addEventListener("click", (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>("[data-rm]");
+      if (!b) return;
+      uploaded.splice(Number(b.dataset.rm), 1);
+      schedule();
+    });
+
+    $<HTMLElement>("[data-sample]").addEventListener("click", () => {
+      uploaded = SAMPLE.map((i) => ({ ...i }));
+      textEl.value = "";
+      errEl.classList.add("hidden");
+      analyze();
+    });
+
+    $<HTMLElement>("[data-clear]").addEventListener("click", () => {
+      uploaded = [];
+      textEl.value = "";
+      errEl.classList.add("hidden");
+      analyze();
+    });
+
+    function reportRows(): string[][] {
+      const rows: string[][] = [];
+      cells.forEach((row, ri) => {
+        row.forEach((c, ci) => {
+          if (!c.m) {
+            rows.push([shownNames[ri], colLabels[ci], "", "", "", "", "", c.err]);
+            return;
+          }
+          const sg = suggest(c.m, ci);
+          rows.push([
+            shownNames[ri],
+            colLabels[ci],
+            f1(c.m.cov * 100),
+            f1((c.m.x1 - c.m.x0) * 100),
+            f1((c.m.y1 - c.m.y0) * 100),
+            f2((c.m.cx - 0.5) * 100),
+            f2((c.m.cy - 0.5) * 100),
+            f2(sg.s),
+          ]);
+        });
+      });
+      return rows;
+    }
+
+    function reportText(): string {
+      if (!cells.length) return "";
+      let s = "Icon optical size report (match by: " + methodEl.value + ", target = median of each column)\n\n";
+      reportRows().forEach((r) => {
+        s += r[0] + " | " + r[1] + " | " + (r[2] === "" ? r[7] : "ink " + r[2] + "%, ink box " + r[3] + " x " + r[4] + "%, suggested scale x" + r[7]) + "\n";
+      });
+      return s.trimEnd();
+    }
+
+    copyBtn.addEventListener("click", async () => {
+      const text = reportText();
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy report";
+      }, 1500);
+    });
+
+    $<HTMLElement>("[data-csv]").addEventListener("click", () => {
+      if (!cells.length) return;
+      const q = (t: string) => '"' + t.replace(/"/g, '""') + '"';
+      let csv = "icon,weight,ink_percent,ink_width_percent,ink_height_percent,center_offset_x_percent,center_offset_y_percent,suggested_scale_or_error\n";
+      reportRows().forEach((r) => {
+        csv += q(r[0]) + "," + q(r[1]) + "," + r.slice(2, 7).join(",") + "," + (r[2] === "" ? q(r[7]) : r[7]) + "\n";
+      });
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "icon-optical-sizes.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    render();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-icon-optical-size-comparator-widget]")
+    .forEach(initOpticalComparator);
+</script>

@@ -89,6 +89,10 @@ import MimeLookupWidget from "../../components/tools/MimeLookupWidget.astro";
 import TitleTagPixelWidthSimulatorWidget from '../../components/tools/TitleTagPixelWidthSimulatorWidget.astro';
 import TrailingSlashConsistencyAuditorWidget from '../../components/tools/TrailingSlashConsistencyAuditorWidget.astro';
 import WebAppManifestGeneratorWidget from '../../components/tools/WebAppManifestGeneratorWidget.astro';
+import CustomShippingRateTableGeneratorWidget from "../../components/tools/CustomShippingRateTableGeneratorWidget.astro";
+import IconSizingRatioCalculatorWidget from "../../components/tools/IconSizingRatioCalculatorWidget.astro";
+import DashedBorderPathGeneratorWidget from "../../components/tools/DashedBorderPathGeneratorWidget.astro";
+import IconOpticalSizeComparatorWidget from "../../components/tools/IconOpticalSizeComparatorWidget.astro";
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -189,6 +193,10 @@ const widgets: Record<string, any> = {
     "title-tag-pixel-width-simulator": TitleTagPixelWidthSimulatorWidget,
     "trailing-slash-consistency-auditor": TrailingSlashConsistencyAuditorWidget,
     "web-app-manifest-generator": WebAppManifestGeneratorWidget,
+    "custom-shipping-rate-table-generator": CustomShippingRateTableGeneratorWidget,
+    "icon-sizing-ratio-calculator": IconSizingRatioCalculatorWidget,
+    "dashed-border-path-generator": DashedBorderPathGeneratorWidget,
+    "icon-optical-size-comparator": IconOpticalSizeComparatorWidget,
     
 };
 

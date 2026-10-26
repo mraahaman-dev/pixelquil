@@ -1,0 +1,511 @@
+<div data-dashed-border-path-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid gap-6 lg:grid-cols-2">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Shape</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm text-gray-700 sm:col-span-2">
+          Shape type
+          <select data-shape class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="rect">Rounded rectangle</option>
+            <option value="ellipse">Ellipse or circle</option>
+            <option value="polygon">Polygon</option>
+            <option value="star">Star</option>
+            <option value="wobbly">Hand-drawn rectangle</option>
+            <option value="blob">Organic blob</option>
+          </select>
+        </label>
+        <label class="block text-sm text-gray-700">
+          Width (px)
+          <input data-w type="number" min="20" max="1200" step="1" value="320" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label class="block text-sm text-gray-700">
+          Height (px)
+          <input data-h type="number" min="20" max="1200" step="1" value="200" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label data-for="rect polygon star" class="block text-sm text-gray-700">
+          Corner radius (px)
+          <input data-radius type="number" min="0" max="600" step="1" value="24" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label data-for="polygon star" class="hidden text-sm text-gray-700">
+          Sides or points
+          <input data-sides type="number" min="3" max="16" step="1" value="6" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label data-for="star" class="hidden text-sm text-gray-700">
+          Inner radius ratio
+          <input data-inner type="number" min="0.2" max="0.9" step="0.05" value="0.5" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label data-for="wobbly blob" class="hidden text-sm text-gray-700">
+          Irregularity
+          <input data-irreg type="range" min="0" max="1" step="0.05" value="0.5" class="mt-2 w-full accent-indigo-600" />
+        </label>
+        <div data-for="wobbly blob" class="hidden text-sm text-gray-700">
+          Random seed
+          <div class="mt-1 flex gap-2">
+            <input data-seed type="number" min="0" max="999999" step="1" value="7" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <button type="button" data-randomize class="shrink-0 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:border-indigo-500 hover:bg-indigo-50">Randomize</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Dashes</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm text-gray-700">
+          Stroke width (px)
+          <input data-sw type="number" min="0.5" max="40" step="0.5" value="3" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label class="block text-sm text-gray-700">
+          Line caps
+          <select data-cap class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="butt">Flat (butt)</option>
+            <option value="round">Round</option>
+            <option value="square">Square</option>
+          </select>
+        </label>
+        <label class="block text-sm text-gray-700">
+          Dash length (px)
+          <input data-dash type="number" min="0" max="200" step="0.5" value="10" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label class="block text-sm text-gray-700">
+          Gap length (px)
+          <input data-gap type="number" min="0" max="200" step="0.5" value="8" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </label>
+        <label class="block text-sm text-gray-700 sm:col-span-2">
+          Dash offset
+          <input data-offset type="range" min="0" max="18" step="0.5" value="0" class="mt-2 w-full accent-indigo-600" />
+        </label>
+        <label class="flex items-center gap-2 text-sm text-gray-700 sm:col-span-2">
+          <input data-fit type="checkbox" checked class="h-4 w-4 accent-indigo-600" />
+          Fit the pattern so the dashes close seamlessly
+        </label>
+        <label class="flex items-center gap-2 text-sm text-gray-700 sm:col-span-2">
+          <input data-animate type="checkbox" class="h-4 w-4 accent-indigo-600" />
+          Add a marching-ants animation
+        </label>
+      </div>
+
+      <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">3. Colors</p>
+      <div class="mt-3 flex flex-wrap items-center gap-4">
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          Stroke
+          <input data-color type="color" value="#4f46e5" class="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white p-1" />
+        </label>
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input data-fill-on type="checkbox" class="h-4 w-4 accent-indigo-600" />
+          Fill
+          <input data-fill-color type="color" value="#eef2ff" class="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white p-1" />
+        </label>
+        <button type="button" data-reset class="ml-auto text-sm text-gray-400 hover:text-red-600">Reset all</button>
+      </div>
+    </div>
+
+    <div class="lg:sticky lg:top-4 lg:self-start">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">4. Preview and export</p>
+      <div data-preview class="mt-3 flex min-h-[12rem] items-center justify-center overflow-auto rounded-xl border border-gray-200 bg-white p-4"></div>
+      <p data-info class="mt-2 text-xs text-gray-500"></p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button type="button" data-fmt="svg" class="rounded-full border px-3 py-1 text-sm">SVG</button>
+        <button type="button" data-fmt="css" class="rounded-full border px-3 py-1 text-sm">CSS background</button>
+        <button type="button" data-fmt="path" class="rounded-full border px-3 py-1 text-sm">Path and values</button>
+      </div>
+      <textarea data-output readonly spellcheck="false" class="mt-3 h-48 w-full rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-800 focus:outline-none"></textarea>
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <button type="button" data-copy class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+          <svg data-copy-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>Copy</span>
+        </button>
+        <button type="button" data-download class="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-indigo-500 hover:bg-indigo-50">Download SVG</button>
+      </div>
+      <p class="mt-2 text-xs text-gray-400">If you use the CSS version, give the element the same width and height as the shape, or the dashes will stretch.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Pt = [number, number];
+  type Seg = { t: "L" | "C"; c1?: Pt; c2?: Pt; p: Pt };
+  type Shape = { start: Pt; segs: Seg[] };
+  type Params = {
+    shape: string; w: number; h: number; sw: number; dash: number; gap: number; cap: string; offset: number;
+    color: string; fillOn: boolean; fillColor: string; radius: number; sides: number; inner: number;
+    irreg: number; seed: number; fit: boolean; animate: boolean;
+  };
+
+  const K = 0.5523;
+  const r2 = (n: number) => String(Math.round(n * 100) / 100);
+  const r3 = (n: number) => String(Math.round(n * 1000) / 1000);
+  const dist = (a: Pt, b: Pt) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const lerp = (a: Pt, b: Pt, t: number): Pt => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+
+  function mulberry32(seed: number) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function roundedPolygon(V: Pt[], r: number): Shape {
+    const n = V.length;
+    const pairs = V.map((v, i) => {
+      const u = V[(i - 1 + n) % n];
+      const w = V[(i + 1) % n];
+      const lu = dist(u, v);
+      const lw = dist(v, w);
+      const d = Math.min(r, lu * 0.5, lw * 0.5);
+      if (d < 0.01) return { v, p1: v, p2: v, sharp: true };
+      return { v, p1: lerp(v, u, d / lu), p2: lerp(v, w, d / lw), sharp: false };
+    });
+    const segs: Seg[] = [];
+    pairs.forEach((q, i) => {
+      if (!q.sharp) segs.push({ t: "C", c1: lerp(q.p1, q.v, K), c2: lerp(q.p2, q.v, K), p: q.p2 });
+      segs.push({ t: "L", p: pairs[(i + 1) % n].p1 });
+    });
+    return { start: pairs[0].p1, segs };
+  }
+
+  function smoothClosed(P: Pt[]): Shape {
+    const n = P.length;
+    const segs: Seg[] = [];
+    for (let i = 0; i < n; i++) {
+      const p0 = P[(i - 1 + n) % n];
+      const p1 = P[i];
+      const p2 = P[(i + 1) % n];
+      const p3 = P[(i + 2) % n];
+      segs.push({
+        t: "C",
+        c1: [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6],
+        c2: [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6],
+        p: p2,
+      });
+    }
+    return { start: P[0], segs };
+  }
+
+  function buildShape(p: Params): Shape {
+    const pad = Math.min(p.sw / 2, Math.min(p.w, p.h) / 2 - 1);
+    const x0 = pad, y0 = pad, x1 = p.w - pad, y1 = p.h - pad;
+    const cx = p.w / 2, cy = p.h / 2;
+    const rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
+
+    if (p.shape === "rect") {
+      return roundedPolygon([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], p.radius);
+    }
+    if (p.shape === "ellipse") {
+      return {
+        start: [cx + rx, cy],
+        segs: [
+          { t: "C", c1: [cx + rx, cy + K * ry], c2: [cx + K * rx, cy + ry], p: [cx, cy + ry] },
+          { t: "C", c1: [cx - K * rx, cy + ry], c2: [cx - rx, cy + K * ry], p: [cx - rx, cy] },
+          { t: "C", c1: [cx - rx, cy - K * ry], c2: [cx - K * rx, cy - ry], p: [cx, cy - ry] },
+          { t: "C", c1: [cx + K * rx, cy - ry], c2: [cx + rx, cy - K * ry], p: [cx + rx, cy] },
+        ],
+      };
+    }
+    if (p.shape === "polygon") {
+      const V: Pt[] = [];
+      for (let i = 0; i < p.sides; i++) {
+        const a = -Math.PI / 2 + (2 * Math.PI * i) / p.sides;
+        V.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]);
+      }
+      return roundedPolygon(V, p.radius);
+    }
+    if (p.shape === "star") {
+      const V: Pt[] = [];
+      const m = p.sides * 2;
+      for (let i = 0; i < m; i++) {
+        const a = -Math.PI / 2 + (2 * Math.PI * i) / m;
+        const f = i % 2 === 0 ? 1 : p.inner;
+        V.push([cx + rx * f * Math.cos(a), cy + ry * f * Math.sin(a)]);
+      }
+      return roundedPolygon(V, p.radius);
+    }
+    const rng = mulberry32(p.seed);
+    if (p.shape === "blob") {
+      const n = 8;
+      const P: Pt[] = [];
+      for (let i = 0; i < n; i++) {
+        const a = -Math.PI / 2 + (2 * Math.PI * i) / n;
+        const f = 1 - p.irreg * 0.3 * rng();
+        P.push([cx + rx * f * Math.cos(a), cy + ry * f * Math.sin(a)]);
+      }
+      return smoothClosed(P);
+    }
+    // wobbly (hand-drawn) rectangle
+    const A = p.irreg * Math.min(p.w, p.h) * 0.05;
+    const bx0 = x0 + A, by0 = y0 + A, bx1 = x1 - A, by1 = y1 - A;
+    const corners: Pt[] = [[bx0, by0], [bx1, by0], [bx1, by1], [bx0, by1]];
+    const k = 4;
+    const pts: Pt[] = [];
+    for (let s = 0; s < 4; s++) {
+      const a = corners[s];
+      const b = corners[(s + 1) % 4];
+      const len = dist(a, b) || 1;
+      const nx = -(b[1] - a[1]) / len;
+      const ny = (b[0] - a[0]) / len;
+      const ux = (b[0] - a[0]) / len;
+      const uy = (b[1] - a[1]) / len;
+      for (let j = 0; j < k; j++) {
+        const base = lerp(a, b, j / k);
+        if (j === 0) {
+          pts.push([base[0] + A * 0.6 * (rng() * 2 - 1), base[1] + A * 0.6 * (rng() * 2 - 1)]);
+        } else {
+          const perp = A * (rng() * 2 - 1);
+          const along = A * 0.3 * (rng() * 2 - 1);
+          pts.push([base[0] + nx * perp + ux * along, base[1] + ny * perp + uy * along]);
+        }
+      }
+    }
+    return smoothClosed(pts);
+  }
+
+  function pathD(s: Shape): string {
+    const f = (p: Pt) => r2(p[0]) + " " + r2(p[1]);
+    let d = "M" + f(s.start);
+    s.segs.forEach((g) => {
+      d += g.t === "L" ? "L" + f(g.p) : "C" + f(g.c1 as Pt) + " " + f(g.c2 as Pt) + " " + f(g.p);
+    });
+    return d + "Z";
+  }
+
+  function pathLength(s: Shape): number {
+    let cur = s.start;
+    let total = 0;
+    s.segs.forEach((g) => {
+      if (g.t === "L") {
+        total += dist(cur, g.p);
+      } else {
+        const c1 = g.c1 as Pt, c2 = g.c2 as Pt;
+        let prev = cur;
+        for (let i = 1; i <= 40; i++) {
+          const t = i / 40, u = 1 - t;
+          const pt: Pt = [
+            u * u * u * cur[0] + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * g.p[0],
+            u * u * u * cur[1] + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * g.p[1],
+          ];
+          total += dist(prev, pt);
+          prev = pt;
+        }
+      }
+      cur = g.p;
+    });
+    return total + dist(cur, s.start);
+  }
+
+  function initDashedPath(root: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+    const el = {
+      shape: $<HTMLSelectElement>("[data-shape]"),
+      w: $<HTMLInputElement>("[data-w]"),
+      h: $<HTMLInputElement>("[data-h]"),
+      radius: $<HTMLInputElement>("[data-radius]"),
+      sides: $<HTMLInputElement>("[data-sides]"),
+      inner: $<HTMLInputElement>("[data-inner]"),
+      irreg: $<HTMLInputElement>("[data-irreg]"),
+      seed: $<HTMLInputElement>("[data-seed]"),
+      sw: $<HTMLInputElement>("[data-sw]"),
+      cap: $<HTMLSelectElement>("[data-cap]"),
+      dash: $<HTMLInputElement>("[data-dash]"),
+      gap: $<HTMLInputElement>("[data-gap]"),
+      offset: $<HTMLInputElement>("[data-offset]"),
+      fit: $<HTMLInputElement>("[data-fit]"),
+      animate: $<HTMLInputElement>("[data-animate]"),
+      color: $<HTMLInputElement>("[data-color]"),
+      fillOn: $<HTMLInputElement>("[data-fill-on]"),
+      fillColor: $<HTMLInputElement>("[data-fill-color]"),
+    };
+    const previewEl = $<HTMLElement>("[data-preview]");
+    const infoEl = $<HTMLElement>("[data-info]");
+    const outEl = $<HTMLTextAreaElement>("[data-output]");
+    const copyBtn = $<HTMLButtonElement>("[data-copy]");
+    const copyIcon = $<SVGElement>("[data-copy-icon]");
+    const copyDone = $<SVGElement>("[data-copy-done]");
+    const copyLabel = $<HTMLElement>("[data-copy-label]");
+    const fmtBtns = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-fmt]"));
+    const forEls = Array.from(root.querySelectorAll<HTMLElement>("[data-for]"));
+    let fmt: "svg" | "css" | "path" = "svg";
+
+    const defaults: Record<string, string> = {};
+    Object.keys(el).forEach((k) => {
+      const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+      defaults[k] = e.type === "checkbox" ? String((e as HTMLInputElement).checked) : e.value;
+    });
+
+    const num = (e: HTMLInputElement, lo: number, hi: number, fb: number) => {
+      const v = parseFloat(e.value);
+      return clamp(isFinite(v) ? v : fb, lo, hi);
+    };
+    const hex = (v: string, fb: string) => (/^#[0-9a-f]{6}$/i.test(v) ? v : fb);
+
+    function read(): Params {
+      return {
+        shape: el.shape.value,
+        w: num(el.w, 20, 1200, 320),
+        h: num(el.h, 20, 1200, 200),
+        sw: num(el.sw, 0.5, 40, 3),
+        dash: num(el.dash, 0, 200, 10),
+        gap: num(el.gap, 0, 200, 8),
+        cap: el.cap.value,
+        offset: num(el.offset, 0, 400, 0),
+        color: hex(el.color.value, "#4f46e5"),
+        fillOn: el.fillOn.checked,
+        fillColor: hex(el.fillColor.value, "#eef2ff"),
+        radius: num(el.radius, 0, 600, 24),
+        sides: Math.round(num(el.sides, 3, 16, 6)),
+        inner: num(el.inner, 0.2, 0.9, 0.5),
+        irreg: num(el.irreg, 0, 1, 0.5),
+        seed: Math.round(num(el.seed, 0, 999999, 7)),
+        fit: el.fit.checked,
+        animate: el.animate.checked,
+      };
+    }
+
+    function markup(p: Params, d: string, dash: number, gap: number, q: string): string {
+      const period = dash + gap;
+      const solid = gap <= 0 || period <= 0;
+      const off = solid ? 0 : p.offset % period;
+      let s = "<svg xmlns=" + q + "http://www.w3.org/2000/svg" + q + " width=" + q + r2(p.w) + q + " height=" + q + r2(p.h) + q + " viewBox=" + q + "0 0 " + r2(p.w) + " " + r2(p.h) + q + ">";
+      if (p.animate && !solid) {
+        s += "<style>@keyframes dash-march{from{stroke-dashoffset:" + r3(off) + "}to{stroke-dashoffset:" + r3(off - period) + "}}</style>";
+      }
+      s += "<path d=" + q + d + q + " fill=" + q + (p.fillOn ? p.fillColor : "none") + q + " stroke=" + q + p.color + q + " stroke-width=" + q + r2(p.sw) + q + " stroke-linecap=" + q + p.cap + q + " stroke-linejoin=" + q + "round" + q;
+      if (!solid) s += " stroke-dasharray=" + q + r3(dash) + " " + r3(gap) + q + " stroke-dashoffset=" + q + r3(off) + q;
+      if (p.animate && !solid) s += " style=" + q + "animation:dash-march 1s linear infinite" + q;
+      return s + "/></svg>";
+    }
+
+    function refresh() {
+      const p = read();
+      forEls.forEach((e) => {
+        const list = (e.dataset.for as string).split(" ");
+        e.classList.toggle("hidden", !list.includes(p.shape));
+      });
+      const shape = buildShape(p);
+      const d = pathD(shape);
+      const L = pathLength(shape);
+      let dash = p.dash, gap = p.gap;
+      const period = dash + gap;
+      const solid = gap <= 0 || period <= 0;
+      let count = 0;
+      if (!solid) {
+        count = Math.max(1, Math.round(L / period));
+        if (p.fit) {
+          const s = L / (count * period);
+          dash *= s;
+          gap *= s;
+        }
+      }
+      el.offset.max = String(Math.max(1, Math.round((dash + gap) * 2) / 2));
+
+      const svgPreview = markup(p, d, dash, gap, '"').replace("<svg ", '<svg style="max-width:100%;height:auto" ');
+      previewEl.innerHTML = svgPreview;
+      infoEl.textContent = solid
+        ? "Path length " + r2(L) + " px. A gap of 0 gives a solid line."
+        : "Path length " + r2(L) + " px, about " + count + " dashes" + (p.fit ? ", fitted to dash " + r2(dash) + " / gap " + r2(gap) + " px." : ", pattern not fitted so the end may not line up.");
+
+      let out = "";
+      if (fmt === "svg") {
+        out = markup(p, d, dash, gap, '"');
+      } else if (fmt === "css") {
+        const enc = markup(p, d, dash, gap, "'")
+          .replace(/%/g, "%25").replace(/#/g, "%23").replace(/</g, "%3C").replace(/>/g, "%3E");
+        out =
+          ".dashed-shape {\n  width: " + r2(p.w) + "px;\n  height: " + r2(p.h) + "px;\n  background-image: url(\"data:image/svg+xml," + enc + "\");\n  background-repeat: no-repeat;\n  background-size: 100% 100%;\n}";
+      } else {
+        out =
+          'd="' + d + '"\n' +
+          (solid ? "" : 'stroke-dasharray="' + r3(dash) + " " + r3(gap) + '"\nstroke-dashoffset="' + r3(p.offset % (dash + gap)) + '"\n') +
+          'stroke-linecap="' + p.cap + '"\nstroke-width="' + r2(p.sw) + '"\n' +
+          "Path length: " + r2(L) + " px";
+      }
+      outEl.value = out;
+
+      fmtBtns.forEach((b) => {
+        const on = b.dataset.fmt === fmt;
+        b.classList.toggle("bg-indigo-600", on);
+        b.classList.toggle("text-white", on);
+        b.classList.toggle("border-indigo-600", on);
+        b.classList.toggle("bg-white", !on);
+        b.classList.toggle("text-gray-600", !on);
+        b.classList.toggle("border-gray-200", !on);
+      });
+    }
+
+    Object.keys(el).forEach((k) => {
+      const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+      e.addEventListener("input", refresh);
+      e.addEventListener("change", refresh);
+    });
+
+    fmtBtns.forEach((b) =>
+      b.addEventListener("click", () => {
+        fmt = b.dataset.fmt as typeof fmt;
+        refresh();
+      }),
+    );
+
+    $<HTMLElement>("[data-randomize]").addEventListener("click", () => {
+      el.seed.value = String(Math.floor(Math.random() * 99999));
+      refresh();
+    });
+
+    $<HTMLElement>("[data-reset]").addEventListener("click", () => {
+      Object.keys(el).forEach((k) => {
+        const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+        if (e.type === "checkbox") (e as HTMLInputElement).checked = defaults[k] === "true";
+        else e.value = defaults[k];
+      });
+      refresh();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(outEl.value);
+      } catch {
+        outEl.select();
+        document.execCommand("copy");
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy";
+      }, 1500);
+    });
+
+    $<HTMLElement>("[data-download]").addEventListener("click", () => {
+      const p = read();
+      const shape = buildShape(p);
+      const d = pathD(shape);
+      const L = pathLength(shape);
+      let dash = p.dash, gap = p.gap;
+      if (gap > 0 && dash + gap > 0 && p.fit) {
+        const n = Math.max(1, Math.round(L / (dash + gap)));
+        const s = L / (n * (dash + gap));
+        dash *= s;
+        gap *= s;
+      }
+      const blob = new Blob([markup(p, d, dash, gap, '"')], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "dashed-shape.svg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    refresh();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-dashed-border-path-generator-widget]")
+    .forEach(initDashedPath);
+</script>
