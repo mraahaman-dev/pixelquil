@@ -1,0 +1,525 @@
+<div data-notification-badge-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid gap-6 lg:grid-cols-2">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Badge</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm text-gray-700">
+          Type
+          <select data-kind class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+            <option value="count">Counter</option>
+            <option value="dot">Status dot</option>
+          </select>
+        </label>
+        <label class="block text-sm text-gray-700">
+          Height or dot size (px)
+          <input data-size type="number" min="6" max="48" step="1" value="18" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+        </label>
+        <label data-for="count" class="block text-sm text-gray-700">
+          Count or text
+          <input data-label type="text" value="7" maxlength="6" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+        </label>
+        <label data-for="count" class="block text-sm text-gray-700">
+          Show 99+ style above
+          <input data-max type="number" min="1" max="999" step="1" value="99" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+        </label>
+        <label data-for="count" class="block text-sm text-gray-700">
+          Shape
+          <select data-shape class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+            <option value="pill">Pill (circle for one digit)</option>
+            <option value="square">Rounded square</option>
+          </select>
+        </label>
+        <label data-for="count" class="block text-sm text-gray-700">
+          Font weight
+          <select data-weight class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+            <option value="500">Medium</option>
+            <option value="600">Semibold</option>
+            <option value="700" selected>Bold</option>
+          </select>
+        </label>
+      </div>
+      <div data-for="dot" class="mt-4 hidden">
+        <p class="text-sm text-gray-700">Status presets</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button type="button" data-dot="#22c55e" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-red-500">Online</button>
+          <button type="button" data-dot="#f59e0b" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-red-500">Away</button>
+          <button type="button" data-dot="#ef4444" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-red-500">Busy</button>
+          <button type="button" data-dot="#9ca3af" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-red-500">Offline</button>
+          <button type="button" data-dot="#3b82f6" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-red-500">Info</button>
+        </div>
+      </div>
+
+      <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Colors and ring</p>
+      <div class="mt-3 flex flex-wrap items-center gap-4">
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          Fill
+          <input data-bg type="color" value="#dc2626" class="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white p-1" />
+        </label>
+        <label data-for="count" class="flex items-center gap-2 text-sm text-gray-700">
+          Text
+          <input data-fg type="color" value="#ffffff" class="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white p-1" />
+        </label>
+      </div>
+      <p data-contrast data-for="count" class="mt-2 text-xs"></p>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input data-ring type="checkbox" checked class="h-4 w-4 accent-red-600" />
+          Ring around the badge
+        </label>
+        <label class="block text-sm text-gray-700">
+          Ring width: <span data-ringw-val class="font-medium">2</span> px
+          <input data-ringw type="range" min="1" max="6" step="1" value="2" class="mt-1 w-full accent-red-600" />
+        </label>
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input data-ringmatch type="checkbox" checked class="h-4 w-4 accent-red-600" />
+          Ring matches the background
+        </label>
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          Ring color
+          <input data-ringcolor type="color" value="#ffffff" class="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white p-1" />
+        </label>
+      </div>
+      <label class="mt-4 flex items-center gap-2 text-sm text-gray-700">
+        <input data-pulse type="checkbox" class="h-4 w-4 accent-red-600" />
+        Add a pulse animation
+      </label>
+
+      <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">3. Placement</p>
+      <div class="mt-3 grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm text-gray-700">
+          Corner
+          <select data-pos class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+            <option value="tr">Top right</option>
+            <option value="tl">Top left</option>
+            <option value="br">Bottom right</option>
+            <option value="bl">Bottom left</option>
+          </select>
+        </label>
+        <label class="block text-sm text-gray-700">
+          Preview host
+          <select data-host class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+            <option value="bell">Bell icon</option>
+            <option value="mail">Mail icon</option>
+            <option value="avatar">Round avatar</option>
+            <option value="button">Square button</option>
+          </select>
+        </label>
+        <label class="block text-sm text-gray-700">
+          Nudge inward, sideways (px)
+          <input data-ox type="number" min="-20" max="30" step="1" value="0" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+        </label>
+        <label class="block text-sm text-gray-700">
+          Nudge inward, vertical (px)
+          <input data-oy type="number" min="-20" max="30" step="1" value="0" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+        </label>
+        <label class="block text-sm text-gray-700 sm:col-span-2">
+          Host size: <span data-hostsize-val class="font-medium">44</span> px
+          <input data-hostsize type="range" min="24" max="72" step="2" value="44" class="mt-1 w-full accent-red-600" />
+        </label>
+      </div>
+      <button type="button" data-reset class="mt-4 text-sm text-gray-400 hover:text-red-600">Reset all</button>
+    </div>
+
+    <div class="lg:sticky lg:top-4 lg:self-start">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">4. Preview and export</p>
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <span class="text-xs text-gray-500">Background</span>
+        <button type="button" data-pbg="light" class="rounded-full border px-3 py-1 text-xs">Light</button>
+        <button type="button" data-pbg="gray" class="rounded-full border px-3 py-1 text-xs">Gray</button>
+        <button type="button" data-pbg="dark" class="rounded-full border px-3 py-1 text-xs">Dark</button>
+      </div>
+      <div data-preview class="mt-2 flex min-h-[10rem] items-center justify-center rounded-xl border border-gray-200 p-6"></div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button type="button" data-fmt="html" class="rounded-full border px-3 py-1 text-sm">HTML + CSS</button>
+        <button type="button" data-fmt="tailwind" class="rounded-full border px-3 py-1 text-sm">Tailwind</button>
+        <button type="button" data-fmt="svg" class="rounded-full border px-3 py-1 text-sm">SVG</button>
+      </div>
+      <textarea data-output readonly spellcheck="false" class="mt-3 h-56 w-full rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-800 focus:outline-none"></textarea>
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <button type="button" data-copy class="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+          <svg data-copy-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>Copy</span>
+        </button>
+        <button type="button" data-download class="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-red-500 hover:bg-red-50">Download SVG</button>
+      </div>
+      <p data-note class="mt-2 text-xs text-gray-400"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Params = {
+    kind: "count" | "dot"; label: string; shown: string; size: number; shape: string; weight: string;
+    bg: string; fg: string; ring: boolean; ringW: number; ringColor: string; pulse: boolean;
+    pos: string; ox: number; oy: number; host: string; hostSize: number;
+  };
+
+  const PBG: Record<string, { bg: string; fg: string }> = {
+    light: { bg: "#ffffff", fg: "#374151" },
+    gray: { bg: "#f3f4f6", fg: "#374151" },
+    dark: { bg: "#111827", fg: "#e5e7eb" },
+  };
+  const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
+
+  const HOSTS: Record<string, string> = {
+    bell: '<svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>',
+    avatar: '<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="12" r="12" fill="#cbd5e1"/><circle cx="12" cy="9.5" r="4" fill="#94a3b8"/><path d="M4.5 20a8 8 0 0 1 15 0a12 12 0 0 1-15 0z" fill="#94a3b8"/></svg>',
+    button: '<svg viewBox="0 0 24 24" width="55%" height="55%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10H3z"/></svg>',
+  };
+
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+
+  function lum(hex: string): number {
+    const h = hex.replace("#", "");
+    const c = [0, 2, 4].map((i) => {
+      const v = parseInt(h.slice(i, i + 2), 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function contrast(a: string, b: string): number {
+    const l1 = lum(a), l2 = lum(b);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  }
+
+  function shownLabel(raw: string, max: number): string {
+    const t = raw.trim();
+    if (/^\d+$/.test(t) && parseInt(t, 10) > max) return max + "+";
+    return t;
+  }
+
+  function geometry(p: Params) {
+    const h = p.size;
+    const fs = Math.max(8, Math.round(h * 0.6));
+    const len = p.shown.length;
+    const pad = p.kind === "count" && len > 1 ? Math.round(h * 0.3) : 0;
+    const radius = p.kind === "dot" ? "50%" : p.shape === "square" ? Math.max(2, Math.round(h * 0.25)) + "px" : "999px";
+    return { h, fs, pad, radius };
+  }
+
+  function placement(p: Params): { side: [string, string][]; transform: string } {
+    const x = p.pos.indexOf("r") >= 0 ? "right" : "left";
+    const y = p.pos.indexOf("t") >= 0 ? "top" : "bottom";
+    const sx = x === "right" ? 1 : -1;
+    const sy = y === "top" ? -1 : 1;
+    const part = (sign: number, off: number, inward: number) => {
+      const o = off * inward;
+      return o === 0 ? (sign > 0 ? "50%" : "-50%") : "calc(" + (sign > 0 ? "50%" : "-50%") + (o > 0 ? " + " : " - ") + Math.abs(o) + "px)";
+    };
+    // inward nudge: for right edge inward is -x, for left edge +x; top edge inward is +y, bottom -y
+    const tx = part(sx, p.ox, x === "right" ? -1 : 1);
+    const ty = part(sy, p.oy, y === "top" ? 1 : -1);
+    return { side: [[x, "0"], [y, "0"]], transform: "translate(" + tx + ", " + ty + ")" };
+  }
+
+  function props(p: Params, ringColor: string): [string, string][] {
+    const g = geometry(p);
+    const pl = placement(p);
+    const out: [string, string][] = [
+      ["position", "absolute"],
+      [pl.side[0][0], "0"],
+      [pl.side[1][0], "0"],
+      ["transform", pl.transform],
+      ["box-sizing", "border-box"],
+      ["display", "inline-flex"],
+      ["align-items", "center"],
+      ["justify-content", "center"],
+      ["min-width", g.h + "px"],
+      ["height", g.h + "px"],
+    ];
+    if (g.pad) out.push(["padding", "0 " + g.pad + "px"]);
+    out.push(["border-radius", g.radius]);
+    out.push(["background", p.bg]);
+    if (p.kind === "count") {
+      out.push(["color", p.fg]);
+      out.push(["font", p.weight + " " + g.fs + "px/1 " + FONT]);
+      out.push(["font-variant-numeric", "tabular-nums"]);
+    }
+    if (p.ring) out.push(["box-shadow", "0 0 0 " + p.ringW + "px " + ringColor]);
+    return out;
+  }
+
+  function pulseCss(p: Params, sel: string): string {
+    return (
+      sel + "::after {\n  content: \"\";\n  position: absolute;\n  inset: 0;\n  border-radius: inherit;\n  background: " + p.bg +
+      ";\n  z-index: -1;\n  animation: badge-pulse 1.6s ease-out infinite;\n}\n@keyframes badge-pulse {\n  0% { transform: scale(1); opacity: 0.6; }\n  100% { transform: scale(2.4); opacity: 0; }\n}\n@media (prefers-reduced-motion: reduce) {\n  " +
+      sel + "::after { animation: none; }\n}"
+    );
+  }
+
+  function initBadge(root: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+    const el = {
+      kind: $<HTMLSelectElement>("[data-kind]"),
+      size: $<HTMLInputElement>("[data-size]"),
+      label: $<HTMLInputElement>("[data-label]"),
+      max: $<HTMLInputElement>("[data-max]"),
+      shape: $<HTMLSelectElement>("[data-shape]"),
+      weight: $<HTMLSelectElement>("[data-weight]"),
+      bg: $<HTMLInputElement>("[data-bg]"),
+      fg: $<HTMLInputElement>("[data-fg]"),
+      ring: $<HTMLInputElement>("[data-ring]"),
+      ringw: $<HTMLInputElement>("[data-ringw]"),
+      ringmatch: $<HTMLInputElement>("[data-ringmatch]"),
+      ringcolor: $<HTMLInputElement>("[data-ringcolor]"),
+      pulse: $<HTMLInputElement>("[data-pulse]"),
+      pos: $<HTMLSelectElement>("[data-pos]"),
+      host: $<HTMLSelectElement>("[data-host]"),
+      ox: $<HTMLInputElement>("[data-ox]"),
+      oy: $<HTMLInputElement>("[data-oy]"),
+      hostsize: $<HTMLInputElement>("[data-hostsize]"),
+    };
+    const previewEl = $<HTMLElement>("[data-preview]");
+    const outEl = $<HTMLTextAreaElement>("[data-output]");
+    const contrastEl = $<HTMLElement>("[data-contrast]");
+    const noteEl = $<HTMLElement>("[data-note]");
+    const ringwVal = $<HTMLElement>("[data-ringw-val]");
+    const hostsizeVal = $<HTMLElement>("[data-hostsize-val]");
+    const copyBtn = $<HTMLButtonElement>("[data-copy]");
+    const copyIcon = $<SVGElement>("[data-copy-icon]");
+    const copyDone = $<SVGElement>("[data-copy-done]");
+    const copyLabel = $<HTMLElement>("[data-copy-label]");
+    const fmtBtns = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-fmt]"));
+    const pbgBtns = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-pbg]"));
+    const forEls = Array.from(root.querySelectorAll<HTMLElement>("[data-for]"));
+
+    let fmt: "html" | "tailwind" | "svg" = "html";
+    let pbg = "light";
+
+    const defaults: Record<string, string> = {};
+    Object.keys(el).forEach((k) => {
+      const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+      defaults[k] = e.type === "checkbox" ? String((e as HTMLInputElement).checked) : e.value;
+    });
+
+    const num = (e: HTMLInputElement, lo: number, hi: number, fb: number) => {
+      const v = parseFloat(e.value);
+      return clamp(isFinite(v) ? v : fb, lo, hi);
+    };
+    const hex = (v: string, fb: string) => (/^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : fb);
+
+    function read(): Params {
+      const kind = el.kind.value === "dot" ? "dot" : "count";
+      const max = Math.round(num(el.max, 1, 999, 99));
+      const label = el.label.value;
+      return {
+        kind,
+        label,
+        shown: shownLabel(label, max) || "0",
+        size: Math.round(num(el.size, 6, 48, kind === "dot" ? 10 : 18)),
+        shape: el.shape.value,
+        weight: el.weight.value,
+        bg: hex(el.bg.value, "#dc2626"),
+        fg: hex(el.fg.value, "#ffffff"),
+        ring: el.ring.checked,
+        ringW: Math.round(num(el.ringw, 1, 6, 2)),
+        ringColor: el.ringmatch.checked ? PBG[pbg].bg : hex(el.ringcolor.value, "#ffffff"),
+        pulse: el.pulse.checked,
+        pos: el.pos.value,
+        ox: Math.round(num(el.ox, -20, 30, 0)),
+        oy: Math.round(num(el.oy, -20, 30, 0)),
+        host: el.host.value,
+        hostSize: Math.round(num(el.hostsize, 24, 72, 44)),
+      };
+    }
+
+    function inlineStyle(p: Params): string {
+      return props(p, p.ringColor).map((x) => x[0] + ":" + x[1]).join(";");
+    }
+
+    function hostMarkup(p: Params): string {
+      const round = p.host === "avatar" ? "50%" : p.host === "button" ? "10px" : "0";
+      const box = p.host === "button" ? "background:" + (pbg === "dark" ? "#1f2937" : "#ffffff") + ";border:1px solid " + (pbg === "dark" ? "#374151" : "#e5e7eb") + ";" : "";
+      return (
+        '<div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:' + p.hostSize + "px;height:" + p.hostSize + "px;border-radius:" + round + ";color:" + PBG[pbg].fg + ";" + box + '">' +
+        HOSTS[p.host] +
+        '<span aria-hidden="true" data-badge style="' + inlineStyle(p) + '">' + (p.kind === "count" ? esc(p.shown) : "") + "</span></div>"
+      );
+    }
+
+    function buildHtml(p: Params): string {
+      const cls = p.kind === "dot" ? "badge badge--dot" : "badge";
+      const aria = p.kind === "count" ? (/^\d+\+?$/.test(p.shown) ? p.shown + " unread notifications" : p.shown) : "Status";
+      const rules = props(p, p.ringColor).map((x) => "  " + x[0] + ": " + x[1] + ";").join("\n");
+      let s = "<!-- Render the badge only when the count is above 0 -->\n";
+      s += '<span class="badge-host">\n  <!-- your icon or avatar here -->\n  <span class="' + cls + '" role="status" aria-label="' + esc(aria) + '">' + (p.kind === "count" ? esc(p.shown) : "") + "</span>\n</span>\n\n";
+      s += ".badge-host {\n  position: relative;\n  display: inline-flex;\n}\n\n.badge {\n" + rules + "\n}";
+      if (p.pulse) s += "\n\n" + pulseCss(p, ".badge");
+      return s;
+    }
+
+    function buildTailwind(p: Params): string {
+      const g = geometry(p);
+      const x = p.pos.indexOf("r") >= 0 ? "right" : "left";
+      const y = p.pos.indexOf("t") >= 0 ? "top" : "bottom";
+      const pl = placement(p);
+      const m = pl.transform.match(/^translate\((.*), (.*)\)$/) as RegExpMatchArray;
+      const tw = (v: string, axis: string) => {
+        if (v === "50%") return "translate-" + axis + "-1/2";
+        if (v === "-50%") return "-translate-" + axis + "-1/2";
+        return "translate-" + axis + "-[" + v.replace(/\s+/g, "") + "]";
+      };
+      const c: string[] = ["absolute", x + "-0", y + "-0", tw(m[1], "x"), tw(m[2], "y"), "inline-flex", "items-center", "justify-center", "min-w-[" + g.h + "px]", "h-[" + g.h + "px]"];
+      if (g.pad) c.push("px-[" + g.pad + "px]");
+      c.push(p.kind === "dot" || p.shape !== "square" ? "rounded-full" : "rounded-[" + g.radius + "]");
+      c.push("bg-[" + p.bg + "]");
+      if (p.kind === "count") {
+        c.push("text-[" + g.fs + "px]", "font-[" + p.weight + "]", "leading-none", "tabular-nums", "text-[" + p.fg + "]");
+      }
+      if (p.ring) c.push("ring-" + p.ringW, "ring-[" + p.ringColor + "]");
+      if (p.pulse) c.push("after:absolute", "after:inset-0", "after:-z-10", "after:rounded-[inherit]", "after:bg-[" + p.bg + "]", "after:animate-ping", "motion-reduce:after:animate-none", "after:content-['']");
+      const aria = p.kind === "count" ? (/^\d+\+?$/.test(p.shown) ? p.shown + " unread notifications" : p.shown) : "Status";
+      return (
+        "<!-- Render the badge only when the count is above 0. Tailwind v4. -->\n" +
+        '<span class="relative inline-flex">\n  <!-- your icon or avatar here -->\n  <span class="' + c.join(" ") + '" role="status" aria-label="' + esc(aria) + '">' + (p.kind === "count" ? esc(p.shown) : "") + "</span>\n</span>"
+      );
+    }
+
+    function buildSvg(p: Params): string {
+      const g = geometry(p);
+      const rw = p.ring ? p.ringW : 0;
+      const textW = p.kind === "count" ? p.shown.length * g.fs * 0.6 : 0;
+      const innerW = p.kind === "dot" ? g.h : Math.max(g.h, Math.round(textW + g.pad * 2));
+      const W = innerW + rw * 2;
+      const H = g.h + rw * 2;
+      const rIn = p.kind === "dot" ? g.h / 2 : p.shape === "square" ? Math.max(2, Math.round(g.h * 0.25)) : g.h / 2;
+      const rOut = rIn + rw;
+      let s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(p.kind === "count" ? p.shown : "Status") + '">\n';
+      if (rw) s += '  <rect width="' + W + '" height="' + H + '" rx="' + rOut + '" fill="' + p.ringColor + '"/>\n';
+      s += '  <rect x="' + rw + '" y="' + rw + '" width="' + innerW + '" height="' + g.h + '" rx="' + rIn + '" fill="' + p.bg + '"/>\n';
+      if (p.kind === "count") {
+        s += '  <text x="' + W / 2 + '" y="' + H / 2 + '" text-anchor="middle" dominant-baseline="central" fill="' + p.fg + '" font-family="' + FONT.replace(/'/g, "&apos;") + '" font-size="' + g.fs + '" font-weight="' + p.weight + '">' + esc(p.shown) + "</text>\n";
+      }
+      return s + "</svg>";
+    }
+
+    function refresh() {
+      const p = read();
+      forEls.forEach((e) => {
+        e.classList.toggle("hidden", (e.dataset.for as string) !== p.kind);
+      });
+      ringwVal.textContent = String(p.ringW);
+      hostsizeVal.textContent = String(p.hostSize);
+      el.ringcolor.disabled = el.ringmatch.checked;
+
+      const css = pulseCss(p, "[data-badge]");
+      previewEl.style.background = PBG[pbg].bg;
+      previewEl.innerHTML = "<style>" + (p.pulse ? css : "") + "</style>" + hostMarkup(p);
+
+      if (p.kind === "count") {
+        const r = contrast(p.fg, p.bg);
+        contrastEl.textContent = "Text contrast " + (Math.round(r * 10) / 10) + ":1. " + (r >= 4.5 ? "Passes the 4.5:1 target for small text." : "Low. Aim for at least 4.5:1 for small text.");
+        contrastEl.className = "mt-2 text-xs " + (r >= 4.5 ? "text-green-600" : "text-amber-600");
+      }
+      if (p.kind === "count" && el.label.value.trim() === "") noteEl.textContent = "The text is empty, so the preview shows 0.";
+      else if (p.kind === "count" && p.shown !== el.label.value.trim()) noteEl.textContent = "Shown as " + p.shown + " because the number is above " + Math.round(num(el.max, 1, 999, 99)) + ".";
+      else noteEl.textContent = "SVG text width is estimated. For production, use the HTML or Tailwind version, which sizes itself to the text.";
+
+      outEl.value = fmt === "html" ? buildHtml(p) : fmt === "tailwind" ? buildTailwind(p) : buildSvg(p);
+
+      fmtBtns.forEach((b) => {
+        const on = b.dataset.fmt === fmt;
+        b.classList.toggle("bg-red-600", on);
+        b.classList.toggle("text-white", on);
+        b.classList.toggle("border-red-600", on);
+        b.classList.toggle("bg-white", !on);
+        b.classList.toggle("text-gray-600", !on);
+        b.classList.toggle("border-gray-200", !on);
+      });
+      pbgBtns.forEach((b) => {
+        const on = b.dataset.pbg === pbg;
+        b.classList.toggle("bg-red-600", on);
+        b.classList.toggle("text-white", on);
+        b.classList.toggle("border-red-600", on);
+        b.classList.toggle("bg-white", !on);
+        b.classList.toggle("text-gray-600", !on);
+        b.classList.toggle("border-gray-200", !on);
+      });
+    }
+
+    Object.keys(el).forEach((k) => {
+      const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+      e.addEventListener("input", refresh);
+      e.addEventListener("change", refresh);
+    });
+
+    el.kind.addEventListener("change", () => {
+      if (el.kind.value === "dot") {
+        el.size.value = "10";
+        el.bg.value = "#22c55e";
+      } else {
+        el.size.value = "18";
+        el.bg.value = "#dc2626";
+      }
+      refresh();
+    });
+
+    root.querySelectorAll<HTMLButtonElement>("[data-dot]").forEach((b) =>
+      b.addEventListener("click", () => {
+        el.bg.value = b.dataset.dot as string;
+        refresh();
+      }),
+    );
+
+    fmtBtns.forEach((b) =>
+      b.addEventListener("click", () => {
+        fmt = b.dataset.fmt as typeof fmt;
+        refresh();
+      }),
+    );
+    pbgBtns.forEach((b) =>
+      b.addEventListener("click", () => {
+        pbg = b.dataset.pbg as string;
+        refresh();
+      }),
+    );
+
+    $<HTMLElement>("[data-reset]").addEventListener("click", () => {
+      Object.keys(el).forEach((k) => {
+        const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+        if (e.type === "checkbox") (e as HTMLInputElement).checked = defaults[k] === "true";
+        else e.value = defaults[k];
+      });
+      pbg = "light";
+      refresh();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(outEl.value);
+      } catch {
+        outEl.select();
+        document.execCommand("copy");
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy";
+      }, 1500);
+    });
+
+    $<HTMLElement>("[data-download]").addEventListener("click", () => {
+      const url = URL.createObjectURL(new Blob([buildSvg(read())], { type: "image/svg+xml" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "badge.svg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    refresh();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-notification-badge-generator-widget]")
+    .forEach(initBadge);
+</script>

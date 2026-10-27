@@ -17,9 +17,47 @@ const badgeStyles = {
   green: "bg-green-50 text-green-600",
   indigo: "bg-brand-50 text-brand-600",
 };
+
+// Soft glow color and big watermark icon color for the card background
+const glowStyles = {
+  blue: "bg-blue-200/60",
+  teal: "bg-teal-200/60",
+  purple: "bg-purple-200/60",
+  amber: "bg-amber-200/60",
+  green: "bg-green-200/60",
+  indigo: "bg-indigo-200/60",
+};
+
+const markStyles = {
+  blue: "text-blue-600",
+  teal: "text-teal-600",
+  purple: "text-purple-600",
+  amber: "text-amber-600",
+  green: "text-green-600",
+  indigo: "text-brand-600",
+};
 ---
 
-<div class="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-brand-200 hover:shadow-lg hover:shadow-slate-200/60">
+<div class="group relative isolate flex flex-col gap-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-brand-200 hover:shadow-lg hover:shadow-slate-200/60">
+  <!-- Background decoration -->
+  <div class={`pointer-events-none absolute -right-8 -top-8 -z-10 h-36 w-36 rounded-full opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-100 ${glowStyles[badgeColor]}`}></div>
+  <svg
+    class={`pointer-events-none absolute -right-3 -top-3 -z-10 h-24 w-24 rotate-12 opacity-[0.09] transition duration-300 ease-out group-hover:rotate-0 group-hover:opacity-[0.16] ${markStyles[badgeColor]}`}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d={iconPath} />
+  </svg>
+  <div
+    class="pointer-events-none absolute bottom-0 right-0 -z-10 h-28 w-40 opacity-70"
+    style="background-image: radial-gradient(rgba(15,23,42,0.16) 1px, transparent 1.2px); background-size: 12px 12px; mask-image: radial-gradient(circle at 100% 100%, black 0%, transparent 70%); -webkit-mask-image: radial-gradient(circle at 100% 100%, black 0%, transparent 70%);"
+  ></div>
+
   <div class={`flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 ease-out group-hover:scale-110 ${badgeStyles[badgeColor]}`}>
     <svg
       class="h-5 w-5"

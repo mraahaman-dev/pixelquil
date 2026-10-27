@@ -93,6 +93,11 @@ import CustomShippingRateTableGeneratorWidget from "../../components/tools/Custo
 import IconSizingRatioCalculatorWidget from "../../components/tools/IconSizingRatioCalculatorWidget.astro";
 import DashedBorderPathGeneratorWidget from "../../components/tools/DashedBorderPathGeneratorWidget.astro";
 import IconOpticalSizeComparatorWidget from "../../components/tools/IconOpticalSizeComparatorWidget.astro";
+import IconToPrintCutFilePrepperWidget from "../../components/tools/IconToPrintCutFilePrepperWidget.astro";
+import AvatarStackGeneratorWidget from "../../components/tools/AvatarStackGeneratorWidget.astro";
+import NotificationBadgeGeneratorWidget from "../../components/tools/NotificationBadgeGeneratorWidget.astro";
+import MultiShapeMorphSequenceGeneratorWidget from "../../components/tools/MultiShapeMorphSequenceGeneratorWidget.astro";
+import IconSetStrokeWidthNormalizerWidget from "../../components/tools/IconSetStrokeWidthNormalizerWidget.astro";
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -197,6 +202,11 @@ const widgets: Record<string, any> = {
     "icon-sizing-ratio-calculator": IconSizingRatioCalculatorWidget,
     "dashed-border-path-generator": DashedBorderPathGeneratorWidget,
     "icon-optical-size-comparator": IconOpticalSizeComparatorWidget,
+    "icon-to-print-cut-file-prepper": IconToPrintCutFilePrepperWidget,
+    "avatar-stack-generator": AvatarStackGeneratorWidget,
+    "notification-badge-generator": NotificationBadgeGeneratorWidget,
+    "multi-shape-morph-sequence-generator": MultiShapeMorphSequenceGeneratorWidget,
+    "icon-set-stroke-width-normalizer": IconSetStrokeWidthNormalizerWidget,
     
 };
 

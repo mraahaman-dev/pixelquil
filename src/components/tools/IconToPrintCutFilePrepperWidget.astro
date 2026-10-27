@@ -1,0 +1,1005 @@
+<div data-icon-to-print-cut-file-prepper-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Add your icon</p>
+    <button type="button" data-sample class="rounded-lg border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-cyan-500 hover:bg-cyan-50">Try a sample</button>
+    <button type="button" data-clear class="ml-auto text-sm text-gray-400 hover:text-red-600">Clear</button>
+  </div>
+  <div class="mt-3 grid gap-4 md:grid-cols-2">
+    <div data-drop tabindex="0" role="button" class="flex min-h-[8rem] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-4 py-5 text-center text-sm text-gray-500 hover:border-cyan-500 hover:bg-cyan-50">
+      <svg xmlns="http://www.w3.org/2000/svg" class="mb-1 h-6 w-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"></path><path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path></svg>
+      Drop an .svg file here or click to browse
+      <input data-file type="file" accept=".svg,image/svg+xml" class="hidden" />
+    </div>
+    <textarea data-text spellcheck="false" placeholder="Or paste your SVG code here" class="h-32 w-full rounded-lg border border-gray-200 p-3 font-mono text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+  </div>
+  <p data-error class="mt-2 hidden text-xs text-red-600"></p>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Cut settings</p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <label class="block text-sm text-gray-700">
+      Units
+      <select data-unit class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+        <option value="mm">Millimetres</option>
+        <option value="in">Inches</option>
+      </select>
+    </label>
+    <label class="block text-sm text-gray-700">
+      Cut width of the finished piece (<span data-unit-label>mm</span>)
+      <input data-width type="number" min="0.1" step="any" value="60" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Machine starting point
+      <select data-preset class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+        <option value="vinyl">Vinyl cutter (1.5 mm)</option>
+        <option value="paper">Paper or cardstock cutter (1 mm)</option>
+        <option value="laserthin">Laser, thin material (1 mm)</option>
+        <option value="laserthick">Laser, thick material (2 mm)</option>
+        <option value="custom">Custom</option>
+      </select>
+    </label>
+    <label class="block text-sm text-gray-700">
+      Minimum feature size (<span data-unit-label>mm</span>)
+      <input data-min type="number" min="0.01" step="any" value="1.5" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Auto-close gaps up to (<span data-unit-label>mm</span>)
+      <input data-tol type="number" min="0" step="any" value="0.3" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+    </label>
+    <div class="flex flex-col justify-end gap-2 text-sm text-gray-700">
+      <label class="flex items-center gap-2"><input data-gaps type="checkbox" checked class="h-4 w-4 accent-cyan-600" /> Also check narrow gaps and slits</label>
+      <label class="flex items-center gap-2"><input data-strokes type="checkbox" checked class="h-4 w-4 accent-cyan-600" /> Count strokes as shapes in the size check</label>
+    </div>
+  </div>
+  <p class="mt-2 text-xs text-gray-500">Machine values are common starting points only. Check your own machine, blade or laser and material. <span data-cutsize class="font-medium text-gray-700"></span></p>
+
+  <div class="mt-6 flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Results</p>
+    <span data-status class="hidden items-center gap-1.5 text-xs text-gray-400">
+      <svg class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>
+      Checking...
+    </span>
+  </div>
+  <div data-verdict class="mt-3"></div>
+  <div data-body class="mt-4 grid gap-6 lg:grid-cols-2">
+    <div>
+      <canvas data-preview class="hidden w-full rounded-xl border border-gray-200 bg-white"></canvas>
+      <div data-legend class="mt-2 hidden flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+        <span class="inline-flex items-center gap-1"><span class="inline-block h-3 w-3 rounded-sm bg-slate-400"></span>Shape</span>
+        <span class="inline-flex items-center gap-1"><span class="inline-block h-3 w-3 rounded-sm bg-red-500"></span>Too thin</span>
+        <span class="inline-flex items-center gap-1"><span class="inline-block h-3 w-3 rounded-sm bg-amber-500"></span>Narrow gap</span>
+      </div>
+    </div>
+    <div data-lists class="min-w-0"></div>
+  </div>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Export</p>
+  <div class="mt-3 flex flex-wrap items-center gap-2">
+    <button type="button" data-download class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700">Download cut-ready SVG</button>
+    <button type="button" data-copy class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-cyan-500 hover:bg-cyan-50">
+      <svg data-copy-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <svg data-copy-done xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      <span data-copy-label>Copy report</span>
+    </button>
+  </div>
+  <p data-export-note class="mt-2 text-xs text-gray-400">The download sets the real width and height in millimetres and closes tiny gaps in paths. It does not fix other problems.</p>
+</div>
+
+<script>
+  type Pt = [number, number];
+  type Sub = { closed: boolean; start: Pt; end: Pt; endIdx: number; draws: number };
+  type Kind = "ok" | "warn" | "bad";
+  type Row = { label: string; kind: Kind; text: string };
+  type Region = { kind: "thin" | "gap"; cx: number; cy: number; bw: number; bh: number; area: number; widthPx: number; whole: boolean };
+  type Narrow = { regions: Region[]; flagged: Uint8Array };
+  type Analysis = { rows: Row[]; strokeOnly: boolean; open: boolean; text: boolean; image: boolean; style: boolean };
+  type Size = { x: number; y: number; vbW: number; vbH: number; guessed: boolean };
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const PRESETS: Record<string, number> = { vinyl: 1.5, paper: 1, laserthin: 1, laserthick: 2 };
+  const SKIP_PARENTS = "defs,clipPath,mask,symbol,marker,pattern,metadata,title,desc";
+  const SAMPLE =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">\n' +
+    '  <path fill-rule="evenodd" d="M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM11.8 6h0.4v7h-0.4z"/>\n' +
+    '  <path d="M3 19h6v0.3H3z"/>\n' +
+    '  <circle cx="10.5" cy="21" r="0.25"/>\n' +
+    '  <path d="M12.5 22L15 18.5L17.5 22L12.55 22.05"/>\n' +
+    '  <path d="M19.5 18.5l1.8 1.8l-1.8 1.8"/>\n' +
+    '  <circle cx="22.5" cy="21" r="0.8" fill="none" stroke="currentColor" stroke-width="0.4"/>\n' +
+    "</svg>";
+
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+  const dist = (a: Pt, b: Pt) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+
+  /* ---------- SVG parsing ---------- */
+
+  function parseSvg(text: string): Element | null {
+    let t = text.trim();
+    const m = t.match(/<svg[^>]*>/i);
+    if (!m) return null;
+    const tag = m[0];
+    let fixed = tag;
+    if (!/xmlns\s*=/.test(tag)) fixed = fixed.replace(/<svg/i, '<svg xmlns="http://www.w3.org/2000/svg"');
+    if (/xlink:/.test(t) && !/xmlns:xlink/.test(tag)) fixed = fixed.replace(/<svg/i, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    if (fixed !== tag) t = t.replace(tag, fixed);
+    const doc = new DOMParser().parseFromString(t, "image/svg+xml");
+    if (doc.querySelector("parsererror")) return null;
+    const root = doc.documentElement;
+    if (root.localName.toLowerCase() !== "svg") return null;
+    root.querySelectorAll("script, foreignObject").forEach((n) => n.remove());
+    return root;
+  }
+
+  function sizeOf(root: Element): Size {
+    const vb = (root.getAttribute("viewBox") || "").trim().split(/[\s,]+/).map(Number);
+    if (vb.length === 4 && vb.every((n) => isFinite(n)) && vb[2] > 0 && vb[3] > 0) {
+      return { x: vb[0], y: vb[1], vbW: vb[2], vbH: vb[3], guessed: false };
+    }
+    const w = parseFloat(root.getAttribute("width") || "");
+    const h = parseFloat(root.getAttribute("height") || "");
+    if (w > 0 && h > 0) return { x: 0, y: 0, vbW: w, vbH: h, guessed: false };
+    return { x: 0, y: 0, vbW: 24, vbH: 24, guessed: true };
+  }
+
+  /* ---------- Path data ---------- */
+
+  const ARGS: Record<string, number> = { m: 2, l: 2, h: 1, v: 1, c: 6, s: 4, q: 4, t: 2, a: 7, z: 0 };
+
+  function parsePath(d: string): { subs: Sub[]; error: string } {
+    const subs: Sub[] = [];
+    const n = d.length;
+    let i = 0;
+    const numRe = /[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/y;
+    const skip = () => {
+      while (i < n && /[\s,]/.test(d[i])) i++;
+    };
+    const readNum = (): number | null => {
+      skip();
+      numRe.lastIndex = i;
+      const m = numRe.exec(d);
+      if (!m) return null;
+      i = numRe.lastIndex;
+      return parseFloat(m[0]);
+    };
+    const readFlag = (): number | null => {
+      skip();
+      const c = d[i];
+      if (c === "0" || c === "1") {
+        i++;
+        return Number(c);
+      }
+      return null;
+    };
+    let cx = 0, cy = 0, sx = 0, sy = 0;
+    let cur: Sub | null = null;
+    let cmd = "";
+    let first = true;
+    const bad = (): { subs: Sub[]; error: string } => ({ subs: [], error: "Could not read the path data near position " + i + "." });
+
+    while (true) {
+      skip();
+      if (i >= n) break;
+      const ch = d[i];
+      if (/[a-zA-Z]/.test(ch)) {
+        const lc = ch.toLowerCase();
+        if (!(lc in ARGS)) return bad();
+        if (first && lc !== "m") return bad();
+        first = false;
+        cmd = ch;
+        i++;
+        if (lc === "z") {
+          if (cur) {
+            cur.closed = true;
+            cur.end = [sx, sy];
+            cur.endIdx = i;
+            subs.push(cur);
+            cur = null;
+          }
+          cx = sx;
+          cy = sy;
+          cmd = "";
+          continue;
+        }
+      } else if (cmd === "") {
+        return bad();
+      }
+      const lc = cmd.toLowerCase();
+      const rel = cmd !== cmd.toUpperCase();
+      const a: number[] = [];
+      for (let k = 0; k < ARGS[lc]; k++) {
+        const v = lc === "a" && (k === 3 || k === 4) ? readFlag() : readNum();
+        if (v === null) return bad();
+        a.push(v);
+      }
+      const ox = rel ? cx : 0;
+      const oy = rel ? cy : 0;
+      let ex = cx, ey = cy;
+      if (lc === "m" || lc === "l" || lc === "t") {
+        ex = a[0] + ox;
+        ey = a[1] + oy;
+      } else if (lc === "h") {
+        ex = a[0] + ox;
+      } else if (lc === "v") {
+        ey = a[0] + oy;
+      } else if (lc === "c") {
+        ex = a[4] + ox;
+        ey = a[5] + oy;
+      } else if (lc === "s" || lc === "q") {
+        ex = a[2] + ox;
+        ey = a[3] + oy;
+      } else if (lc === "a") {
+        ex = a[5] + ox;
+        ey = a[6] + oy;
+      }
+      if (lc === "m") {
+        if (cur) subs.push(cur);
+        cur = { closed: false, start: [ex, ey], end: [ex, ey], endIdx: i, draws: 0 };
+        sx = ex;
+        sy = ey;
+        cmd = rel ? "l" : "L";
+      } else {
+        if (!cur) cur = { closed: false, start: [cx, cy], end: [cx, cy], endIdx: i, draws: 0 };
+        cur.draws++;
+        cur.end = [ex, ey];
+        cur.endIdx = i;
+      }
+      cx = ex;
+      cy = ey;
+    }
+    if (cur) subs.push(cur);
+    return { subs: subs.filter((s) => s.draws > 0), error: "" };
+  }
+
+  /* ---------- Element checks ---------- */
+
+  function paintOf(el: Element, prop: "fill" | "stroke"): string {
+    let n: Element | null = el;
+    const re = new RegExp("(?:^|;)\\s*" + prop + "\\s*:\\s*([^;]+)", "i");
+    while (n) {
+      const m = (n.getAttribute("style") || "").match(re);
+      if (m) return m[1].trim().toLowerCase();
+      const a = n.getAttribute(prop);
+      if (a !== null && a.trim() !== "" && a.trim() !== "inherit") return a.trim().toLowerCase();
+      n = n.parentElement;
+    }
+    return prop === "fill" ? "black" : "none";
+  }
+
+  function strokeWidthOf(el: Element): number {
+    let n: Element | null = el;
+    while (n) {
+      const m = (n.getAttribute("style") || "").match(/(?:^|;)\s*stroke-width\s*:\s*([^;]+)/i);
+      const v = m ? m[1] : n.getAttribute("stroke-width");
+      if (v !== null && v.trim() !== "") {
+        const f = parseFloat(v);
+        return isFinite(f) ? f : 1;
+      }
+      n = n.parentElement;
+    }
+    return 1;
+  }
+
+  function hidden(el: Element): boolean {
+    let n: Element | null = el;
+    while (n) {
+      const st = n.getAttribute("style") || "";
+      if (/display\s*:\s*none/i.test(st) || n.getAttribute("display") === "none") return true;
+      n = n.parentElement;
+    }
+    return false;
+  }
+
+  function points(el: Element): Pt[] {
+    const nums = (el.getAttribute("points") || "").match(/[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) || [];
+    const out: Pt[] = [];
+    for (let i = 0; i + 1 < nums.length; i += 2) out.push([parseFloat(nums[i]), parseFloat(nums[i + 1])]);
+    return out;
+  }
+
+  function geomKey(el: Element): string {
+    return (
+      el.localName +
+      "|" +
+      Array.from(el.attributes)
+        .filter((a) => a.name !== "id" && a.name !== "class")
+        .map((a) => a.name + "=" + a.value.replace(/\s+/g, " ").trim())
+        .sort()
+        .join(";")
+    );
+  }
+
+  function analyzeElements(root: Element, mmPerUnit: number, tolMm: number): Analysis {
+    const out: Analysis = { rows: [], strokeOnly: false, open: false, text: false, image: false, style: !!root.querySelector("style") };
+    const counters: Record<string, number> = {};
+    const seen: Record<string, string> = {};
+    const els = Array.from(root.querySelectorAll("path, rect, circle, ellipse, polygon, polyline, line, text, image, use"));
+    els.forEach((el) => {
+      if (el.closest(SKIP_PARENTS) || hidden(el)) return;
+      const tag = el.localName;
+      counters[tag] = (counters[tag] || 0) + 1;
+      const id = el.getAttribute("id");
+      const label = tag + " " + counters[tag] + (id ? " #" + id : "");
+
+      if (tag === "text") {
+        out.text = true;
+        out.rows.push({ label, kind: "bad", text: "Text is not a cut shape. Convert the text to outlines first." });
+        return;
+      }
+      if (tag === "image") {
+        out.image = true;
+        out.rows.push({ label, kind: "bad", text: "An embedded picture cannot be cut. Trace it to vector shapes first." });
+        return;
+      }
+      if (tag === "use") {
+        out.rows.push({ label, kind: "warn", text: "Reuses a shape defined elsewhere. It is included in the size check but not listed in the path checks." });
+        return;
+      }
+
+      const fill = paintOf(el, "fill");
+      const stroke = paintOf(el, "stroke");
+      const fillNone = fill === "none" || fill === "transparent";
+      const strokeOn = stroke !== "none" && stroke !== "transparent" && strokeWidthOf(el) > 0;
+      if (fillNone && !strokeOn) return;
+
+      const parts: { kind: Kind; text: string }[] = [];
+      let closedCount = 0;
+      const openNotes = (gapUnits: number, name: string) => {
+        const gapMm = gapUnits * mmPerUnit;
+        if (gapMm <= 0.005) {
+          closedCount++;
+        } else if (gapMm <= tolMm) {
+          parts.push({ kind: "warn", text: name + " is open by " + gapMm.toFixed(2) + " mm. The download closes it." });
+        } else {
+          out.open = true;
+          parts.push({ kind: "bad", text: name + " is open: the end is " + gapMm.toFixed(2) + " mm from the start." });
+        }
+      };
+
+      if (tag === "rect" || tag === "circle" || tag === "ellipse" || tag === "polygon") {
+        closedCount = 1;
+      } else if (tag === "polyline") {
+        const p = points(el);
+        if (p.length >= 3) openNotes(dist(p[0], p[p.length - 1]), "Polyline");
+        else parts.push({ kind: "warn", text: "Open line with too few points to enclose a shape." });
+      } else if (tag === "line") {
+        parts.push({ kind: "warn", text: "Open line. Fine for a score or fold line, but it cannot cut out a shape." });
+      } else if (tag === "path") {
+        const res = parsePath(el.getAttribute("d") || "");
+        if (res.error) {
+          parts.push({ kind: "bad", text: res.error });
+        } else {
+          res.subs.forEach((s, idx) => {
+            if (s.closed) closedCount++;
+            else openNotes(dist(s.start, s.end), res.subs.length > 1 ? "Subpath " + (idx + 1) : "Path");
+          });
+          if (!res.subs.length) return;
+        }
+      }
+
+      if (fillNone && strokeOn) {
+        out.strokeOnly = true;
+        parts.push({ kind: "warn", text: "Stroke only. A cutter follows the centre of a stroke, so outline the stroke first." });
+      }
+
+      const key = geomKey(el);
+      if (seen[key]) parts.push({ kind: "warn", text: "Duplicate of " + seen[key] + ". A laser would cut it twice." });
+      else seen[key] = label;
+
+      let kind: Kind = "ok";
+      parts.forEach((p) => {
+        if (p.kind === "bad") kind = "bad";
+        else if (p.kind === "warn" && kind === "ok") kind = "warn";
+      });
+      const text = parts.length
+        ? parts.map((p) => p.text).join(" ")
+        : closedCount > 1
+          ? closedCount + " closed subpaths."
+          : "Closed shape.";
+      out.rows.push({ label, kind, text });
+    });
+    return out;
+  }
+
+  function autoClose(root: Element, mmPerUnit: number, tolMm: number): number {
+    let fixed = 0;
+    root.querySelectorAll("path").forEach((el) => {
+      if (el.closest(SKIP_PARENTS)) return;
+      const d = el.getAttribute("d") || "";
+      const res = parsePath(d);
+      if (res.error) return;
+      const todo = res.subs
+        .filter((s) => {
+          if (s.closed) return false;
+          if (dist(s.start, s.end) * mmPerUnit > tolMm) return false;
+          const rest = d.slice(s.endIdx).replace(/^[\s,]+/, "");
+          return rest === "" || rest[0] === "M";
+        })
+        .sort((a, b) => b.endIdx - a.endIdx);
+      if (!todo.length) return;
+      let nd = d;
+      todo.forEach((s) => {
+        nd = nd.slice(0, s.endIdx) + " Z" + nd.slice(s.endIdx);
+        fixed++;
+      });
+      el.setAttribute("d", nd);
+    });
+    return fixed;
+  }
+
+  /* ---------- Raster size check ---------- */
+
+  const BIG = 1e9;
+
+  function dt1d(f: Float64Array, n: number, v: Int32Array, z: Float64Array, out: Float64Array) {
+    let k = 0;
+    v[0] = 0;
+    z[0] = -1e20;
+    z[1] = 1e20;
+    for (let q = 1; q < n; q++) {
+      let s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+      while (s <= z[k]) {
+        k--;
+        s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+      }
+      k++;
+      v[k] = q;
+      z[k] = s;
+      z[k + 1] = 1e20;
+    }
+    k = 0;
+    for (let q = 0; q < n; q++) {
+      while (z[k + 1] < q) k++;
+      out[q] = (q - v[k]) * (q - v[k]) + f[v[k]];
+    }
+  }
+
+  function edt(feature: Uint8Array, W: number, H: number): Float32Array {
+    const m = Math.max(W, H);
+    const f = new Float64Array(m);
+    const out = new Float64Array(m);
+    const v = new Int32Array(m);
+    const z = new Float64Array(m + 1);
+    const g = new Float32Array(W * H);
+    for (let x = 0; x < W; x++) {
+      for (let y = 0; y < H; y++) f[y] = feature[y * W + x] ? 0 : BIG;
+      dt1d(f, H, v, z, out);
+      for (let y = 0; y < H; y++) g[y * W + x] = out[y];
+    }
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) f[x] = g[y * W + x];
+      dt1d(f, W, v, z, out);
+      for (let x = 0; x < W; x++) g[y * W + x] = out[x];
+    }
+    return g;
+  }
+
+  function label(mask: Uint8Array, W: number, H: number): { lab: Int32Array; n: number } {
+    const N = W * H;
+    const lab = new Int32Array(N);
+    const stack = new Int32Array(N);
+    let n = 0;
+    for (let s = 0; s < N; s++) {
+      if (!mask[s] || lab[s]) continue;
+      n++;
+      let sp = 0;
+      stack[sp++] = s;
+      lab[s] = n;
+      while (sp) {
+        const p = stack[--sp];
+        const x = p % W;
+        const y = (p - x) / W;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            const nx = x + dx;
+            const ny = y + dy;
+            if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+            const q = ny * W + nx;
+            if (mask[q] && !lab[q]) {
+              lab[q] = n;
+              stack[sp++] = q;
+            }
+          }
+        }
+      }
+    }
+    return { lab, n };
+  }
+
+  function findNarrow(mask: Uint8Array, W: number, H: number, r: number, kind: "thin" | "gap"): Narrow {
+    const N = W * H;
+    const inv = new Uint8Array(N);
+    for (let i = 0; i < N; i++) inv[i] = mask[i] ? 0 : 1;
+    const dIn = edt(inv, W, H);
+    const r2 = r * r;
+    const eroded = new Uint8Array(N);
+    for (let i = 0; i < N; i++) eroded[i] = mask[i] && dIn[i] >= r2 ? 1 : 0;
+    const dEr = edt(eroded, W, H);
+    const thin = new Uint8Array(N);
+    const opened = new Uint8Array(N);
+    for (let i = 0; i < N; i++) {
+      if (!mask[i]) continue;
+      if (dEr[i] <= r2) opened[i] = 1;
+      else thin[i] = 1;
+    }
+    const lt = label(thin, W, H);
+    const lm = label(mask, W, H);
+    const hasOpened = new Uint8Array(lm.n + 1);
+    for (let i = 0; i < N; i++) if (opened[i]) hasOpened[lm.lab[i]] = 1;
+
+    const n = lt.n;
+    const area = new Int32Array(n + 1);
+    const sx = new Float64Array(n + 1);
+    const sy = new Float64Array(n + 1);
+    const x0 = new Int32Array(n + 1).fill(1 << 30);
+    const x1 = new Int32Array(n + 1).fill(-1);
+    const y0 = new Int32Array(n + 1).fill(1 << 30);
+    const y1 = new Int32Array(n + 1).fill(-1);
+    const maxD = new Float32Array(n + 1);
+    const parent = new Int32Array(n + 1);
+    for (let i = 0; i < N; i++) {
+      const c = lt.lab[i];
+      if (!c) continue;
+      const x = i % W;
+      const y = (i - x) / W;
+      area[c]++;
+      sx[c] += x;
+      sy[c] += y;
+      if (x < x0[c]) x0[c] = x;
+      if (x > x1[c]) x1[c] = x;
+      if (y < y0[c]) y0[c] = y;
+      if (y > y1[c]) y1[c] = y;
+      if (dIn[i] > maxD[c]) maxD[c] = dIn[i];
+      parent[c] = lm.lab[i];
+    }
+    const keep = new Uint8Array(n + 1);
+    const regions: Region[] = [];
+    for (let c = 1; c <= n; c++) {
+      const whole = !hasOpened[parent[c]];
+      if (area[c] < 4) continue;
+      if (!whole && area[c] < 2 * r2) continue;
+      keep[c] = 1;
+      regions.push({
+        kind,
+        cx: sx[c] / area[c],
+        cy: sy[c] / area[c],
+        bw: x1[c] - x0[c] + 1,
+        bh: y1[c] - y0[c] + 1,
+        area: area[c],
+        widthPx: Math.max(1, 2 * Math.sqrt(maxD[c]) - 1),
+        whole,
+      });
+    }
+    const flagged = new Uint8Array(N);
+    for (let i = 0; i < N; i++) if (lt.lab[i] && keep[lt.lab[i]]) flagged[i] = 1;
+    regions.sort((a, b) => a.widthPx - b.widthPx);
+    return { regions, flagged };
+  }
+
+  function loadImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("load"));
+      img.src = src;
+    });
+  }
+
+  function renderSource(root: Element, size: Size, Wp: number, Hp: number, strokes: boolean): string {
+    const c = root.cloneNode(true) as Element;
+    c.setAttribute("viewBox", size.x + " " + size.y + " " + size.vbW + " " + size.vbH);
+    c.setAttribute("width", String(Wp));
+    c.setAttribute("height", String(Hp));
+    c.setAttribute("color", "#000000");
+    c.removeAttribute("style");
+    if (!strokes) {
+      const st = c.ownerDocument.createElementNS(SVG_NS, "style");
+      st.textContent = "*{stroke:none !important}";
+      c.insertBefore(st, c.firstChild);
+    }
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(c));
+  }
+
+  /* ---------- Widget ---------- */
+
+  function initCutPrepper(widget: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => widget.querySelector<T>(sel) as T;
+    const dropEl = $<HTMLElement>("[data-drop]");
+    const fileEl = $<HTMLInputElement>("[data-file]");
+    const textEl = $<HTMLTextAreaElement>("[data-text]");
+    const errEl = $<HTMLElement>("[data-error]");
+    const unitEl = $<HTMLSelectElement>("[data-unit]");
+    const widthEl = $<HTMLInputElement>("[data-width]");
+    const presetEl = $<HTMLSelectElement>("[data-preset]");
+    const minEl = $<HTMLInputElement>("[data-min]");
+    const tolEl = $<HTMLInputElement>("[data-tol]");
+    const gapsEl = $<HTMLInputElement>("[data-gaps]");
+    const strokesEl = $<HTMLInputElement>("[data-strokes]");
+    const cutSizeEl = $<HTMLElement>("[data-cutsize]");
+    const statusEl = $<HTMLElement>("[data-status]");
+    const verdictEl = $<HTMLElement>("[data-verdict]");
+    const bodyEl = $<HTMLElement>("[data-body]");
+    const canvasEl = $<HTMLCanvasElement>("[data-preview]");
+    const legendEl = $<HTMLElement>("[data-legend]");
+    const listsEl = $<HTMLElement>("[data-lists]");
+    const copyBtn = $<HTMLButtonElement>("[data-copy]");
+    const copyIcon = $<SVGElement>("[data-copy-icon]");
+    const copyDone = $<SVGElement>("[data-copy-done]");
+    const copyLabel = $<HTMLElement>("[data-copy-label]");
+    const unitLabels = Array.from(widget.querySelectorAll<HTMLElement>("[data-unit-label]"));
+
+    let unit: "mm" | "in" = "mm";
+    let runId = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let report = "";
+    let current: { text: string; wMm: number; hMm: number; mmPerUnit: number; tolMm: number } | null = null;
+
+    const toMm = (v: number) => (unit === "in" ? v * 25.4 : v);
+    const fromMm = (v: number) => (unit === "in" ? v / 25.4 : v);
+    const fmt = (mm: number) => (unit === "in" ? (mm / 25.4).toFixed(3) + " in" : (Math.round(mm * 100) / 100).toFixed(2) + " mm");
+    const num = (e: HTMLInputElement, fb: number) => {
+      const v = parseFloat(e.value);
+      return isFinite(v) ? v : fb;
+    };
+    const roundIn = (v: number) => String(Math.round(v * 10000) / 10000);
+
+    function setError(msg: string) {
+      errEl.textContent = msg;
+      errEl.classList.toggle("hidden", !msg);
+    }
+
+    function setBusy(on: boolean) {
+      statusEl.classList.toggle("hidden", !on);
+      statusEl.classList.toggle("inline-flex", on);
+    }
+
+    function empty(msg: string) {
+      current = null;
+      report = "";
+      verdictEl.innerHTML = "";
+      canvasEl.classList.add("hidden");
+      legendEl.classList.add("hidden");
+      legendEl.classList.remove("flex");
+      listsEl.innerHTML = '<p class="text-sm text-gray-400">' + esc(msg) + "</p>";
+    }
+
+    const badge: Record<Kind, string> = {
+      ok: '<span class="rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700">OK</span>',
+      warn: '<span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">Note</span>',
+      bad: '<span class="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">Problem</span>',
+    };
+
+    async function run() {
+      const my = ++runId;
+      setError("");
+      const text = textEl.value.trim();
+      cutSizeEl.textContent = "";
+      if (!text) {
+        setBusy(false);
+        empty("Add an SVG icon, or try the sample, to check it for cutting.");
+        return;
+      }
+      const root = parseSvg(text);
+      if (!root) {
+        setBusy(false);
+        empty("");
+        setError("This is not valid SVG. Check for unclosed tags or stray characters.");
+        return;
+      }
+      const size = sizeOf(root);
+      const wMm = clamp(toMm(num(widthEl, 60)), 1, 5000);
+      const mmPerUnit = wMm / size.vbW;
+      const hMm = size.vbH * mmPerUnit;
+      const minMm = clamp(toMm(num(minEl, 1.5)), 0.05, 100);
+      const tolMm = Math.max(0, toMm(num(tolEl, 0.3)));
+      cutSizeEl.textContent = "Cut size: " + fmt(wMm) + " wide by " + fmt(hMm) + " tall.";
+
+      const an = analyzeElements(root, mmPerUnit, tolMm);
+
+      const pxPerMm = Math.min(1000 / Math.max(wMm, hMm), 40, 120 / minMm);
+      const Wp = Math.max(1, Math.round(wMm * pxPerMm));
+      const Hp = Math.max(1, Math.round(hMm * pxPerMm));
+      const r = (minMm * pxPerMm) / 2;
+      const pad = Math.ceil(r) + 3;
+      const CW = Wp + 2 * pad;
+      const CH = Hp + 2 * pad;
+
+      let mask: Uint8Array;
+      try {
+        const img = await loadImage(renderSource(root, size, Wp, Hp, strokesEl.checked));
+        const cv = document.createElement("canvas");
+        cv.width = CW;
+        cv.height = CH;
+        const ctx = cv.getContext("2d", { willReadFrequently: true });
+        if (!ctx) throw new Error("canvas");
+        ctx.drawImage(img, pad, pad, Wp, Hp);
+        const data = ctx.getImageData(0, 0, CW, CH).data;
+        mask = new Uint8Array(CW * CH);
+        for (let i = 0; i < CW * CH; i++) mask[i] = data[i * 4 + 3] >= 64 ? 1 : 0;
+      } catch {
+        if (my !== runId) return;
+        setBusy(false);
+        empty("");
+        setError("This SVG could not be drawn, so the size check was skipped.");
+        return;
+      }
+      if (my !== runId) return;
+
+      let ink = 0;
+      for (let i = 0; i < mask.length; i++) ink += mask[i];
+
+      let thin: Narrow = { regions: [], flagged: new Uint8Array(CW * CH) };
+      let gap: Narrow = { regions: [], flagged: new Uint8Array(CW * CH) };
+      if (ink > 0) {
+        thin = findNarrow(mask, CW, CH, r, "thin");
+        if (gapsEl.checked) {
+          const bg = new Uint8Array(CW * CH);
+          for (let i = 0; i < bg.length; i++) bg[i] = mask[i] ? 0 : 1;
+          gap = findNarrow(bg, CW, CH, r, "gap");
+        }
+      }
+      if (my !== runId) return;
+
+      const notes: string[] = [];
+      if (size.guessed) notes.push("The SVG has no viewBox or size, so a 24 by 24 canvas was assumed.");
+      if (an.style) notes.push("This file has a style block. Colors set by CSS classes are not read in the path checks, but the size check still uses the drawn result.");
+      if (minMm * pxPerMm < 4) notes.push("The check ran at a low resolution, so the size results are only approximate. Try a smaller cut width.");
+      if (ink === 0) notes.push("No shapes were found to measure. If the icon is made of strokes, turn on counting strokes as shapes.");
+
+      const problems = an.rows.filter((x) => x.kind === "bad").length + thin.regions.length;
+      const warnings = an.rows.filter((x) => x.kind === "warn").length + gap.regions.length;
+
+      /* verdict */
+      let vh = "";
+      if (problems === 0 && warnings === 0 && ink > 0) {
+        vh = '<div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"><strong>Looks ready to cut.</strong> No open paths, no features below ' + esc(fmt(minMm)) + ".</div>";
+      } else if (problems === 0) {
+        vh = '<div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"><strong>Almost ready.</strong> ' + warnings + (warnings === 1 ? " note" : " notes") + " to review below.</div>";
+      } else {
+        vh = '<div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><strong>' + problems + (problems === 1 ? " problem" : " problems") + " to fix</strong>" + (warnings ? " and " + warnings + (warnings === 1 ? " note" : " notes") : "") + ". See the lists below.</div>";
+      }
+      const hints: string[] = [];
+      if (an.strokeOnly) hints.push("Outline strokes: Illustrator Object > Path > Outline Stroke, Inkscape Path > Stroke to Path, Figma Outline stroke.");
+      if (an.open) hints.push("Join the end points of open paths in your design editor, then check again.");
+      if (an.text) hints.push("Convert text to outlines or paths before exporting.");
+      if (an.image) hints.push("Trace embedded pictures to vector shapes.");
+      if (thin.regions.length) hints.push("Thicken the red areas, or raise the cut size so they pass the minimum.");
+      notes.forEach((n) => hints.push(n));
+      if (hints.length) vh += '<ul class="mt-3 list-disc space-y-1 pl-5 text-xs text-gray-600">' + hints.map((h) => "<li>" + esc(h) + "</li>").join("") + "</ul>";
+      verdictEl.innerHTML = vh;
+
+      /* preview */
+      if (ink > 0) {
+        const out = document.createElement("canvas");
+        out.width = Wp;
+        out.height = Hp;
+        const octx = out.getContext("2d");
+        if (octx) {
+          const id = octx.createImageData(Wp, Hp);
+          for (let y = 0; y < Hp; y++) {
+            for (let x = 0; x < Wp; x++) {
+              const si = (y + pad) * CW + (x + pad);
+              const di = (y * Wp + x) * 4;
+              let rr = 255, gg = 255, bb = 255;
+              if (thin.flagged[si]) {
+                rr = 239; gg = 68; bb = 68;
+              } else if (gap.flagged[si]) {
+                rr = 245; gg = 158; bb = 11;
+              } else if (mask[si]) {
+                rr = 148; gg = 163; bb = 184;
+              }
+              id.data[di] = rr;
+              id.data[di + 1] = gg;
+              id.data[di + 2] = bb;
+              id.data[di + 3] = 255;
+            }
+          }
+          canvasEl.width = Wp;
+          canvasEl.height = Hp;
+          const pctx = canvasEl.getContext("2d");
+          if (pctx) {
+            pctx.putImageData(id, 0, 0);
+            pctx.lineWidth = Math.max(1.5, Wp / 300);
+            thin.regions.concat(gap.regions).forEach((g) => {
+              pctx.strokeStyle = g.kind === "thin" ? "#b91c1c" : "#b45309";
+              pctx.beginPath();
+              pctx.arc(g.cx - pad, g.cy - pad, Math.max(g.bw, g.bh) / 2 + 6, 0, Math.PI * 2);
+              pctx.stroke();
+            });
+          }
+          canvasEl.classList.remove("hidden");
+          legendEl.classList.remove("hidden");
+          legendEl.classList.add("flex");
+        }
+      } else {
+        canvasEl.classList.add("hidden");
+        legendEl.classList.add("hidden");
+        legendEl.classList.remove("flex");
+      }
+
+      /* lists */
+      const locate = (g: Region) => "x " + fmt(((g.cx - pad) / pxPerMm)) + ", y " + fmt(((g.cy - pad) / pxPerMm));
+      const regionText = (g: Region) => {
+        const w = fmt(g.widthPx / pxPerMm);
+        if (g.kind === "thin") return g.whole ? "Small or thin separate piece, about " + w + " across. It may fall out or be hard to weed." : "Thin part, about " + w + " wide.";
+        return g.whole ? "Tiny hole or slit, about " + w + " wide." : "Narrow gap, about " + w + " wide.";
+      };
+      let lh = "";
+      lh += '<p class="text-sm font-medium text-gray-700">Path checks</p>';
+      if (an.rows.length) {
+        lh += '<div class="mt-2 overflow-x-auto"><table class="min-w-full text-sm"><tbody>';
+        an.rows.forEach((x) => {
+          lh += '<tr class="border-t border-gray-100"><td class="whitespace-nowrap py-2 pr-3 align-top text-xs font-medium text-gray-700">' + esc(x.label) + '</td><td class="py-2 pr-3 align-top">' + badge[x.kind] + '</td><td class="py-2 align-top text-xs text-gray-600">' + esc(x.text) + "</td></tr>";
+        });
+        lh += "</tbody></table></div>";
+      } else {
+        lh += '<p class="mt-2 text-xs text-gray-400">No shape elements found.</p>';
+      }
+      lh += '<p class="mt-5 text-sm font-medium text-gray-700">Minimum size check (' + esc(fmt(minMm)) + ")</p>";
+      const regs = thin.regions.concat(gap.regions);
+      if (regs.length) {
+        lh += '<div class="mt-2 overflow-x-auto"><table class="min-w-full text-sm"><tbody>';
+        regs.slice(0, 30).forEach((g) => {
+          lh += '<tr class="border-t border-gray-100"><td class="py-2 pr-3 align-top">' + (g.kind === "thin" ? badge.bad : badge.warn) + '</td><td class="py-2 pr-3 align-top text-xs text-gray-600">' + esc(regionText(g)) + '</td><td class="whitespace-nowrap py-2 align-top text-xs text-gray-400">' + esc(locate(g)) + "</td></tr>";
+        });
+        lh += "</tbody></table></div>";
+        if (regs.length > 30) lh += '<p class="mt-2 text-xs text-gray-400">Showing the 30 smallest of ' + regs.length + ".</p>";
+      } else {
+        lh += '<p class="mt-2 text-xs text-gray-500">' + (ink > 0 ? "Nothing narrower than the minimum was found." : "Nothing to measure.") + "</p>";
+      }
+      listsEl.innerHTML = lh;
+
+      /* report */
+      let rp = "Cut file check: " + fmt(wMm) + " x " + fmt(hMm) + ", minimum feature " + fmt(minMm) + "\n";
+      rp += problems + " problems, " + warnings + " notes\n\nPath checks\n";
+      an.rows.forEach((x) => {
+        rp += "- " + x.label + " [" + (x.kind === "ok" ? "OK" : x.kind === "warn" ? "Note" : "Problem") + "] " + x.text + "\n";
+      });
+      rp += "\nMinimum size check\n";
+      if (regs.length) {
+        regs.forEach((g) => {
+          rp += "- " + regionText(g) + " (" + locate(g) + ")\n";
+        });
+      } else rp += "- Nothing narrower than the minimum was found.\n";
+      notes.forEach((n) => {
+        rp += "\nNote: " + n;
+      });
+      report = rp.trimEnd();
+      current = { text, wMm, hMm, mmPerUnit, tolMm };
+      setBusy(false);
+    }
+
+    function schedule() {
+      setBusy(true);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(run, 300);
+    }
+
+    function loadFile(f: File | undefined) {
+      if (!f) return;
+      if (!/\.svg$/i.test(f.name) && f.type !== "image/svg+xml") {
+        setError("Please choose an .svg file.");
+        return;
+      }
+      if (f.size > 5000000) {
+        setError("That file is over 5 MB. Please use a smaller SVG.");
+        return;
+      }
+      f.text()
+        .then((t) => {
+          textEl.value = t;
+          schedule();
+        })
+        .catch(() => setError("Could not read that file."));
+    }
+
+    dropEl.addEventListener("click", () => fileEl.click());
+    dropEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fileEl.click();
+      }
+    });
+    fileEl.addEventListener("click", (e) => e.stopPropagation());
+    fileEl.addEventListener("change", () => {
+      loadFile(fileEl.files?.[0]);
+      fileEl.value = "";
+    });
+    dropEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropEl.classList.add("border-cyan-500", "bg-cyan-50");
+    });
+    dropEl.addEventListener("dragleave", () => dropEl.classList.remove("border-cyan-500", "bg-cyan-50"));
+    dropEl.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropEl.classList.remove("border-cyan-500", "bg-cyan-50");
+      loadFile(e.dataTransfer?.files?.[0]);
+    });
+
+    textEl.addEventListener("input", schedule);
+    [widthEl, tolEl, gapsEl, strokesEl].forEach((e) => {
+      e.addEventListener("input", schedule);
+      e.addEventListener("change", schedule);
+    });
+    minEl.addEventListener("input", () => {
+      presetEl.value = "custom";
+      schedule();
+    });
+    presetEl.addEventListener("change", () => {
+      const v = PRESETS[presetEl.value];
+      if (v !== undefined) minEl.value = unit === "in" ? roundIn(v / 25.4) : String(v);
+      schedule();
+    });
+    unitEl.addEventListener("change", () => {
+      const next = unitEl.value === "in" ? "in" : "mm";
+      if (next === unit) return;
+      const fields = [widthEl, minEl, tolEl];
+      const mms = fields.map((e) => toMm(num(e, 0)));
+      unit = next;
+      fields.forEach((e, i) => {
+        e.value = roundIn(fromMm(mms[i]));
+      });
+      unitLabels.forEach((l) => (l.textContent = unit));
+      schedule();
+    });
+
+    $<HTMLElement>("[data-sample]").addEventListener("click", () => {
+      textEl.value = SAMPLE;
+      setBusy(true);
+      run();
+    });
+    $<HTMLElement>("[data-clear]").addEventListener("click", () => {
+      textEl.value = "";
+      run();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!report) return;
+      try {
+        await navigator.clipboard.writeText(report);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = report;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy report";
+      }, 1500);
+    });
+
+    $<HTMLElement>("[data-download]").addEventListener("click", () => {
+      if (!current) return;
+      const root = parseSvg(current.text);
+      if (!root) return;
+      autoClose(root, current.mmPerUnit, current.tolMm);
+      const size = sizeOf(root);
+      if (!root.getAttribute("viewBox")) root.setAttribute("viewBox", size.x + " " + size.y + " " + size.vbW + " " + size.vbH);
+      root.setAttribute("width", Math.round(current.wMm * 1000) / 1000 + "mm");
+      root.setAttribute("height", Math.round(current.hMm * 1000) / 1000 + "mm");
+      const out = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(root);
+      const url = URL.createObjectURL(new Blob([out], { type: "image/svg+xml" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "cut-ready.svg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    empty("Add an SVG icon, or try the sample, to check it for cutting.");
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-icon-to-print-cut-file-prepper-widget]")
+    .forEach(initCutPrepper);
+</script>

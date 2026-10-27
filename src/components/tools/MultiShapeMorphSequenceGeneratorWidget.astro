@@ -1,0 +1,729 @@
+---
+// Multi Shape Morph Sequence Generator: morphs through 3+ shapes in order and exports an animated SVG (SMIL).
+// Fully client-side. Accent color: purple (literal Tailwind classes only).
+---
+
+<div data-multi-shape-morph-sequence-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <!-- Preview -->
+  <div class="relative">
+    <div
+      data-preview
+      class="flex min-h-[220px] items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 p-6 [&>svg]:h-auto [&>svg]:max-h-64 [&>svg]:max-w-full"
+    ></div>
+    <div
+      data-busy
+      class="absolute inset-0 hidden items-center justify-center gap-2 rounded-xl bg-white/80 text-sm font-medium text-gray-600"
+    >
+      <svg class="h-4 w-4 animate-spin text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+        <path d="M12 3a9 9 0 1 0 9 9" />
+      </svg>
+      <span>Building morph...</span>
+    </div>
+  </div>
+  <p data-info class="mt-2 text-xs text-gray-400"></p>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2">
+    <button
+      type="button"
+      data-download
+      class="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+    >
+      Download SVG
+    </button>
+    <button
+      type="button"
+      data-copy
+      class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    >
+      <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="11" height="11" rx="2" />
+        <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+      </svg>
+      <svg data-copy-check class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+      <span data-copy-label>Copy SVG</span>
+    </button>
+    <button
+      type="button"
+      data-pause
+      class="rounded-lg border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    >
+      Pause
+    </button>
+    <button
+      type="button"
+      data-restart
+      class="rounded-lg border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    >
+      Restart
+    </button>
+    <button
+      type="button"
+      data-reset
+      class="ml-auto text-sm text-gray-400 hover:text-red-600"
+    >
+      Reset
+    </button>
+  </div>
+
+  <div class="mt-8 grid gap-8 lg:grid-cols-2">
+    <!-- 1. Shapes -->
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Shapes in order</h3>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          data-add
+          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Add shape
+        </button>
+        <button
+          type="button"
+          data-sample
+          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Try a sample
+        </button>
+      </div>
+      <p class="mt-3 text-xs text-gray-400">
+        Pick a preset or choose Custom path and paste any SVG path d value. The morph runs from the top shape to the bottom one, in order.
+      </p>
+      <ul data-list class="mt-3 space-y-3"></ul>
+    </div>
+
+    <!-- 2 and 3. Timing and output -->
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">2. Timing</h3>
+        <div class="mt-3 space-y-4">
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Transition time per step</span><span data-dur-val class="text-gray-400"></span></span>
+            <input data-dur type="range" min="0.4" max="5" step="0.1" value="1.4" class="mt-1 w-full accent-purple-600" />
+          </label>
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Hold on each shape</span><span data-hold-val class="text-gray-400"></span></span>
+            <input data-hold type="range" min="0" max="3" step="0.1" value="0.4" class="mt-1 w-full accent-purple-600" />
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="block text-sm text-gray-700">
+              <span>Easing</span>
+              <select data-ease class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <option value="inout">Ease in and out</option>
+                <option value="out">Ease out</option>
+                <option value="linear">Linear</option>
+              </select>
+            </label>
+            <label class="flex items-center gap-2 pt-6 text-sm text-gray-700">
+              <input data-loop type="checkbox" checked class="h-4 w-4 accent-purple-600" />
+              <span>Loop back to first</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Quality and output</h3>
+        <div class="mt-3 space-y-4">
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Points per shape</span><span data-points-val class="text-gray-400"></span></span>
+            <input data-points type="range" min="24" max="240" step="4" value="72" class="mt-1 w-full accent-purple-600" />
+          </label>
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Output width</span><span data-px-val class="text-gray-400"></span></span>
+            <input data-px type="range" min="64" max="600" step="8" value="240" class="mt-1 w-full accent-purple-600" />
+          </label>
+          <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input data-smooth type="checkbox" checked class="h-4 w-4 accent-purple-600" />
+              <span>Smooth curves</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input data-align type="checkbox" checked class="h-4 w-4 accent-purple-600" />
+              <span>Auto align start points</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input data-normalize type="checkbox" checked class="h-4 w-4 accent-purple-600" />
+              <span>Fit all shapes to same size</span>
+            </label>
+          </div>
+          <label class="block text-sm text-gray-700">
+            <span>Preview background</span>
+            <select data-pv-bg class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden measuring path, used to read points from any path string -->
+  <svg aria-hidden="true" class="pointer-events-none absolute h-0 w-0 overflow-hidden" data-measure-svg>
+    <path data-measure d="M0 0"></path>
+  </svg>
+</div>
+
+<script>
+  type Shape = { preset: string; d: string; color: string };
+  type Pt = { x: number; y: number };
+
+  const f2 = (v: number) => String(Math.round(v * 100) / 100);
+
+  function polygonPath(sides: number): string {
+    const pts: string[] = [];
+    for (let i = 0; i < sides; i++) {
+      const a = ((-90 + (360 / sides) * i) * Math.PI) / 180;
+      pts.push(f2(50 + 44 * Math.cos(a)) + " " + f2(50 + 44 * Math.sin(a)));
+    }
+    return "M" + pts.join("L") + "Z";
+  }
+
+  function starPath(points: number, innerR: number): string {
+    const pts: string[] = [];
+    for (let i = 0; i < points * 2; i++) {
+      const r = i % 2 === 0 ? 46 : innerR;
+      const a = ((-90 + (180 / points) * i) * Math.PI) / 180;
+      pts.push(f2(50 + r * Math.cos(a)) + " " + f2(50 + r * Math.sin(a)));
+    }
+    return "M" + pts.join("L") + "Z";
+  }
+
+  const PRESETS: Record<string, { label: string; d: string }> = {
+    circle: { label: "Circle", d: "M50 6A44 44 0 1 1 50 94A44 44 0 1 1 50 6Z" },
+    square: { label: "Square", d: "M12 12H88V88H12Z" },
+    triangle: { label: "Triangle", d: polygonPath(3) },
+    diamond: { label: "Diamond", d: polygonPath(4) },
+    pentagon: { label: "Pentagon", d: polygonPath(5) },
+    hexagon: { label: "Hexagon", d: polygonPath(6) },
+    star: { label: "Star", d: starPath(5, 20) },
+    heart: {
+      label: "Heart",
+      d: "M50 90C50 90 8 62 8 36C8 20 20 10 32 10C42 10 50 17 50 25C50 17 58 10 68 10C80 10 92 20 92 36C92 62 50 90 50 90Z",
+    },
+    cross: { label: "Cross", d: "M38 8H62V38H92V62H62V92H38V62H8V38H38Z" },
+    blob: { label: "Blob", d: "M50 8C68 6 90 20 92 44C94 68 76 92 50 92C26 92 6 74 8 50C10 28 30 10 50 8Z" },
+  };
+  const PRESET_KEYS = Object.keys(PRESETS);
+  const PALETTE = ["#a855f7", "#f43f5e", "#14b8a6", "#f59e0b", "#3b82f6", "#22c55e", "#6366f1", "#06b6d4"];
+  const MAX_SHAPES = 8;
+
+  function initMorphSequence(root: HTMLElement) {
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+
+    const previewEl = q<HTMLDivElement>("[data-preview]");
+    const busyEl = q<HTMLDivElement>("[data-busy]");
+    const infoEl = q<HTMLParagraphElement>("[data-info]");
+    const listEl = q<HTMLUListElement>("[data-list]");
+    const addBtn = q<HTMLButtonElement>("[data-add]");
+    const sampleBtn = q<HTMLButtonElement>("[data-sample]");
+    const resetBtn = q<HTMLButtonElement>("[data-reset]");
+    const downloadBtn = q<HTMLButtonElement>("[data-download]");
+    const copyBtn = q<HTMLButtonElement>("[data-copy]");
+    const copyIcon = q<SVGElement>("[data-copy-icon]");
+    const copyCheck = q<SVGElement>("[data-copy-check]");
+    const copyLabel = q<HTMLSpanElement>("[data-copy-label]");
+    const pauseBtn = q<HTMLButtonElement>("[data-pause]");
+    const restartBtn = q<HTMLButtonElement>("[data-restart]");
+
+    const durEl = q<HTMLInputElement>("[data-dur]");
+    const holdEl = q<HTMLInputElement>("[data-hold]");
+    const easeEl = q<HTMLSelectElement>("[data-ease]");
+    const loopEl = q<HTMLInputElement>("[data-loop]");
+    const pointsEl = q<HTMLInputElement>("[data-points]");
+    const pxEl = q<HTMLInputElement>("[data-px]");
+    const smoothEl = q<HTMLInputElement>("[data-smooth]");
+    const alignEl = q<HTMLInputElement>("[data-align]");
+    const normalizeEl = q<HTMLInputElement>("[data-normalize]");
+    const pvBgEl = q<HTMLSelectElement>("[data-pv-bg]");
+    const durVal = q<HTMLSpanElement>("[data-dur-val]");
+    const holdVal = q<HTMLSpanElement>("[data-hold-val]");
+    const pointsVal = q<HTMLSpanElement>("[data-points-val]");
+    const pxVal = q<HTMLSpanElement>("[data-px-val]");
+    const measurePath = q<SVGPathElement>("[data-measure]");
+
+    let shapes: Shape[] = [];
+    let lastSvg = "";
+    let timer: number | undefined;
+    let paused = false;
+
+    function defaultShapes(): Shape[] {
+      return [
+        { preset: "circle", d: "", color: PALETTE[0] },
+        { preset: "star", d: "", color: PALETTE[1] },
+        { preset: "heart", d: "", color: PALETTE[2] },
+      ];
+    }
+
+    function sampleShapes(): Shape[] {
+      return [
+        { preset: "circle", d: "", color: PALETTE[0] },
+        { preset: "square", d: "", color: PALETTE[3] },
+        { preset: "star", d: "", color: PALETTE[1] },
+        { preset: "heart", d: "", color: PALETTE[2] },
+        { preset: "hexagon", d: "", color: PALETTE[4] },
+      ];
+    }
+
+    function getD(s: Shape): string {
+      return s.preset === "custom" ? s.d : PRESETS[s.preset].d;
+    }
+
+    function setBusy(on: boolean) {
+      busyEl.classList.toggle("hidden", !on);
+      busyEl.classList.toggle("flex", on);
+    }
+
+    // Path reading and geometry
+
+    function firstSubpath(d: string): string {
+      const parts = d.trim().split(/(?=[Mm])/).filter((s) => s.trim());
+      return parts[0] || "";
+    }
+
+    function resample(d: string, n: number): Pt[] | null {
+      const sub = firstSubpath(d);
+      if (!sub) return null;
+      measurePath.setAttribute("d", sub);
+      let len = 0;
+      try {
+        len = measurePath.getTotalLength();
+      } catch (e) {
+        return null;
+      }
+      if (!isFinite(len) || len <= 0) return null;
+      const pts: Pt[] = [];
+      for (let i = 0; i < n; i++) {
+        const p = measurePath.getPointAtLength((len * i) / n);
+        pts.push({ x: p.x, y: p.y });
+      }
+      return pts;
+    }
+
+    function area(p: Pt[]): number {
+      let a = 0;
+      for (let i = 0; i < p.length; i++) {
+        const q2 = p[(i + 1) % p.length];
+        a += p[i].x * q2.y - q2.x * p[i].y;
+      }
+      return a / 2;
+    }
+
+    function normalizePts(p: Pt[]): Pt[] {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const t of p) {
+        if (t.x < minX) minX = t.x;
+        if (t.y < minY) minY = t.y;
+        if (t.x > maxX) maxX = t.x;
+        if (t.y > maxY) maxY = t.y;
+      }
+      const w = maxX - minX;
+      const h = maxY - minY;
+      const side = Math.max(w, h) || 1;
+      const scale = 84 / side;
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      return p.map((t) => ({ x: (t.x - cx) * scale + 50, y: (t.y - cy) * scale + 50 }));
+    }
+
+    function bestOffset(prev: Pt[], cur: Pt[]): number {
+      const n = prev.length;
+      let best = 0;
+      let bestD = Infinity;
+      for (let o = 0; o < n; o++) {
+        let s = 0;
+        for (let i = 0; i < n; i++) {
+          const a = prev[i];
+          const b = cur[(i + o) % n];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          s += dx * dx + dy * dy;
+          if (s >= bestD) break;
+        }
+        if (s < bestD) {
+          bestD = s;
+          best = o;
+        }
+      }
+      return best;
+    }
+
+    function toPath(p: Pt[], smooth: boolean): string {
+      const n = p.length;
+      if (!smooth) {
+        return "M" + p.map((t) => f2(t.x) + " " + f2(t.y)).join("L") + "Z";
+      }
+      let d = "M" + f2(p[0].x) + " " + f2(p[0].y);
+      for (let i = 0; i < n; i++) {
+        const p0 = p[(i - 1 + n) % n];
+        const p1 = p[i];
+        const p2 = p[(i + 1) % n];
+        const p3 = p[(i + 2) % n];
+        const c1x = p1.x + (p2.x - p0.x) / 6;
+        const c1y = p1.y + (p2.y - p0.y) / 6;
+        const c2x = p2.x - (p3.x - p1.x) / 6;
+        const c2y = p2.y - (p3.y - p1.y) / 6;
+        d += "C" + f2(c1x) + " " + f2(c1y) + " " + f2(c2x) + " " + f2(c2y) + " " + f2(p2.x) + " " + f2(p2.y);
+      }
+      return d + "Z";
+    }
+
+    // Build the animated SVG
+
+    function compute() {
+      const n = Number(pointsEl.value);
+      const smooth = smoothEl.checked;
+      const errs: string[] = [];
+      const pathStrs: string[] = [];
+      const processed: (Pt[] | null)[] = [];
+
+      let refSign = 0;
+      let prev: Pt[] | null = null;
+
+      shapes.forEach((s, i) => {
+        const d = getD(s);
+        errs[i] = "";
+        pathStrs[i] = "";
+        processed[i] = null;
+        if (!d.trim()) {
+          errs[i] = "Paste a path to include this shape.";
+          return;
+        }
+        let pts = resample(d, n);
+        if (!pts) {
+          errs[i] = "Could not read this path. Check the d value.";
+          return;
+        }
+        if (normalizeEl.checked) pts = normalizePts(pts);
+        const a = area(pts);
+        const sign = a >= 0 ? 1 : -1;
+        if (refSign === 0) refSign = sign;
+        if (sign !== refSign) pts.reverse();
+        if (alignEl.checked && prev) {
+          const off = bestOffset(prev, pts);
+          if (off) pts = pts.slice(off).concat(pts.slice(0, off));
+        }
+        processed[i] = pts;
+        prev = pts;
+      });
+
+      // Union bounding box for viewBox
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      processed.forEach((p) => {
+        if (!p) return;
+        for (const t of p) {
+          if (t.x < minX) minX = t.x;
+          if (t.y < minY) minY = t.y;
+          if (t.x > maxX) maxX = t.x;
+          if (t.y > maxY) maxY = t.y;
+        }
+      });
+      const validIdx = processed.map((p, i) => (p ? i : -1)).filter((i) => i >= 0);
+      let vb = "0 0 100 100";
+      let vbW = 100;
+      let vbH = 100;
+      if (validIdx.length) {
+        const pad = 0.06 * Math.max(maxX - minX, maxY - minY, 1);
+        vbW = maxX - minX + 2 * pad;
+        vbH = maxY - minY + 2 * pad;
+        vb = f2(minX - pad) + " " + f2(minY - pad) + " " + f2(vbW) + " " + f2(vbH);
+      }
+      validIdx.forEach((i) => {
+        pathStrs[i] = toPath(processed[i] as Pt[], smooth);
+      });
+
+      // Thumbnails and errors on the cards
+      const thumbs = listEl.querySelectorAll<HTMLElement>("[data-thumb]");
+      const errEls = listEl.querySelectorAll<HTMLElement>("[data-err]");
+      shapes.forEach((s, i) => {
+        if (errEls[i]) {
+          errEls[i].textContent = errs[i];
+          errEls[i].classList.toggle("hidden", !errs[i]);
+        }
+        if (thumbs[i]) {
+          thumbs[i].innerHTML = pathStrs[i]
+            ? '<svg viewBox="' + vb + '" class="h-full w-full"><path d="' + pathStrs[i] + '" fill="' + s.color + '"/></svg>'
+            : "";
+        }
+      });
+
+      previewEl.classList.toggle("bg-gray-50", pvBgEl.value === "light");
+      previewEl.classList.toggle("bg-gray-900", pvBgEl.value === "dark");
+
+      if (validIdx.length < 1) {
+        lastSvg = "";
+        previewEl.innerHTML = '<p class="text-sm text-gray-400">Add at least two valid shapes to see a morph. Three or more gives a full sequence.</p>';
+        infoEl.textContent = "";
+        return;
+      }
+
+      const px = Number(pxEl.value);
+      const heightPx = Math.round((px * vbH) / vbW);
+      const head = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + vb + '" width="' + px + '" height="' + heightPx + '">';
+
+      // Single valid shape: static output
+      if (validIdx.length === 1) {
+        const i0 = validIdx[0];
+        lastSvg = head + '<path fill="' + shapes[i0].color + '" d="' + pathStrs[i0] + '"/></svg>';
+        previewEl.innerHTML = lastSvg;
+        infoEl.textContent = "Only one valid shape so far. Add another to animate.";
+        return;
+      }
+
+      // Timeline
+      const dur = Number(durEl.value);
+      const hold = Number(holdEl.value);
+      const seq = validIdx.slice();
+      const loop = loopEl.checked;
+      if (loop) seq.push(seq[0]);
+
+      let t = 0;
+      const keyT: number[] = [];
+      const ref: number[] = [];
+      seq.forEach((_, pos) => {
+        if (pos > 0) t += dur;
+        keyT.push(t);
+        ref.push(pos);
+        const isLoopEnd = loop && pos === seq.length - 1;
+        if (hold > 0 && !isLoopEnd) {
+          t += hold;
+          keyT.push(t);
+          ref.push(pos);
+        }
+      });
+      const total = t;
+      const keyTimes = keyT.map((k) => (k / total).toFixed(4)).join(";");
+      const spline = easeEl.value === "linear" ? "0 0 1 1" : easeEl.value === "out" ? "0.16 1 0.3 1" : "0.65 0 0.35 1";
+      const splines: string[] = [];
+      for (let i = 0; i < ref.length - 1; i++) splines.push(ref[i] === ref[i + 1] ? "0 0 1 1" : spline);
+      const dValues = ref.map((pos) => pathStrs[seq[pos]]).join(";");
+      const colorValues = ref.map((pos) => shapes[seq[pos]].color);
+      const colorsDiffer = colorValues.some((c) => c !== colorValues[0]);
+
+      const common =
+        ' dur="' + total.toFixed(3) + 's" repeatCount="indefinite" keyTimes="' + keyTimes + '" calcMode="spline" keySplines="' + splines.join(";") + '"';
+      let body = '<path fill="' + colorValues[0] + '" d="' + pathStrs[seq[0]] + '">';
+      body += '<animate attributeName="d" values="' + dValues + '"' + common + "/>";
+      if (colorsDiffer) body += '<animate attributeName="fill" values="' + colorValues.join(";") + '"' + common + "/>";
+      body += "</path>";
+
+      lastSvg = head + body + "</svg>";
+      previewEl.innerHTML = lastSvg;
+      paused = false;
+      pauseBtn.textContent = "Pause";
+      infoEl.textContent =
+        validIdx.length + " shapes, " + n + " points each, " + total.toFixed(1) + " s loop, " + (lastSvg.length / 1024).toFixed(1) + " KB";
+    }
+
+    function updateLabels() {
+      durVal.textContent = durEl.value + " s";
+      holdVal.textContent = holdEl.value + " s";
+      pointsVal.textContent = pointsEl.value;
+      pxVal.textContent = pxEl.value + "px";
+    }
+
+    function schedule() {
+      updateLabels();
+      setBusy(true);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        try {
+          compute();
+        } finally {
+          setBusy(false);
+        }
+      }, 180);
+    }
+
+    // Shape cards
+
+    function move(i: number, dir: number) {
+      const to = i + dir;
+      if (to < 0 || to >= shapes.length) return;
+      const tmp = shapes[i];
+      shapes[i] = shapes[to];
+      shapes[to] = tmp;
+      renderList();
+      schedule();
+    }
+
+    function renderList() {
+      listEl.innerHTML = "";
+      shapes.forEach((s, i) => {
+        const li = document.createElement("li");
+        li.className = "rounded-xl border border-gray-200 p-3";
+
+        const row = document.createElement("div");
+        row.className = "flex items-center gap-2";
+
+        const thumb = document.createElement("div");
+        thumb.setAttribute("data-thumb", "");
+        thumb.className = "h-10 w-10 shrink-0 rounded-lg border border-gray-200 bg-gray-50";
+
+        const ta = document.createElement("textarea");
+        ta.rows = 3;
+        ta.placeholder = "Paste an SVG path d value, for example M10 10 L90 10 L50 90 Z";
+        ta.className =
+          "mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 font-mono text-xs focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500" +
+          (s.preset === "custom" ? "" : " hidden");
+        ta.value = s.d;
+        ta.addEventListener("input", () => {
+          s.d = ta.value;
+          schedule();
+        });
+
+        const sel = document.createElement("select");
+        sel.className =
+          "min-w-0 flex-1 rounded-lg border border-gray-200 px-2 py-1.5 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500";
+        PRESET_KEYS.forEach((k) => {
+          const o = document.createElement("option");
+          o.value = k;
+          o.textContent = PRESETS[k].label;
+          sel.appendChild(o);
+        });
+        const oc = document.createElement("option");
+        oc.value = "custom";
+        oc.textContent = "Custom path";
+        sel.appendChild(oc);
+        sel.value = s.preset;
+        sel.addEventListener("change", () => {
+          if (sel.value === "custom" && s.preset !== "custom") {
+            s.d = PRESETS[s.preset] ? PRESETS[s.preset].d : "";
+          }
+          s.preset = sel.value;
+          ta.value = s.d;
+          ta.classList.toggle("hidden", s.preset !== "custom");
+          schedule();
+        });
+
+        const color = document.createElement("input");
+        color.type = "color";
+        color.value = s.color;
+        color.className = "h-9 w-10 shrink-0 cursor-pointer rounded-lg border border-gray-200 bg-white p-1";
+        color.addEventListener("input", () => {
+          s.color = color.value;
+          schedule();
+        });
+
+        const mkBtn = (text: string, cls: string, fn: () => void) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = text;
+          b.className = cls;
+          b.addEventListener("click", fn);
+          return b;
+        };
+        const quiet = "px-1 text-xs text-gray-400 hover:text-gray-700";
+
+        row.append(
+          thumb,
+          sel,
+          color,
+          mkBtn("Up", quiet, () => move(i, -1)),
+          mkBtn("Down", quiet, () => move(i, 1)),
+          mkBtn("Remove", "px-1 text-xs text-gray-400 hover:text-red-600", () => {
+            shapes.splice(i, 1);
+            renderList();
+            schedule();
+          })
+        );
+
+        const err = document.createElement("p");
+        err.setAttribute("data-err", "");
+        err.className = "mt-2 hidden text-xs text-red-600";
+
+        li.append(row, ta, err);
+        listEl.appendChild(li);
+      });
+    }
+
+    // Events
+
+    addBtn.addEventListener("click", () => {
+      if (shapes.length >= MAX_SHAPES) return;
+      const key = PRESET_KEYS[(shapes.length * 3 + 1) % PRESET_KEYS.length];
+      shapes.push({ preset: key, d: "", color: PALETTE[shapes.length % PALETTE.length] });
+      renderList();
+      schedule();
+    });
+    sampleBtn.addEventListener("click", () => {
+      shapes = sampleShapes();
+      renderList();
+      schedule();
+    });
+    resetBtn.addEventListener("click", () => {
+      shapes = defaultShapes();
+      durEl.value = "1.4";
+      holdEl.value = "0.4";
+      easeEl.value = "inout";
+      loopEl.checked = true;
+      pointsEl.value = "72";
+      pxEl.value = "240";
+      smoothEl.checked = true;
+      alignEl.checked = true;
+      normalizeEl.checked = true;
+      renderList();
+      schedule();
+    });
+
+    [durEl, holdEl, easeEl, loopEl, pointsEl, pxEl, smoothEl, alignEl, normalizeEl, pvBgEl].forEach((el) => {
+      el.addEventListener("input", schedule);
+      el.addEventListener("change", schedule);
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      const svg = previewEl.querySelector("svg") as SVGSVGElement | null;
+      if (!svg || typeof svg.pauseAnimations !== "function") return;
+      paused = !paused;
+      if (paused) svg.pauseAnimations();
+      else svg.unpauseAnimations();
+      pauseBtn.textContent = paused ? "Play" : "Pause";
+    });
+
+    restartBtn.addEventListener("click", () => {
+      if (!lastSvg) return;
+      previewEl.innerHTML = lastSvg;
+      paused = false;
+      pauseBtn.textContent = "Pause";
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (!lastSvg) return;
+      const url = URL.createObjectURL(new Blob([lastSvg], { type: "image/svg+xml" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "morph-sequence.svg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!lastSvg) return;
+      try {
+        await navigator.clipboard.writeText(lastSvg);
+      } catch (e) {
+        return;
+      }
+      copyIcon.classList.add("hidden");
+      copyCheck.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyCheck.classList.add("hidden");
+        copyLabel.textContent = "Copy SVG";
+      }, 1500);
+    });
+
+    // Init
+    shapes = defaultShapes();
+    renderList();
+    updateLabels();
+    compute();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-multi-shape-morph-sequence-generator-widget]").forEach(initMorphSequence);
+</script>

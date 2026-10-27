@@ -1,0 +1,800 @@
+---
+// Icon Set Stroke Width Normalizer: reads a set of SVG icons and rewrites them to one consistent stroke width.
+// Fully client-side. Accent color: cyan (literal Tailwind classes only).
+---
+
+<div data-icon-set-stroke-width-normalizer-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid gap-8 lg:grid-cols-2">
+    <!-- 1. Icons -->
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Add icons</h3>
+
+      <div
+        data-dropzone
+        role="button"
+        tabindex="0"
+        class="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-4 py-6 text-center transition-colors hover:border-cyan-400 hover:bg-cyan-50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      >
+        <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 18a4 4 0 0 1-.5-7.97A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5H17" />
+          <path d="M12 12v8" />
+          <path d="M9 15l3-3 3 3" />
+        </svg>
+        <p class="mt-2 text-sm font-medium text-gray-700">Drop SVG icons here or click to choose</p>
+        <p class="mt-0.5 text-xs text-gray-400">Select as many .svg files as you like. Nothing is uploaded.</p>
+      </div>
+      <input data-file type="file" accept=".svg,image/svg+xml" multiple class="hidden" />
+
+      <textarea
+        data-paste
+        rows="3"
+        placeholder="Or paste the code of one SVG icon here"
+        class="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 font-mono text-xs focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      ></textarea>
+      <div class="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          data-add-paste
+          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Add pasted icon
+        </button>
+        <button
+          type="button"
+          data-sample
+          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Try a sample
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Target -->
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">2. Target stroke</h3>
+      <div class="mt-3 space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block text-sm text-gray-700">
+            <span data-target-label>Target stroke width (px)</span>
+            <input
+              data-target
+              type="number"
+              min="0.1"
+              max="20"
+              step="0.05"
+              value="2"
+              class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </label>
+          <label data-ref-wrap class="block text-sm text-gray-700">
+            <span>At icon size (px)</span>
+            <input
+              data-ref
+              type="number"
+              min="8"
+              max="512"
+              step="1"
+              value="24"
+              class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block text-sm text-gray-700">
+            <span>How to measure</span>
+            <select data-mode class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+              <option value="visual">Visual (accounts for viewBox)</option>
+              <option value="raw">Raw (viewBox units)</option>
+            </select>
+          </label>
+          <label class="block text-sm text-gray-700">
+            <span>Inside one icon</span>
+            <select data-variation class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+              <option value="unify">Same width everywhere</option>
+              <option value="ratio">Keep relative differences</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block text-sm text-gray-700">
+            <span>Line caps</span>
+            <select data-caps class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+              <option value="keep">Keep as is</option>
+              <option value="round">Round</option>
+              <option value="butt">Butt</option>
+              <option value="square">Square</option>
+            </select>
+          </label>
+          <label class="block text-sm text-gray-700">
+            <span>Line joins</span>
+            <select data-joins class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+              <option value="keep">Keep as is</option>
+              <option value="round">Round</option>
+              <option value="miter">Miter</option>
+              <option value="bevel">Bevel</option>
+            </select>
+          </label>
+        </div>
+
+        <button
+          type="button"
+          data-auto
+          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Use the set's median width
+        </button>
+        <p class="text-xs text-gray-400">
+          Visual mode makes every icon look the same thickness at the chosen size, even if the icons use different viewBox sizes such as 16, 24 or 48.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Preview and export -->
+  <div class="mt-8">
+    <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Preview and export</h3>
+    <p data-summary class="mt-2 text-sm text-gray-600"></p>
+
+    <div class="mt-3 flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        data-download-zip
+        class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+      >
+        Download all as ZIP
+      </button>
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <span>Preview size</span>
+        <input data-pv type="range" min="24" max="96" step="4" value="48" class="w-32 accent-cyan-600" />
+        <span data-pv-val class="w-10 text-gray-400"></span>
+      </label>
+      <button
+        type="button"
+        data-clear
+        class="ml-auto text-sm text-gray-400 hover:text-red-600"
+      >
+        Clear all
+      </button>
+    </div>
+
+    <div class="relative mt-4">
+      <div data-grid class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+      <div
+        data-busy
+        class="absolute inset-0 hidden items-start justify-center gap-2 rounded-xl bg-white/80 pt-10 text-sm font-medium text-gray-600"
+      >
+        <svg class="h-4 w-4 animate-spin text-cyan-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <path d="M12 3a9 9 0 1 0 9 9" />
+        </svg>
+        <span data-busy-text>Working...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Icon = { name: string; raw: string };
+  type Result = {
+    ok: boolean;
+    err: string;
+    hasStroke: boolean;
+    notes: string[];
+    beforeKey: number;
+    label: string;
+    out: string;
+    beforeSvg: string;
+    afterSvg: string;
+  };
+
+  const SHAPES = new Set(["path", "circle", "rect", "line", "polyline", "polygon", "ellipse"]);
+  const MAX_ICONS = 200;
+
+  const SAMPLES: Icon[] = [
+    {
+      name: "home",
+      raw: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
+    },
+    {
+      name: "heart",
+      raw: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg>',
+    },
+    {
+      name: "search",
+      raw: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="14" cy="14" r="8"/><line x1="20" y1="20" x2="28" y2="28"/></svg>',
+    },
+    {
+      name: "bell",
+      raw: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 6c-7 0-12 5-12 12v8l-4 6h32l-4-6v-8c0-7-5-12-12-12z"/><path d="M20 40a4 4 0 008 0"/></svg>',
+    },
+    {
+      name: "user",
+      raw: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="square"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>',
+    },
+    {
+      name: "star-filled",
+      raw: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7 7 .6-5.3 4.7 1.6 7.2L12 17.8l-6.3 3.7 1.6-7.2L2 9.6 9 9z"/></svg>',
+    },
+  ];
+
+  function fmt(n: number): string {
+    return String(Math.round(n * 1000) / 1000);
+  }
+
+  function parseW(v: string): number | null {
+    const m = /^\s*(-?\d*\.?\d+)(px)?\s*$/.exec(v);
+    return m ? parseFloat(m[1]) : null;
+  }
+
+  function getProp(el: Element, prop: string): string | null {
+    const st = el.getAttribute("style");
+    if (st) {
+      const m = new RegExp("(?:^|;)\\s*" + prop + "\\s*:\\s*([^;]+)", "i").exec(st);
+      if (m) return m[1].trim();
+    }
+    const a = el.getAttribute(prop);
+    return a === null ? null : a.trim();
+  }
+
+  function inherited(el: Element, prop: string): string | null {
+    let c: Element | null = el;
+    while (c) {
+      const v = getProp(c, prop);
+      if (v !== null && v !== "inherit") return v;
+      c = c.parentElement;
+    }
+    return null;
+  }
+
+  function dropProp(el: Element, prop: string, should: (v: string) => boolean) {
+    const a = el.getAttribute(prop);
+    if (a !== null && should(a)) el.removeAttribute(prop);
+    const st = el.getAttribute("style");
+    if (st) {
+      const kept = st.split(";").filter((d) => {
+        const i = d.indexOf(":");
+        if (i < 0) return d.trim() !== "";
+        const k = d.slice(0, i).trim().toLowerCase();
+        if (k !== prop) return true;
+        return !should(d.slice(i + 1).trim());
+      });
+      const next = kept.map((s) => s.trim()).filter(Boolean).join("; ");
+      if (next) el.setAttribute("style", next);
+      else el.removeAttribute("style");
+    }
+  }
+
+  function scaleProp(el: Element, prop: string, factor: number) {
+    const a = el.getAttribute(prop);
+    if (a !== null) {
+      const w = parseW(a);
+      if (w !== null && w > 0) el.setAttribute(prop, fmt(w * factor));
+    }
+    const st = el.getAttribute("style");
+    if (st) {
+      const next = st
+        .split(";")
+        .map((d) => {
+          const i = d.indexOf(":");
+          if (i < 0) return d;
+          const k = d.slice(0, i).trim().toLowerCase();
+          if (k !== prop) return d;
+          const w = parseW(d.slice(i + 1));
+          if (w === null || w <= 0) return d;
+          return d.slice(0, i) + ": " + fmt(w * factor);
+        })
+        .join(";");
+      el.setAttribute("style", next);
+    }
+  }
+
+  // Safe copy for preview: drops scripts, foreignObject and event handlers, adds a viewBox if missing
+  function previewOf(svgText: string): string {
+    const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
+    const root = doc.documentElement;
+    if (doc.querySelector("parsererror") || root.nodeName.toLowerCase() !== "svg") return "";
+    root.querySelectorAll("script, foreignObject").forEach((n) => n.remove());
+    [root, ...Array.from(root.querySelectorAll("*"))].forEach((el) => {
+      Array.from(el.attributes).forEach((at) => {
+        const n = at.name.toLowerCase();
+        if (n.startsWith("on") || (/href$/.test(n) && /^\s*javascript:/i.test(at.value))) el.removeAttribute(at.name);
+      });
+    });
+    if (!root.getAttribute("viewBox")) {
+      const w = parseFloat(root.getAttribute("width") || "");
+      const h = parseFloat(root.getAttribute("height") || "");
+      if (w > 0 && h > 0) root.setAttribute("viewBox", "0 0 " + w + " " + h);
+    }
+    return new XMLSerializer().serializeToString(root);
+  }
+
+  // Minimal ZIP writer (stored, no compression)
+  const CRC_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+
+  function crc32(buf: Uint8Array): number {
+    let c = 0xffffffff;
+    for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
+  function makeZip(files: { name: string; data: Uint8Array }[]): Blob {
+    const enc = new TextEncoder();
+    const parts: Uint8Array[] = [];
+    const central: Uint8Array[] = [];
+    let offset = 0;
+    let centralSize = 0;
+    for (const f of files) {
+      const nameBytes = enc.encode(f.name);
+      const crc = crc32(f.data);
+      const size = f.data.length;
+
+      const local = new Uint8Array(30 + nameBytes.length);
+      const dv = new DataView(local.buffer);
+      dv.setUint32(0, 0x04034b50, true);
+      dv.setUint16(4, 20, true);
+      dv.setUint16(6, 0x0800, true);
+      dv.setUint16(8, 0, true);
+      dv.setUint16(10, 0, true);
+      dv.setUint16(12, 0x21, true);
+      dv.setUint32(14, crc, true);
+      dv.setUint32(18, size, true);
+      dv.setUint32(22, size, true);
+      dv.setUint16(26, nameBytes.length, true);
+      dv.setUint16(28, 0, true);
+      local.set(nameBytes, 30);
+      parts.push(local, f.data);
+
+      const cen = new Uint8Array(46 + nameBytes.length);
+      const cv = new DataView(cen.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0x0800, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, 0, true);
+      cv.setUint16(14, 0x21, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, size, true);
+      cv.setUint32(24, size, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint32(42, offset, true);
+      cen.set(nameBytes, 46);
+      central.push(cen);
+
+      offset += local.length + size;
+      centralSize += cen.length;
+    }
+    const eocd = new Uint8Array(22);
+    const ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, eocd] as unknown as BlobPart[], { type: "application/zip" });
+  }
+
+  function initNormalizer(root: HTMLElement) {
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+
+    const dropzone = q<HTMLDivElement>("[data-dropzone]");
+    const fileInput = q<HTMLInputElement>("[data-file]");
+    const pasteEl = q<HTMLTextAreaElement>("[data-paste]");
+    const addPasteBtn = q<HTMLButtonElement>("[data-add-paste]");
+    const sampleBtn = q<HTMLButtonElement>("[data-sample]");
+    const clearBtn = q<HTMLButtonElement>("[data-clear]");
+    const zipBtn = q<HTMLButtonElement>("[data-download-zip]");
+    const autoBtn = q<HTMLButtonElement>("[data-auto]");
+    const targetEl = q<HTMLInputElement>("[data-target]");
+    const targetLabel = q<HTMLSpanElement>("[data-target-label]");
+    const refEl = q<HTMLInputElement>("[data-ref]");
+    const refWrap = q<HTMLLabelElement>("[data-ref-wrap]");
+    const modeEl = q<HTMLSelectElement>("[data-mode]");
+    const variationEl = q<HTMLSelectElement>("[data-variation]");
+    const capsEl = q<HTMLSelectElement>("[data-caps]");
+    const joinsEl = q<HTMLSelectElement>("[data-joins]");
+    const pvEl = q<HTMLInputElement>("[data-pv]");
+    const pvVal = q<HTMLSpanElement>("[data-pv-val]");
+    const summaryEl = q<HTMLParagraphElement>("[data-summary]");
+    const gridEl = q<HTMLDivElement>("[data-grid]");
+    const busyEl = q<HTMLDivElement>("[data-busy]");
+    const busyText = q<HTMLSpanElement>("[data-busy-text]");
+
+    let icons: Icon[] = [];
+    let results: Result[] = [];
+    let timer: number | undefined;
+    let pasteCount = 0;
+
+    function setBusy(on: boolean, text = "Working...") {
+      busyText.textContent = text;
+      busyEl.classList.toggle("hidden", !on);
+      busyEl.classList.toggle("flex", on);
+    }
+
+    function analyze(icon: Icon): Result {
+      const fail = (err: string): Result => ({
+        ok: false, err, hasStroke: false, notes: [], beforeKey: 0, label: "", out: "", beforeSvg: "", afterSvg: "",
+      });
+
+      const doc = new DOMParser().parseFromString(icon.raw, "image/svg+xml");
+      const svgRoot = doc.documentElement;
+      if (doc.querySelector("parsererror") || svgRoot.nodeName.toLowerCase() !== "svg") {
+        return fail("Not valid SVG code.");
+      }
+
+      const notes: string[] = [];
+      const mode = modeEl.value;
+      const ref = Math.max(1, Number(refEl.value) || 24);
+      const target = Math.max(0.01, Number(targetEl.value) || 2);
+
+      // Size of the icon's coordinate system
+      let vbW = 0;
+      let vbH = 0;
+      const vbAttr = svgRoot.getAttribute("viewBox");
+      if (vbAttr) {
+        const p = vbAttr.trim().split(/[\s,]+/).map(Number);
+        if (p.length === 4 && p.every((n) => isFinite(n)) && p[2] > 0 && p[3] > 0) {
+          vbW = p[2];
+          vbH = p[3];
+        }
+      }
+      if (!vbW) {
+        const w = parseFloat(svgRoot.getAttribute("width") || "");
+        const h = parseFloat(svgRoot.getAttribute("height") || "");
+        if (w > 0 && h > 0) {
+          vbW = w;
+          vbH = h;
+          notes.push("No viewBox found, used width and height.");
+        } else {
+          vbW = 24;
+          vbH = 24;
+          notes.push("No viewBox found, assumed 24 by 24.");
+        }
+      }
+      const scale = ref / Math.max(vbW, vbH);
+
+      if (doc.querySelector("style")) {
+        notes.push("Has a style block. Widths set by CSS classes are not detected.");
+      }
+
+      // Find stroked shapes and their effective widths
+      const stroked: { w: number; declared: boolean }[] = [];
+      let unparsed = false;
+      doc.querySelectorAll("*").forEach((el) => {
+        const tag = el.localName.toLowerCase();
+        if (!SHAPES.has(tag)) return;
+        if (el.closest("clipPath, mask")) return;
+        const stroke = inherited(el, "stroke");
+        if (!stroke || stroke.toLowerCase() === "none") return;
+        const wRaw = inherited(el, "stroke-width");
+        const w = wRaw === null ? 1 : parseW(wRaw);
+        if (w === null) {
+          unparsed = true;
+          return;
+        }
+        if (w <= 0) return;
+        stroked.push({ w, declared: wRaw !== null });
+      });
+      if (unparsed) notes.push("Some widths use units other than px and were not measured.");
+
+      const beforeSvg = previewOf(icon.raw);
+
+      if (!stroked.length) {
+        notes.unshift("No strokes found (filled icon), left unchanged.");
+        return { ok: true, err: "", hasStroke: false, notes, beforeKey: 0, label: "Unchanged", out: icon.raw, beforeSvg, afterSvg: beforeSvg };
+      }
+
+      // Dominant width
+      const counts = new Map<number, number>();
+      stroked.forEach((s) => {
+        const k = Math.round(s.w * 10000) / 10000;
+        counts.set(k, (counts.get(k) || 0) + 1);
+      });
+      let dominant = stroked[0].w;
+      let bestCount = 0;
+      counts.forEach((c, w) => {
+        if (c > bestCount || (c === bestCount && w > dominant)) {
+          bestCount = c;
+          dominant = w;
+        }
+      });
+
+      const newUser = mode === "visual" ? target / scale : target;
+      const factor = newUser / dominant;
+      const all: Element[] = [svgRoot, ...Array.from(svgRoot.querySelectorAll("*"))];
+
+      if (variationEl.value === "unify") {
+        all.forEach((el) =>
+          dropProp(el, "stroke-width", (v) => {
+            const w = parseW(v);
+            return w === null || w > 0;
+          })
+        );
+        svgRoot.setAttribute("stroke-width", fmt(newUser));
+      } else {
+        all.forEach((el) => scaleProp(el, "stroke-width", factor));
+        if (stroked.some((s) => !s.declared) && getProp(svgRoot, "stroke-width") === null) {
+          svgRoot.setAttribute("stroke-width", fmt(factor));
+        }
+      }
+
+      if (capsEl.value !== "keep") {
+        all.forEach((el) => dropProp(el, "stroke-linecap", () => true));
+        svgRoot.setAttribute("stroke-linecap", capsEl.value);
+      }
+      if (joinsEl.value !== "keep") {
+        all.forEach((el) => dropProp(el, "stroke-linejoin", () => true));
+        svgRoot.setAttribute("stroke-linejoin", joinsEl.value);
+      }
+
+      const out = new XMLSerializer().serializeToString(svgRoot);
+      const beforeKey = mode === "visual" ? dominant * scale : dominant;
+      const afterKey = mode === "visual" ? newUser * scale : newUser;
+      const label =
+        mode === "visual"
+          ? fmt(beforeKey) + "px to " + fmt(afterKey) + "px at " + ref + "px"
+          : fmt(beforeKey) + " to " + fmt(afterKey) + " (viewBox units)";
+      return { ok: true, err: "", hasStroke: true, notes, beforeKey, label, out, beforeSvg, afterSvg: previewOf(out) };
+    }
+
+    function updateModeUi() {
+      const visual = modeEl.value === "visual";
+      refWrap.classList.toggle("hidden", !visual);
+      targetLabel.textContent = visual ? "Target stroke width (px)" : "Target stroke width (viewBox units)";
+    }
+
+    function computeAll() {
+      updateModeUi();
+      pvVal.textContent = pvEl.value + "px";
+      results = icons.map(analyze);
+      renderSummary();
+      renderGrid();
+    }
+
+    function renderSummary() {
+      if (!icons.length) {
+        summaryEl.textContent = "No icons yet. Add some SVG files or try the sample.";
+        return;
+      }
+      const okCount = results.filter((r) => r.ok).length;
+      const strokeCount = results.filter((r) => r.ok && r.hasStroke).length;
+      const hist = new Map<number, number>();
+      results.forEach((r) => {
+        if (r.ok && r.hasStroke) {
+          const k = Math.round(r.beforeKey * 100) / 100;
+          hist.set(k, (hist.get(k) || 0) + 1);
+        }
+      });
+      const widths = Array.from(hist.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([w, c]) => fmt(w) + (modeEl.value === "visual" ? "px" : "") + " (" + c + ")")
+        .join(", ");
+      let text = icons.length + (icons.length === 1 ? " icon" : " icons") + " loaded, " + strokeCount + " with strokes.";
+      if (widths) text += " Widths found: " + widths + ".";
+      if (okCount < icons.length) text += " " + (icons.length - okCount) + " could not be read.";
+      summaryEl.textContent = text;
+    }
+
+    function mkBtn(text: string, cls: string, fn: () => void) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = text;
+      b.className = cls;
+      b.addEventListener("click", fn);
+      return b;
+    }
+
+    function previewBox(svg: string, size: number): HTMLElement {
+      const box = document.createElement("div");
+      box.className = "shrink-0 rounded-lg border border-gray-200 bg-white p-1 text-gray-800 [&>svg]:h-full [&>svg]:w-full";
+      box.style.width = size + 8 + "px";
+      box.style.height = size + 8 + "px";
+      box.innerHTML = svg;
+      return box;
+    }
+
+    function downloadBlob(blob: Blob, name: string) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function renderGrid() {
+      gridEl.innerHTML = "";
+      const size = Number(pvEl.value);
+      icons.forEach((icon, i) => {
+        const r = results[i];
+        const card = document.createElement("div");
+        card.className = "rounded-xl border border-gray-200 p-3";
+
+        const head = document.createElement("div");
+        head.className = "flex items-center justify-between gap-2";
+        const name = document.createElement("span");
+        name.className = "min-w-0 truncate text-sm font-medium text-gray-700";
+        name.textContent = icon.name;
+        head.append(
+          name,
+          mkBtn("Remove", "text-xs text-gray-400 hover:text-red-600", () => {
+            icons.splice(i, 1);
+            computeAll();
+          })
+        );
+        card.appendChild(head);
+
+        if (!r.ok) {
+          const err = document.createElement("p");
+          err.className = "mt-2 text-xs text-red-600";
+          err.textContent = r.err;
+          card.appendChild(err);
+          gridEl.appendChild(card);
+          return;
+        }
+
+        const row = document.createElement("div");
+        row.className = "mt-3 flex items-start gap-3";
+        const mk = (label: string, svg: string) => {
+          const col = document.createElement("div");
+          const cap = document.createElement("p");
+          cap.className = "mb-1 text-xs text-gray-400";
+          cap.textContent = label;
+          col.append(cap, previewBox(svg, size));
+          return col;
+        };
+        row.append(mk("Before", r.beforeSvg), mk("After", r.afterSvg));
+        card.appendChild(row);
+
+        const lab = document.createElement("p");
+        lab.className = "mt-3 text-xs font-medium text-gray-600";
+        lab.textContent = r.label;
+        card.appendChild(lab);
+
+        r.notes.forEach((n) => {
+          const p = document.createElement("p");
+          p.className = "mt-1 text-xs text-amber-600";
+          p.textContent = n;
+          card.appendChild(p);
+        });
+
+        card.appendChild(
+          mkBtn("Download", "mt-3 rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50", () => {
+            downloadBlob(new Blob([r.out], { type: "image/svg+xml" }), icon.name + ".svg");
+          })
+        );
+        gridEl.appendChild(card);
+      });
+    }
+
+    function schedule() {
+      setBusy(true, "Updating...");
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        try {
+          computeAll();
+        } finally {
+          setBusy(false);
+        }
+      }, 120);
+    }
+
+    async function addFiles(list: FileList | File[]) {
+      const files = Array.from(list).filter((f) => /\.svg$/i.test(f.name) || f.type === "image/svg+xml");
+      if (!files.length) return;
+      setBusy(true, "Reading files...");
+      for (const f of files) {
+        if (icons.length >= MAX_ICONS) break;
+        try {
+          const raw = await f.text();
+          icons.push({ name: f.name.replace(/\.svg$/i, ""), raw });
+        } catch (e) {
+          /* skip unreadable files */
+        }
+      }
+      try {
+        computeAll();
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    // Events
+    dropzone.addEventListener("click", () => fileInput.click());
+    dropzone.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files) addFiles(fileInput.files);
+      fileInput.value = "";
+    });
+    ["dragenter", "dragover"].forEach((ev) =>
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.add("border-cyan-400", "bg-cyan-50");
+      })
+    );
+    ["dragleave", "drop"].forEach((ev) =>
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("border-cyan-400", "bg-cyan-50");
+      })
+    );
+    dropzone.addEventListener("drop", (e) => {
+      const dt = (e as DragEvent).dataTransfer;
+      if (dt && dt.files) addFiles(dt.files);
+    });
+
+    addPasteBtn.addEventListener("click", () => {
+      const raw = pasteEl.value.trim();
+      if (!raw || icons.length >= MAX_ICONS) return;
+      pasteCount += 1;
+      icons.push({ name: "pasted-icon-" + pasteCount, raw });
+      pasteEl.value = "";
+      computeAll();
+    });
+
+    sampleBtn.addEventListener("click", () => {
+      icons = SAMPLES.map((s) => ({ name: s.name, raw: s.raw }));
+      computeAll();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      icons = [];
+      computeAll();
+    });
+
+    autoBtn.addEventListener("click", () => {
+      const vals = results.filter((r) => r.ok && r.hasStroke).map((r) => r.beforeKey).sort((a, b) => a - b);
+      if (!vals.length) return;
+      const mid = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
+      targetEl.value = String(Math.round(mid * 100) / 100);
+      schedule();
+    });
+
+    [targetEl, refEl, modeEl, variationEl, capsEl, joinsEl].forEach((el) => {
+      el.addEventListener("input", schedule);
+      el.addEventListener("change", schedule);
+    });
+    pvEl.addEventListener("input", () => {
+      pvVal.textContent = pvEl.value + "px";
+      renderGrid();
+    });
+
+    zipBtn.addEventListener("click", () => {
+      const enc = new TextEncoder();
+      const used = new Map<string, number>();
+      const files: { name: string; data: Uint8Array }[] = [];
+      icons.forEach((icon, i) => {
+        const r = results[i];
+        if (!r || !r.ok) return;
+        const base = icon.name.replace(/[^\w.\- ]+/g, "_") || "icon";
+        const n = (used.get(base) || 0) + 1;
+        used.set(base, n);
+        files.push({ name: (n > 1 ? base + "-" + n : base) + ".svg", data: enc.encode(r.out) });
+      });
+      if (!files.length) return;
+      downloadBlob(makeZip(files), "normalized-icons.zip");
+    });
+
+    // Init with the sample so the preview is never empty
+    icons = SAMPLES.map((s) => ({ name: s.name, raw: s.raw }));
+    computeAll();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-icon-set-stroke-width-normalizer-widget]").forEach(initNormalizer);
+</script>

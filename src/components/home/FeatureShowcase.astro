@@ -1,0 +1,189 @@
+---
+// Image + text showcase rows for the home page.
+// The visuals are built with inline SVG and Tailwind, so there are no image files to manage.
+// To use a real screenshot instead, replace the content inside a mock window with:
+//   <img src="/images/your-screenshot.webp" alt="Describe the tool" class="w-full" loading="lazy" />
+
+const rows = [
+  {
+    key: "editor",
+    eyebrow: "SVG Editor",
+    title: "Edit SVG code and see it update live",
+    text: "Paste or write SVG on the left and watch the preview react as you type. Invalid markup is flagged before it ever reaches your website.",
+    bullets: ["Live preview while you type", "Instant validation and pretty printing", "Export clean code when you are done"],
+    href: "/svg-tools/svg-editor/",
+    cta: "Open SVG Editor",
+    url: "pixelquil.com/svg-tools/svg-editor",
+  },
+  {
+    key: "privacy",
+    eyebrow: "Privacy first",
+    title: "Your files never leave your browser",
+    text: "Most online tools upload your work to a server. Pixelquil processes everything on your own device, so private designs and client files stay private.",
+    bullets: ["No uploads and no accounts", "Works offline once the page has loaded", "Easy to verify in your browser network tab"],
+    href: "/svg-tools/",
+    cta: "Explore SVG tools",
+    url: "Processing on your device",
+  },
+  {
+    key: "seo",
+    eyebrow: "Technical SEO",
+    title: "Catch technical SEO problems in seconds",
+    text: "Check metadata, redirects, robots.txt and more without installing anything. Clear pass and fail results show you exactly what to fix first.",
+    bullets: ["Readable pass, warning and error results", "Built for site owners, not just specialists", "Run checks as often as you like for free"],
+    href: "/seo-tools/",
+    cta: "Open SEO tools",
+    url: "pixelquil.com/seo-tools",
+  },
+];
+---
+
+<section class="mx-auto max-w-6xl px-4 py-24">
+  <div class="mx-auto mb-16 max-w-2xl text-center">
+    <span class="text-xs font-semibold uppercase tracking-wider text-brand-600">See it in action</span>
+    <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Built to feel fast and clear</h2>
+    <p class="mt-3 text-slate-600">A quick look at what working with Pixelquil is like.</p>
+  </div>
+
+  <div class="space-y-24">
+    {rows.map((r, i) => (
+      <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <!-- Text -->
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-brand-600">{r.eyebrow}</span>
+          <h3 class="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{r.title}</h3>
+          <p class="mt-4 leading-relaxed text-slate-600">{r.text}</p>
+          <ul class="mt-6 space-y-3">
+            {r.bullets.map((b) => (
+              <li class="flex items-start gap-3 text-sm text-slate-700">
+                <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+                  <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                </span>
+                {b}
+              </li>
+            ))}
+          </ul>
+          <a
+            href={r.href}
+            class="mt-8 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800"
+          >
+            {r.cta}
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+
+        <!-- Visual -->
+        <div class={`relative ${i % 2 === 1 ? "lg:order-first" : ""}`}>
+          <div class="pointer-events-none absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-tr from-indigo-100 via-purple-100 to-cyan-100 opacity-70 blur-2xl"></div>
+
+          <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
+            <!-- Window bar -->
+            <div class="flex items-center gap-3 border-b border-slate-100 bg-slate-50 px-4 py-3">
+              <div class="flex gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-full bg-red-300"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
+              </div>
+              <div class="min-w-0 flex-1 truncate rounded-md bg-white px-3 py-1 text-center text-xs text-slate-400 ring-1 ring-slate-200">{r.url}</div>
+            </div>
+
+            {r.key === "editor" && (
+              <div class="grid min-h-[260px] grid-cols-2">
+                <div class="space-y-2.5 bg-slate-900 p-4">
+                  <div class="h-2 w-2/3 rounded bg-sky-400/70"></div>
+                  <div class="ml-4 h-2 w-3/4 rounded bg-slate-500/70"></div>
+                  <div class="ml-4 h-2 w-1/2 rounded bg-amber-300/70"></div>
+                  <div class="ml-4 h-2 w-2/3 rounded bg-emerald-300/70"></div>
+                  <div class="ml-8 h-2 w-1/2 rounded bg-slate-500/70"></div>
+                  <div class="ml-8 h-2 w-3/5 rounded bg-purple-300/70"></div>
+                  <div class="ml-4 h-2 w-1/3 rounded bg-slate-500/70"></div>
+                  <div class="h-2 w-1/2 rounded bg-sky-400/70"></div>
+                  <div class="mt-4 inline-flex items-center gap-1.5 rounded-md bg-emerald-500/15 px-2 py-1 text-[10px] font-medium text-emerald-300">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    Valid SVG
+                  </div>
+                </div>
+                <div class="flex items-center justify-center bg-slate-50 p-4">
+                  <svg viewBox="0 0 120 120" class="h-40 w-40">
+                    <defs>
+                      <linearGradient id="pqShowA" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#6366f1" />
+                        <stop offset="1" stop-color="#a855f7" />
+                      </linearGradient>
+                      <linearGradient id="pqShowB" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#06b6d4" />
+                        <stop offset="1" stop-color="#3b82f6" />
+                      </linearGradient>
+                    </defs>
+                    <circle cx="42" cy="48" r="28" fill="url(#pqShowA)" />
+                    <rect x="52" y="56" width="50" height="50" rx="12" fill="url(#pqShowB)" opacity="0.9" />
+                    <path d="M84 12l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#f59e0b" />
+                  </svg>
+                </div>
+              </div>
+            )}
+
+            {r.key === "privacy" && (
+              <div class="flex min-h-[260px] items-center justify-center bg-slate-50 p-6">
+                <svg viewBox="0 0 420 220" class="h-auto w-full max-w-md">
+                  <!-- Device -->
+                  <rect x="20" y="40" width="180" height="140" rx="16" fill="#ffffff" stroke="#c7d2fe" stroke-width="2" />
+                  <text x="110" y="66" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#4f46e5">YOUR BROWSER</text>
+                  <rect x="60" y="82" width="44" height="56" rx="6" fill="#eef2ff" stroke="#818cf8" stroke-width="2" />
+                  <path d="M70 100h24M70 110h24M70 120h16" stroke="#818cf8" stroke-width="3" stroke-linecap="round" />
+                  <path d="M118 108a22 22 0 1 1 22 22" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                  <path d="M134 104l-4 4 5 3" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <rect x="64" y="150" width="92" height="20" rx="10" fill="#d1fae5" />
+                  <text x="110" y="164" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#047857">Processed here</text>
+                  <!-- Blocked connection -->
+                  <path d="M208 110h72" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="6 6" stroke-linecap="round" />
+                  <circle cx="244" cy="110" r="14" fill="#fee2e2" stroke="#f87171" stroke-width="2" />
+                  <path d="M238 104l12 12M250 104l-12 12" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
+                  <!-- Server -->
+                  <rect x="290" y="64" width="110" height="92" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5 5" />
+                  <rect x="310" y="82" width="70" height="16" rx="4" fill="#e2e8f0" />
+                  <rect x="310" y="106" width="70" height="16" rx="4" fill="#e2e8f0" />
+                  <text x="345" y="146" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#94a3b8">NO SERVER</text>
+                </svg>
+              </div>
+            )}
+
+            {r.key === "seo" && (
+              <div class="min-h-[260px] bg-slate-50 p-5">
+                <div class="flex items-center gap-4 rounded-xl bg-white p-4 ring-1 ring-slate-200">
+                  <svg viewBox="0 0 48 48" class="h-14 w-14 shrink-0">
+                    <circle cx="24" cy="24" r="20" fill="none" stroke="#e2e8f0" stroke-width="5" />
+                    <circle cx="24" cy="24" r="20" fill="none" stroke="#10b981" stroke-width="5" stroke-linecap="round" stroke-dasharray="108 126" transform="rotate(-90 24 24)" />
+                    <text x="24" y="28" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#0f172a">86</text>
+                  </svg>
+                  <div>
+                    <p class="text-sm font-semibold text-slate-900">Site health score</p>
+                    <p class="text-xs text-slate-500">2 passed, 1 warning, 1 error</p>
+                  </div>
+                </div>
+                <ul class="mt-3 space-y-2">
+                  <li class="flex items-center justify-between rounded-lg bg-white px-4 py-2.5 text-sm ring-1 ring-slate-200">
+                    <span class="flex items-center gap-2 text-slate-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Title tag length</span>
+                    <span class="text-xs font-medium text-emerald-600">Passed</span>
+                  </li>
+                  <li class="flex items-center justify-between rounded-lg bg-white px-4 py-2.5 text-sm ring-1 ring-slate-200">
+                    <span class="flex items-center gap-2 text-slate-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Meta description</span>
+                    <span class="text-xs font-medium text-emerald-600">Passed</span>
+                  </li>
+                  <li class="flex items-center justify-between rounded-lg bg-white px-4 py-2.5 text-sm ring-1 ring-slate-200">
+                    <span class="flex items-center gap-2 text-slate-700"><span class="h-2 w-2 rounded-full bg-amber-500"></span>robots.txt rules</span>
+                    <span class="text-xs font-medium text-amber-600">Warning</span>
+                  </li>
+                  <li class="flex items-center justify-between rounded-lg bg-white px-4 py-2.5 text-sm ring-1 ring-slate-200">
+                    <span class="flex items-center gap-2 text-slate-700"><span class="h-2 w-2 rounded-full bg-red-500"></span>Redirect chain</span>
+                    <span class="text-xs font-medium text-red-600">Error</span>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

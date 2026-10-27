@@ -1,0 +1,589 @@
+---
+// Avatar Stack Generator: overlapping avatars with a +N overflow badge, exported as SVG or PNG.
+// Fully client-side. Accent color: rose (literal Tailwind classes only).
+---
+
+<div data-avatar-stack-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <!-- Preview -->
+  <div class="relative">
+    <div
+      data-preview
+      class="flex min-h-[140px] items-center justify-center overflow-x-auto rounded-xl border border-gray-200 bg-gray-50 p-6 [&>svg]:h-auto [&>svg]:max-w-full"
+    ></div>
+    <div
+      data-busy
+      class="absolute inset-0 hidden items-center justify-center gap-2 rounded-xl bg-white/80 text-sm font-medium text-gray-600"
+    >
+      <svg class="h-4 w-4 animate-spin text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+        <path d="M12 3a9 9 0 1 0 9 9" />
+      </svg>
+      <span data-busy-text>Working...</span>
+    </div>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2">
+    <button
+      type="button"
+      data-download-svg
+      class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+    >
+      Download SVG
+    </button>
+    <button
+      type="button"
+      data-download-png
+      class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-500"
+    >
+      Download PNG
+    </button>
+    <button
+      type="button"
+      data-copy
+      class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-500"
+    >
+      <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="11" height="11" rx="2" />
+        <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+      </svg>
+      <svg data-copy-check class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+      <span data-copy-label>Copy SVG</span>
+    </button>
+    <button
+      type="button"
+      data-clear
+      class="ml-auto text-sm text-gray-400 hover:text-red-600"
+    >
+      Clear all
+    </button>
+  </div>
+
+  <div class="mt-8 grid gap-8 lg:grid-cols-2">
+    <!-- 1. Avatars -->
+    <div>
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Avatars</h3>
+
+      <div
+        data-dropzone
+        role="button"
+        tabindex="0"
+        class="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-4 py-6 text-center transition-colors hover:border-rose-400 hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-500"
+      >
+        <svg class="h-8 w-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 18a4 4 0 0 1-.5-7.97A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5H17" />
+          <path d="M12 12v8" />
+          <path d="M9 15l3-3 3 3" />
+        </svg>
+        <p class="mt-2 text-sm font-medium text-gray-700">Drop photos here or click to choose</p>
+        <p class="mt-0.5 text-xs text-gray-400">JPG, PNG, WebP or SVG. Cropped to a square in your browser.</p>
+      </div>
+      <input data-file type="file" accept="image/*" multiple class="hidden" />
+
+      <div class="mt-3 flex flex-wrap gap-2">
+        <input
+          data-initials-input
+          type="text"
+          maxlength="40"
+          placeholder="Name for an initials avatar"
+          class="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+        />
+        <button
+          type="button"
+          data-add-initials
+          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Add initials
+        </button>
+        <button
+          type="button"
+          data-sample
+          class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Try a sample
+        </button>
+      </div>
+
+      <p data-count class="mt-4 text-xs text-gray-400"></p>
+      <ul data-list class="mt-2 max-h-64 space-y-2 overflow-y-auto pr-1"></ul>
+    </div>
+
+    <!-- 2 and 3. Layout and style -->
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">2. Layout</h3>
+        <div class="mt-3 space-y-4">
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Avatar size</span><span data-size-val class="text-gray-400"></span></span>
+            <input data-size type="range" min="24" max="160" value="56" class="mt-1 w-full accent-rose-600" />
+          </label>
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Overlap</span><span data-overlap-val class="text-gray-400"></span></span>
+            <input data-overlap type="range" min="0" max="60" value="30" class="mt-1 w-full accent-rose-600" />
+          </label>
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Max avatars shown</span><span data-max-val class="text-gray-400"></span></span>
+            <input data-max type="range" min="1" max="12" value="5" class="mt-1 w-full accent-rose-600" />
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="block text-sm text-gray-700">
+              <span>Shape</span>
+              <select data-shape class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                <option value="circle">Circle</option>
+                <option value="rounded">Rounded square</option>
+              </select>
+            </label>
+            <label class="block text-sm text-gray-700">
+              <span>Which sits on top</span>
+              <select data-order class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                <option value="first">First avatar</option>
+                <option value="last">Last avatar</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Style</h3>
+        <div class="mt-3 space-y-4">
+          <label class="block text-sm text-gray-700">
+            <span class="flex justify-between"><span>Ring width</span><span data-ring-val class="text-gray-400"></span></span>
+            <input data-ring type="range" min="0" max="8" value="3" class="mt-1 w-full accent-rose-600" />
+          </label>
+          <div class="grid grid-cols-3 gap-3">
+            <label class="block text-xs text-gray-600">
+              <span>Ring color</span>
+              <input data-ring-color type="color" value="#ffffff" class="mt-1 h-9 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1" />
+            </label>
+            <label class="block text-xs text-gray-600">
+              <span>Badge fill</span>
+              <input data-badge-bg type="color" value="#e5e7eb" class="mt-1 h-9 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1" />
+            </label>
+            <label class="block text-xs text-gray-600">
+              <span>Badge text</span>
+              <input data-badge-fg type="color" value="#374151" class="mt-1 h-9 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1" />
+            </label>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input data-badge-toggle type="checkbox" checked class="h-4 w-4 accent-rose-600" />
+              <span>Show +N badge</span>
+            </label>
+            <label class="block text-sm text-gray-700">
+              <span>Background</span>
+              <select data-bg class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500">
+                <option value="transparent">Transparent</option>
+                <option value="white">White</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Item = { kind: "img" | "initials"; label: string; src: string; color: string };
+
+  const PALETTE = ["#f43f5e", "#6366f1", "#14b8a6", "#f59e0b", "#3b82f6", "#a855f7", "#22c55e", "#06b6d4"];
+  const SAMPLE_NAMES = ["Ava Stone", "Ben Ortiz", "Cleo Park", "Dev Patel", "Eli Chen", "Fay Moss", "Gus Lund", "Hana Ito"];
+  const MAX_ITEMS = 40;
+
+  function initAvatarStack(root: HTMLElement) {
+    const q = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel) as T;
+
+    const previewEl = q<HTMLDivElement>("[data-preview]");
+    const busyEl = q<HTMLDivElement>("[data-busy]");
+    const busyText = q<HTMLSpanElement>("[data-busy-text]");
+    const dropzone = q<HTMLDivElement>("[data-dropzone]");
+    const fileInput = q<HTMLInputElement>("[data-file]");
+    const initialsInput = q<HTMLInputElement>("[data-initials-input]");
+    const addInitialsBtn = q<HTMLButtonElement>("[data-add-initials]");
+    const sampleBtn = q<HTMLButtonElement>("[data-sample]");
+    const clearBtn = q<HTMLButtonElement>("[data-clear]");
+    const listEl = q<HTMLUListElement>("[data-list]");
+    const countEl = q<HTMLParagraphElement>("[data-count]");
+
+    const sizeEl = q<HTMLInputElement>("[data-size]");
+    const overlapEl = q<HTMLInputElement>("[data-overlap]");
+    const maxEl = q<HTMLInputElement>("[data-max]");
+    const ringEl = q<HTMLInputElement>("[data-ring]");
+    const sizeVal = q<HTMLSpanElement>("[data-size-val]");
+    const overlapVal = q<HTMLSpanElement>("[data-overlap-val]");
+    const maxVal = q<HTMLSpanElement>("[data-max-val]");
+    const ringVal = q<HTMLSpanElement>("[data-ring-val]");
+    const shapeEl = q<HTMLSelectElement>("[data-shape]");
+    const orderEl = q<HTMLSelectElement>("[data-order]");
+    const ringColorEl = q<HTMLInputElement>("[data-ring-color]");
+    const badgeBgEl = q<HTMLInputElement>("[data-badge-bg]");
+    const badgeFgEl = q<HTMLInputElement>("[data-badge-fg]");
+    const badgeToggle = q<HTMLInputElement>("[data-badge-toggle]");
+    const bgEl = q<HTMLSelectElement>("[data-bg]");
+
+    const dlSvgBtn = q<HTMLButtonElement>("[data-download-svg]");
+    const dlPngBtn = q<HTMLButtonElement>("[data-download-png]");
+    const copyBtn = q<HTMLButtonElement>("[data-copy]");
+    const copyIcon = q<SVGElement>("[data-copy-icon]");
+    const copyCheck = q<SVGElement>("[data-copy-check]");
+    const copyLabel = q<HTMLSpanElement>("[data-copy-label]");
+
+    let items: Item[] = [];
+
+    function escapeXml(s: string) {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function initialsOf(label: string) {
+      const parts = label.trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return "?";
+      const first = parts[0].charAt(0);
+      const second = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+      return (first + second).toUpperCase();
+    }
+
+    function setBusy(on: boolean, text = "Working...") {
+      busyText.textContent = text;
+      busyEl.classList.toggle("hidden", !on);
+      busyEl.classList.toggle("flex", on);
+    }
+
+    function buildSvg(): { svg: string; w: number; h: number } | null {
+      if (!items.length) return null;
+      const size = Number(sizeEl.value);
+      const overlap = Number(overlapEl.value);
+      const ring = Number(ringEl.value);
+      const max = Number(maxEl.value);
+      const shape = shapeEl.value;
+      const ringColor = ringColorEl.value;
+
+      const shown = items.slice(0, max);
+      const extra = items.length - shown.length;
+      const nodes: Array<{ item?: Item; badge?: string }> = shown.map((item) => ({ item }));
+      if (extra > 0 && badgeToggle.checked) nodes.push({ badge: "+" + extra });
+
+      const step = size * (1 - overlap / 100);
+      const w = Math.round((size + 2 * ring + (nodes.length - 1) * step) * 100) / 100;
+      const h = size + 2 * ring;
+      const corner = shape === "rounded" ? size * 0.28 : size / 2;
+
+      const order = nodes.map((_, i) => i);
+      if (orderEl.value === "first") order.reverse();
+
+      let defs = "";
+      let body = "";
+      for (const i of order) {
+        const node = nodes[i];
+        const cx = ring + size / 2 + i * step;
+        const x = Math.round((cx - size / 2) * 100) / 100;
+        const y = ring;
+        if (ring > 0) {
+          body +=
+            '<rect x="' + (x - ring) + '" y="' + (y - ring) + '" width="' + (size + 2 * ring) + '" height="' + (size + 2 * ring) +
+            '" rx="' + (corner + ring) + '" fill="' + ringColor + '"/>';
+        }
+        if (node.badge) {
+          body +=
+            '<rect x="' + x + '" y="' + y + '" width="' + size + '" height="' + size + '" rx="' + corner +
+            '" fill="' + badgeBgEl.value + '"/>';
+          body +=
+            '<text x="' + (x + size / 2) + '" y="' + (y + size / 2) + '" text-anchor="middle" dy=".35em" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="' +
+            Math.round(size * (node.badge.length > 3 ? 0.28 : 0.34) * 10) / 10 + '" fill="' + badgeFgEl.value + '">' + escapeXml(node.badge) + "</text>";
+        } else if (node.item) {
+          const it = node.item;
+          if (it.kind === "img") {
+            const id = "avs-clip-" + i;
+            defs +=
+              '<clipPath id="' + id + '"><rect x="' + x + '" y="' + y + '" width="' + size + '" height="' + size + '" rx="' + corner + '"/></clipPath>';
+            body +=
+              '<image href="' + it.src + '" x="' + x + '" y="' + y + '" width="' + size + '" height="' + size +
+              '" preserveAspectRatio="xMidYMid slice" clip-path="url(#' + id + ')"/>';
+          } else {
+            body +=
+              '<rect x="' + x + '" y="' + y + '" width="' + size + '" height="' + size + '" rx="' + corner + '" fill="' + it.color + '"/>';
+            body +=
+              '<text x="' + (x + size / 2) + '" y="' + (y + size / 2) + '" text-anchor="middle" dy=".35em" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="' +
+              Math.round(size * 0.38 * 10) / 10 + '" fill="#ffffff">' + escapeXml(initialsOf(it.label)) + "</text>";
+          }
+        }
+      }
+
+      const bg = bgEl.value === "white" ? '<rect width="100%" height="100%" fill="#ffffff"/>' : "";
+      const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + " " + h + '">' +
+        (defs ? "<defs>" + defs + "</defs>" : "") + bg + body + "</svg>";
+      return { svg, w, h };
+    }
+
+    function renderPreview() {
+      sizeVal.textContent = sizeEl.value + "px";
+      overlapVal.textContent = overlapEl.value + "%";
+      maxVal.textContent = maxEl.value;
+      ringVal.textContent = ringEl.value + "px";
+      countEl.textContent = items.length
+        ? items.length + (items.length === 1 ? " avatar" : " avatars") + ". The first " + Math.min(items.length, Number(maxEl.value)) + " are shown."
+        : "No avatars yet.";
+
+      const built = buildSvg();
+      if (!built) {
+        previewEl.innerHTML = '<p class="text-sm text-gray-400">Add some photos or initials to see your stack.</p>';
+        return;
+      }
+      previewEl.innerHTML = built.svg;
+    }
+
+    function move(index: number, dir: number) {
+      const to = index + dir;
+      if (to < 0 || to >= items.length) return;
+      const tmp = items[index];
+      items[index] = items[to];
+      items[to] = tmp;
+      renderList();
+      renderPreview();
+    }
+
+    function renderList() {
+      listEl.innerHTML = "";
+      items.forEach((it, i) => {
+        const li = document.createElement("li");
+        li.className = "flex items-center gap-2 rounded-lg border border-gray-200 p-2";
+
+        let thumb: HTMLElement;
+        if (it.kind === "img") {
+          const img = document.createElement("img");
+          img.src = it.src;
+          img.alt = "";
+          img.className = "h-8 w-8 shrink-0 rounded-full object-cover";
+          thumb = img;
+        } else {
+          const d = document.createElement("div");
+          d.className = "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white";
+          d.style.backgroundColor = it.color;
+          d.textContent = initialsOf(it.label);
+          thumb = d;
+        }
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = it.label;
+        input.maxLength = 40;
+        input.className = "min-w-0 flex-1 rounded border border-transparent px-2 py-1 text-sm text-gray-700 hover:border-gray-200 focus:border-rose-500 focus:outline-none";
+        input.addEventListener("input", () => {
+          it.label = input.value;
+          if (it.kind === "initials") thumb.textContent = initialsOf(it.label);
+          renderPreview();
+        });
+
+        const mkBtn = (text: string, cls: string, fn: () => void) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = text;
+          b.className = cls;
+          b.addEventListener("click", fn);
+          return b;
+        };
+        const quiet = "px-1.5 text-xs text-gray-400 hover:text-gray-700";
+        li.append(
+          thumb,
+          input,
+          mkBtn("Up", quiet, () => move(i, -1)),
+          mkBtn("Down", quiet, () => move(i, 1)),
+          mkBtn("Remove", "px-1.5 text-xs text-gray-400 hover:text-red-600", () => {
+            items.splice(i, 1);
+            renderList();
+            renderPreview();
+          })
+        );
+        listEl.appendChild(li);
+      });
+    }
+
+    function nextColor() {
+      return PALETTE[items.length % PALETTE.length];
+    }
+
+    function loadSample() {
+      items = SAMPLE_NAMES.map((n, i) => ({ kind: "initials" as const, label: n, src: "", color: PALETTE[i % PALETTE.length] }));
+      renderList();
+      renderPreview();
+    }
+
+    function fileToItem(file: File): Promise<Item> {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const side = Math.min(img.naturalWidth, img.naturalHeight);
+          if (!side) {
+            URL.revokeObjectURL(url);
+            reject(new Error("empty image"));
+            return;
+          }
+          const S = 256;
+          const c = document.createElement("canvas");
+          c.width = S;
+          c.height = S;
+          const ctx = c.getContext("2d") as CanvasRenderingContext2D;
+          const sx = (img.naturalWidth - side) / 2;
+          const sy = (img.naturalHeight - side) / 2;
+          ctx.drawImage(img, sx, sy, side, side, 0, 0, S, S);
+          const keepAlpha = /png|webp|svg/.test(file.type);
+          const src = c.toDataURL(keepAlpha ? "image/png" : "image/jpeg", 0.88);
+          URL.revokeObjectURL(url);
+          resolve({ kind: "img", label: file.name.replace(/\.[^.]+$/, ""), src, color: "" });
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("bad image"));
+        };
+        img.src = url;
+      });
+    }
+
+    async function addFiles(fileList: FileList | File[]) {
+      const files = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
+      if (!files.length) return;
+      setBusy(true, "Processing images...");
+      for (const f of files) {
+        if (items.length >= MAX_ITEMS) break;
+        try {
+          items.push(await fileToItem(f));
+        } catch (e) {
+          /* skip unreadable files */
+        }
+      }
+      setBusy(false);
+      renderList();
+      renderPreview();
+    }
+
+    function downloadBlob(blob: Blob, name: string) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // Events: dropzone
+    dropzone.addEventListener("click", () => fileInput.click());
+    dropzone.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files) addFiles(fileInput.files);
+      fileInput.value = "";
+    });
+    ["dragenter", "dragover"].forEach((ev) =>
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.add("border-rose-400", "bg-rose-50");
+      })
+    );
+    ["dragleave", "drop"].forEach((ev) =>
+      dropzone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("border-rose-400", "bg-rose-50");
+      })
+    );
+    dropzone.addEventListener("drop", (e) => {
+      const dt = (e as DragEvent).dataTransfer;
+      if (dt && dt.files) addFiles(dt.files);
+    });
+
+    // Events: list actions
+    function addInitials() {
+      const name = initialsInput.value.trim();
+      if (!name || items.length >= MAX_ITEMS) return;
+      items.push({ kind: "initials", label: name, src: "", color: nextColor() });
+      initialsInput.value = "";
+      renderList();
+      renderPreview();
+    }
+    addInitialsBtn.addEventListener("click", addInitials);
+    initialsInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addInitials();
+      }
+    });
+    sampleBtn.addEventListener("click", loadSample);
+    clearBtn.addEventListener("click", () => {
+      items = [];
+      renderList();
+      renderPreview();
+    });
+
+    // Events: style controls
+    [sizeEl, overlapEl, maxEl, ringEl, shapeEl, orderEl, ringColorEl, badgeBgEl, badgeFgEl, badgeToggle, bgEl].forEach((el) => {
+      el.addEventListener("input", renderPreview);
+      el.addEventListener("change", renderPreview);
+    });
+
+    // Exports
+    dlSvgBtn.addEventListener("click", () => {
+      const built = buildSvg();
+      if (!built) return;
+      downloadBlob(new Blob([built.svg], { type: "image/svg+xml" }), "avatar-stack.svg");
+    });
+
+    dlPngBtn.addEventListener("click", () => {
+      const built = buildSvg();
+      if (!built) return;
+      setBusy(true, "Rendering PNG...");
+      const scale = 3;
+      const url = URL.createObjectURL(new Blob([built.svg], { type: "image/svg+xml" }));
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = Math.ceil(built.w * scale);
+        c.height = Math.ceil(built.h * scale);
+        const ctx = c.getContext("2d") as CanvasRenderingContext2D;
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob((blob) => {
+          setBusy(false);
+          if (blob) downloadBlob(blob, "avatar-stack.png");
+        }, "image/png");
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setBusy(false);
+      };
+      img.src = url;
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      const built = buildSvg();
+      if (!built) return;
+      try {
+        await navigator.clipboard.writeText(built.svg);
+      } catch (e) {
+        return;
+      }
+      copyIcon.classList.add("hidden");
+      copyCheck.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyCheck.classList.add("hidden");
+        copyLabel.textContent = "Copy SVG";
+      }, 1500);
+    });
+
+    loadSample();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-avatar-stack-generator-widget]").forEach(initAvatarStack);
+</script>
