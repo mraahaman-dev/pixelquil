@@ -1,0 +1,996 @@
+<div data-photo-to-layered-color-poster-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Add a photo</p>
+    <button type="button" data-sample class="rounded-lg border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-amber-500 hover:bg-amber-50">Try a sample</button>
+    <button type="button" data-clear class="ml-auto text-sm text-gray-400 hover:text-red-600">Clear</button>
+  </div>
+  <div data-drop tabindex="0" role="button" class="mt-3 flex min-h-[7rem] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-4 py-5 text-center text-sm text-gray-500 hover:border-amber-500 hover:bg-amber-50">
+    <svg xmlns="http://www.w3.org/2000/svg" class="mb-1 h-6 w-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"></path><path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path></svg>
+    Drop a photo here or click to browse (JPG, PNG or WebP)
+    <input data-file type="file" accept="image/*" class="hidden" />
+  </div>
+  <p data-error class="mt-2 hidden text-xs text-red-600"></p>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Poster settings</p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <label class="block text-sm text-gray-700">
+      Number of colors: <span data-n-val class="font-medium">5</span>
+      <input data-n type="range" min="2" max="8" step="1" value="5" class="mt-2 w-full accent-amber-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Colors come from
+      <select data-mode class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        <option value="photo">The photo</option>
+        <option value="ramp">A two-color ramp</option>
+      </select>
+    </label>
+    <div data-for="ramp" class="hidden text-sm text-gray-700">
+      Ramp colors
+      <div class="mt-1 flex items-center gap-3">
+        <label class="flex items-center gap-1">Light <input data-light type="color" value="#fdf3d8" class="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white p-1" /></label>
+        <label class="flex items-center gap-1">Dark <input data-dark type="color" value="#1d2b53" class="h-9 w-12 cursor-pointer rounded border border-gray-200 bg-white p-1" /></label>
+      </div>
+    </div>
+    <label class="block text-sm text-gray-700">
+      Layer style
+      <select data-stacked class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        <option value="stacked">Stacked layers (no gaps)</option>
+        <option value="separate">Separate color regions</option>
+      </select>
+    </label>
+    <label class="block text-sm text-gray-700">
+      Detail
+      <select data-detail class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        <option value="200">Low (fast, bold shapes)</option>
+        <option value="300">Medium</option>
+        <option value="400" selected>High</option>
+        <option value="600">Very high (slower)</option>
+      </select>
+    </label>
+    <label class="block text-sm text-gray-700">
+      Photo softening: <span data-blur-val class="font-medium">1</span>
+      <input data-blur type="range" min="0" max="3" step="1" value="1" class="mt-2 w-full accent-amber-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Speck clean-up: <span data-clean-val class="font-medium">2</span>
+      <input data-clean type="range" min="0" max="4" step="1" value="2" class="mt-2 w-full accent-amber-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Contrast: <span data-contrast-val class="font-medium">0</span>
+      <input data-contrast type="range" min="-60" max="60" step="5" value="0" class="mt-2 w-full accent-amber-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Path simplification: <span data-tol-val class="font-medium">0.8</span> px
+      <input data-tol type="range" min="0.2" max="2" step="0.1" value="0.8" class="mt-2 w-full accent-amber-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Smallest island kept (px)
+      <input data-minarea type="number" min="0" max="500" step="1" value="12" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+    </label>
+    <label class="flex items-center gap-2 text-sm text-gray-700">
+      <input data-curves type="checkbox" checked class="h-4 w-4 accent-amber-600" />
+      Smooth curves
+    </label>
+    <label class="block text-sm text-gray-700">
+      SVG width (px)
+      <input data-outw type="number" min="50" max="8000" step="10" value="800" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+    </label>
+  </div>
+
+  <div class="mt-6 flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Result</p>
+    <span data-status class="hidden items-center gap-1.5 text-xs text-gray-400">
+      <svg class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>
+      <span data-status-text>Working...</span>
+    </span>
+  </div>
+  <div data-result class="mt-3 hidden">
+    <div class="grid gap-4 md:grid-cols-2">
+      <div>
+        <p class="text-xs text-gray-500">Original</p>
+        <canvas data-orig class="mt-1 w-full rounded-xl border border-gray-200"></canvas>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500">Poster (SVG)</p>
+        <div data-poster class="mt-1 overflow-hidden rounded-xl border border-gray-200 bg-white [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"></div>
+      </div>
+    </div>
+    <p data-stats class="mt-3 text-sm text-gray-600"></p>
+    <p class="mt-5 text-sm font-medium text-gray-700">Layers (bottom to top)</p>
+    <p class="text-xs text-gray-500">Click a color to change it, or untick a layer to leave it out.</p>
+    <div data-layers class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"></div>
+    <label class="mt-4 flex items-center gap-2 text-sm text-gray-700">
+      <input data-plates type="checkbox" class="h-4 w-4 accent-amber-600" />
+      Show each layer on its own
+    </label>
+    <div data-plategrid class="mt-3 hidden grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+
+    <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Export</p>
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button type="button" data-download class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">Download SVG</button>
+      <button type="button" data-copy class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-amber-500 hover:bg-amber-50">
+        <svg data-copy-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <svg data-copy-done xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+        <span data-copy-label>Copy SVG code</span>
+      </button>
+    </div>
+    <p class="mt-2 text-xs text-gray-400">Each layer is its own group, so it shows up as a separate layer in Inkscape and Illustrator.</p>
+  </div>
+  <p data-empty class="mt-3 text-sm text-gray-400">Add a photo, or try the sample, to turn it into flat color layers.</p>
+</div>
+
+<script>
+  type Pt = [number, number];
+  type Opts = {
+    n: number; mode: "photo" | "ramp"; light: string; dark: string; contrast: number; blur: number;
+    cleanup: number; curves: boolean; tol: number; minArea: number; stacked: boolean;
+  };
+  type Layer = { idx: number; color: string; d: string; nodes: number; full: boolean; share: number; on: boolean };
+  type Result = { W: number; H: number; layers: Layer[]; stacked: boolean; labels: Uint8Array };
+
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const tick = () => new Promise<void>((r) => setTimeout(r, 0));
+  const hex2 = (n: number) => clamp(Math.round(n), 0, 255).toString(16).padStart(2, "0");
+  const toHex = (r: number, g: number, b: number) => "#" + hex2(r) + hex2(g) + hex2(b);
+  const parseHex = (h: string): [number, number, number] => {
+    const m = /^#([0-9a-f]{6})$/i.exec(h);
+    if (!m) return [128, 128, 128];
+    const v = parseInt(m[1], 16);
+    return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+  };
+  const lumOf = (r: number, g: number, b: number) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+  function mulberry32(seed: number) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ---------- Image preparation ---------- */
+
+  function boxBlur(src: Float32Array, W: number, H: number, r: number): Float32Array {
+    if (r <= 0) return src;
+    const tmp = new Float32Array(W * H);
+    const out = new Float32Array(W * H);
+    const k = 2 * r + 1;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        let s = 0;
+        for (let d = -r; d <= r; d++) s += src[y * W + clamp(x + d, 0, W - 1)];
+        tmp[y * W + x] = s / k;
+      }
+    }
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        let s = 0;
+        for (let d = -r; d <= r; d++) s += tmp[clamp(y + d, 0, H - 1) * W + x];
+        out[y * W + x] = s / k;
+      }
+    }
+    return out;
+  }
+
+  function kmeans(ch: Float32Array[], N: number, k: number): Float32Array {
+    const step = Math.max(1, Math.floor(N / 12000));
+    const idx: number[] = [];
+    for (let i = 0; i < N; i += step) idx.push(i);
+    const M = idx.length;
+    const rng = mulberry32(12345);
+    const c = new Float32Array(k * 3);
+    const setC = (j: number, i: number) => {
+      c[j * 3] = ch[0][i];
+      c[j * 3 + 1] = ch[1][i];
+      c[j * 3 + 2] = ch[2][i];
+    };
+    setC(0, idx[Math.floor(rng() * M)]);
+    const d2 = new Float64Array(M).fill(1e18);
+    for (let j = 1; j < k; j++) {
+      let total = 0;
+      for (let m = 0; m < M; m++) {
+        const i = idx[m];
+        const dr = ch[0][i] - c[(j - 1) * 3];
+        const dg = ch[1][i] - c[(j - 1) * 3 + 1];
+        const db = ch[2][i] - c[(j - 1) * 3 + 2];
+        const dd = dr * dr + dg * dg + db * db;
+        if (dd < d2[m]) d2[m] = dd;
+        total += d2[m];
+      }
+      let pick = M - 1;
+      let t = rng() * total;
+      for (let m = 0; m < M; m++) {
+        t -= d2[m];
+        if (t <= 0) {
+          pick = m;
+          break;
+        }
+      }
+      setC(j, idx[pick]);
+    }
+    const sum = new Float64Array(k * 3);
+    const cnt = new Int32Array(k);
+    for (let it = 0; it < 10; it++) {
+      sum.fill(0);
+      cnt.fill(0);
+      for (let m = 0; m < M; m++) {
+        const i = idx[m];
+        const r = ch[0][i], g = ch[1][i], b = ch[2][i];
+        let best = 0, bd = 1e18;
+        for (let j = 0; j < k; j++) {
+          const dr = r - c[j * 3], dg = g - c[j * 3 + 1], db = b - c[j * 3 + 2];
+          const dd = dr * dr + dg * dg + db * db;
+          if (dd < bd) {
+            bd = dd;
+            best = j;
+          }
+        }
+        sum[best * 3] += r;
+        sum[best * 3 + 1] += g;
+        sum[best * 3 + 2] += b;
+        cnt[best]++;
+      }
+      for (let j = 0; j < k; j++) {
+        if (cnt[j] > 0) {
+          c[j * 3] = sum[j * 3] / cnt[j];
+          c[j * 3 + 1] = sum[j * 3 + 1] / cnt[j];
+          c[j * 3 + 2] = sum[j * 3 + 2] / cnt[j];
+        }
+      }
+    }
+    return c;
+  }
+
+  function majority(lab: Uint8Array, W: number, H: number, k: number, passes: number): Uint8Array {
+    let cur = lab;
+    const counts = new Int32Array(k);
+    for (let p = 0; p < passes; p++) {
+      const out = new Uint8Array(W * H);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          counts.fill(0);
+          for (let dy = -1; dy <= 1; dy++) {
+            const yy = y + dy;
+            if (yy < 0 || yy >= H) continue;
+            for (let dx = -1; dx <= 1; dx++) {
+              const xx = x + dx;
+              if (xx < 0 || xx >= W) continue;
+              counts[cur[yy * W + xx]]++;
+            }
+          }
+          const own = cur[y * W + x];
+          let best = own, bc = counts[own];
+          for (let j = 0; j < k; j++) {
+            if (counts[j] > bc) {
+              bc = counts[j];
+              best = j;
+            }
+          }
+          out[y * W + x] = best;
+        }
+      }
+      cur = out;
+    }
+    return cur;
+  }
+
+  /* ---------- Tracing ---------- */
+
+  function blur3(f: Float32Array, W: number, H: number): Float32Array {
+    const tmp = new Float32Array(W * H);
+    const out = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        tmp[y * W + x] = (f[y * W + Math.max(0, x - 1)] + f[y * W + x] + f[y * W + Math.min(W - 1, x + 1)]) / 3;
+      }
+    }
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        out[y * W + x] = (tmp[Math.max(0, y - 1) * W + x] + tmp[y * W + x] + tmp[Math.min(H - 1, y + 1) * W + x]) / 3;
+      }
+    }
+    return out;
+  }
+
+  function rdp(P: Pt[], tol: number): Pt[] {
+    const n = P.length;
+    if (n <= 2) return P;
+    const keep = new Uint8Array(n);
+    keep[0] = 1;
+    keep[n - 1] = 1;
+    const stack: [number, number][] = [[0, n - 1]];
+    while (stack.length) {
+      const [s, e] = stack.pop() as [number, number];
+      const ax = P[s][0], ay = P[s][1], bx = P[e][0], by = P[e][1];
+      const dx = bx - ax, dy = by - ay;
+      const len = Math.hypot(dx, dy);
+      let md = -1, mi = -1;
+      for (let i = s + 1; i < e; i++) {
+        const d = len === 0 ? Math.hypot(P[i][0] - ax, P[i][1] - ay) : Math.abs((P[i][0] - ax) * dy - (P[i][1] - ay) * dx) / len;
+        if (d > md) {
+          md = d;
+          mi = i;
+        }
+      }
+      if (md > tol && mi > 0) {
+        keep[mi] = 1;
+        stack.push([s, mi], [mi, e]);
+      }
+    }
+    return P.filter((_, i) => keep[i] === 1);
+  }
+
+  function simplifyClosed(P: Pt[], tol: number): Pt[] {
+    const n = P.length;
+    if (n <= 4 || tol <= 0) return P;
+    let fi = 0, fd = -1;
+    for (let i = 1; i < n; i++) {
+      const dd = (P[i][0] - P[0][0]) ** 2 + (P[i][1] - P[0][1]) ** 2;
+      if (dd > fd) {
+        fd = dd;
+        fi = i;
+      }
+    }
+    const a = rdp(P.slice(0, fi + 1), tol);
+    const b = rdp(P.slice(fi).concat([P[0]]), tol);
+    return a.slice(0, -1).concat(b.slice(0, -1));
+  }
+
+  const num1 = (n: number) => String(Math.round(n * 10) / 10);
+
+  function traceMask(mask: Uint8Array, W: number, H: number, o: { tol: number; curves: boolean; minArea: number }): { d: string; nodes: number } {
+    const PW = W + 2, PH = H + 2;
+    let f: Float32Array = new Float32Array(PW * PH);
+    for (let y = 0; y < PH; y++) {
+      const sy = clamp(y - 1, 0, H - 1);
+      for (let x = 0; x < PW; x++) f[y * PW + x] = mask[sy * W + clamp(x - 1, 0, W - 1)];
+    }
+    f = blur3(f, PW, PH);
+    const GW = W + 4, GH = H + 4;
+    const g = new Float32Array(GW * GH);
+    for (let y = 0; y < PH; y++) for (let x = 0; x < PW; x++) g[(y + 1) * GW + (x + 1)] = f[y * PW + x];
+
+    const E = GW * GH * 2;
+    const ex = new Float32Array(E);
+    const ey = new Float32Array(E);
+    const adj = new Int32Array(E * 2).fill(-1);
+    const sa: number[] = [];
+    const sb: number[] = [];
+    const link = (e: number, s: number) => {
+      if (adj[e * 2] < 0) adj[e * 2] = s;
+      else adj[e * 2 + 1] = s;
+    };
+    const addSeg = (a: number, b: number) => {
+      const s = sa.length;
+      sa.push(a);
+      sb.push(b);
+      link(a, s);
+      link(b, s);
+    };
+
+    for (let cy = 0; cy < GH - 1; cy++) {
+      for (let cx = 0; cx < GW - 1; cx++) {
+        const tl = g[cy * GW + cx], tr = g[cy * GW + cx + 1], br = g[(cy + 1) * GW + cx + 1], bl = g[(cy + 1) * GW + cx];
+        const ci = (tl >= 0.5 ? 8 : 0) | (tr >= 0.5 ? 4 : 0) | (br >= 0.5 ? 2 : 0) | (bl >= 0.5 ? 1 : 0);
+        if (ci === 0 || ci === 15) continue;
+        const top = () => {
+          const id = (cy * GW + cx) * 2;
+          ex[id] = cx + (0.5 - tl) / (tr - tl);
+          ey[id] = cy;
+          return id;
+        };
+        const bottom = () => {
+          const id = ((cy + 1) * GW + cx) * 2;
+          ex[id] = cx + (0.5 - bl) / (br - bl);
+          ey[id] = cy + 1;
+          return id;
+        };
+        const left = () => {
+          const id = (cy * GW + cx) * 2 + 1;
+          ex[id] = cx;
+          ey[id] = cy + (0.5 - tl) / (bl - tl);
+          return id;
+        };
+        const right = () => {
+          const id = (cy * GW + cx + 1) * 2 + 1;
+          ex[id] = cx + 1;
+          ey[id] = cy + (0.5 - tr) / (br - tr);
+          return id;
+        };
+        switch (ci) {
+          case 1: case 14: addSeg(left(), bottom()); break;
+          case 2: case 13: addSeg(bottom(), right()); break;
+          case 3: case 12: addSeg(left(), right()); break;
+          case 4: case 11: addSeg(top(), right()); break;
+          case 6: case 9: addSeg(top(), bottom()); break;
+          case 7: case 8: addSeg(top(), left()); break;
+          case 5: {
+            const center = (tl + tr + br + bl) / 4 >= 0.5;
+            if (center) {
+              addSeg(top(), left());
+              addSeg(bottom(), right());
+            } else {
+              addSeg(left(), bottom());
+              addSeg(top(), right());
+            }
+            break;
+          }
+          case 10: {
+            const center = (tl + tr + br + bl) / 4 >= 0.5;
+            if (center) {
+              addSeg(top(), right());
+              addSeg(left(), bottom());
+            } else {
+              addSeg(top(), left());
+              addSeg(bottom(), right());
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    const used = new Uint8Array(sa.length);
+    let d = "";
+    let nodes = 0;
+    for (let s0 = 0; s0 < sa.length; s0++) {
+      if (used[s0]) continue;
+      used[s0] = 1;
+      const startEdge = sa[s0];
+      let cur = sb[s0];
+      let seg = s0;
+      let pts: Pt[] = [[ex[startEdge] - 1.5, ey[startEdge] - 1.5]];
+      while (true) {
+        pts.push([ex[cur] - 1.5, ey[cur] - 1.5]);
+        const a0 = adj[cur * 2], a1 = adj[cur * 2 + 1];
+        const nx = a0 === seg ? a1 : a0;
+        if (nx < 0 || used[nx]) break;
+        used[nx] = 1;
+        cur = sa[nx] === cur ? sb[nx] : sa[nx];
+        seg = nx;
+      }
+      if (pts.length > 1 && cur === startEdge) pts.pop();
+      if (pts.length < 3) continue;
+      pts = simplifyClosed(pts, o.tol);
+      if (pts.length < 3) continue;
+      let area = 0;
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i], q = pts[(i + 1) % pts.length];
+        area += p[0] * q[1] - q[0] * p[1];
+      }
+      if (Math.abs(area) / 2 < o.minArea) continue;
+      nodes += pts.length;
+      if (o.curves) {
+        const m = pts.length;
+        const D = Math.max(1, o.tol * 1.5);
+        let lastX = NaN, lastY = NaN;
+        for (let i = 0; i < m; i++) {
+          const p = pts[i], pv = pts[(i - 1 + m) % m], nx = pts[(i + 1) % m];
+          const ux = pv[0] - p[0], uy = pv[1] - p[1], wx = nx[0] - p[0], wy = nx[1] - p[1];
+          const dev = Math.hypot(ux + wx, uy + wy) / 8;
+          const sc = dev > D ? D / dev : 1;
+          const ta = 0.5 * sc, tb = 0.5 * sc;
+          const ax = p[0] + ux * ta, ay = p[1] + uy * ta;
+          const bx = p[0] + wx * tb, by = p[1] + wy * tb;
+          if (i === 0) d += "M" + num1(ax) + " " + num1(ay);
+          else if (Math.hypot(ax - lastX, ay - lastY) > 0.05) d += "L" + num1(ax) + " " + num1(ay);
+          d += "Q" + num1(p[0]) + " " + num1(p[1]) + " " + num1(bx) + " " + num1(by);
+          lastX = bx;
+          lastY = by;
+        }
+        d += "Z";
+      } else {
+        d += "M" + num1(pts[0][0]) + " " + num1(pts[0][1]);
+        for (let i = 1; i < pts.length; i++) d += "L" + num1(pts[i][0]) + " " + num1(pts[i][1]);
+        d += "Z";
+      }
+    }
+    return { d, nodes };
+  }
+
+  /* ---------- Posterize ---------- */
+
+  async function posterize(data: Uint8ClampedArray, W: number, H: number, o: Opts, report: (t: string) => void): Promise<Result> {
+    const N = W * H;
+    let ch: Float32Array[] = [new Float32Array(N), new Float32Array(N), new Float32Array(N)];
+    const cf = o.contrast === 0 ? 1 : (259 * (o.contrast + 255)) / (255 * (259 - o.contrast));
+    for (let i = 0; i < N; i++) {
+      for (let c = 0; c < 3; c++) ch[c][i] = clamp(cf * (data[i * 4 + c] - 128) + 128, 0, 255);
+    }
+    ch = ch.map((a) => boxBlur(a, W, H, o.blur));
+
+    const n = o.n;
+    let lab: Uint8Array = new Uint8Array(N);
+    let pal: [number, number, number][] = [];
+
+    if (o.mode === "ramp") {
+      const lum = new Float32Array(N);
+      const hist = new Int32Array(256);
+      for (let i = 0; i < N; i++) {
+        lum[i] = lumOf(ch[0][i], ch[1][i], ch[2][i]);
+        hist[clamp(Math.round(lum[i]), 0, 255)]++;
+      }
+      const th: number[] = [];
+      let acc = 0, k = 1;
+      for (let v = 0; v < 256 && k < n; v++) {
+        acc += hist[v];
+        while (k < n && acc >= (N * k) / n) {
+          th.push(v + 0.5);
+          k++;
+        }
+      }
+      while (th.length < n - 1) th.push(255.5);
+      for (let i = 0; i < N; i++) {
+        let level = 0;
+        for (let t = 0; t < th.length; t++) if (lum[i] >= th[t]) level++;
+        lab[i] = n - 1 - level;
+      }
+      const L = parseHex(o.light), D = parseHex(o.dark);
+      for (let j = 0; j < n; j++) {
+        const t = n === 1 ? 0 : j / (n - 1);
+        pal.push([L[0] + (D[0] - L[0]) * t, L[1] + (D[1] - L[1]) * t, L[2] + (D[2] - L[2]) * t]);
+      }
+    } else {
+      report("Finding colors...");
+      await tick();
+      const c = kmeans(ch, N, n);
+      const order = Array.from({ length: n }, (_, j) => j).sort(
+        (a, b) => lumOf(c[b * 3], c[b * 3 + 1], c[b * 3 + 2]) - lumOf(c[a * 3], c[a * 3 + 1], c[a * 3 + 2]),
+      );
+      pal = order.map((j) => [c[j * 3], c[j * 3 + 1], c[j * 3 + 2]] as [number, number, number]);
+      for (let i = 0; i < N; i++) {
+        const r = ch[0][i], g = ch[1][i], b = ch[2][i];
+        let best = 0, bd = 1e18;
+        for (let j = 0; j < n; j++) {
+          const dr = r - pal[j][0], dg = g - pal[j][1], db = b - pal[j][2];
+          const dd = dr * dr + dg * dg + db * db;
+          if (dd < bd) {
+            bd = dd;
+            best = j;
+          }
+        }
+        lab[i] = best;
+      }
+    }
+
+    report("Cleaning up specks...");
+    await tick();
+    lab = majority(lab, W, H, n, o.cleanup);
+
+    // drop empty colors, keep light-to-dark order
+    const counts = new Int32Array(n);
+    for (let i = 0; i < N; i++) counts[lab[i]]++;
+    const remap = new Int32Array(n).fill(-1);
+    const keep: number[] = [];
+    for (let j = 0; j < n; j++) {
+      if (counts[j] > 0) {
+        remap[j] = keep.length;
+        keep.push(j);
+      }
+    }
+    for (let i = 0; i < N; i++) lab[i] = remap[lab[i]];
+    const K = keep.length;
+
+    const layers: Layer[] = [];
+    for (let j = 0; j < K; j++) {
+      const p = pal[keep[j]];
+      const full = o.stacked && j === 0;
+      layers.push({ idx: j, color: toHex(p[0], p[1], p[2]), d: "", nodes: 0, full, share: counts[keep[j]] / N, on: true });
+    }
+    for (let j = 0; j < K; j++) {
+      if (layers[j].full) continue;
+      report("Tracing layer " + (j + 1) + " of " + K + "...");
+      await tick();
+      const mask = new Uint8Array(N);
+      if (o.stacked) for (let i = 0; i < N; i++) mask[i] = lab[i] >= j ? 1 : 0;
+      else for (let i = 0; i < N; i++) mask[i] = lab[i] === j ? 1 : 0;
+      const t = traceMask(mask, W, H, { tol: o.tol, curves: o.curves, minArea: o.minArea });
+      layers[j].d = t.d;
+      layers[j].nodes = t.nodes;
+    }
+    return { W, H, layers, stacked: o.stacked, labels: lab };
+  }
+
+  function buildSvg(res: Result, widthPx: number | null, only: number | null): string {
+    const w = widthPx ? Math.round(widthPx) : 0;
+    const h = widthPx ? Math.round((widthPx * res.H) / res.W) : 0;
+    let s =
+      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 ' + res.W + " " + res.H + '"' +
+      (widthPx ? ' width="' + w + '" height="' + h + '"' : "") + ">\n";
+    res.layers.forEach((L) => {
+      if (only !== null ? L.idx !== only : !L.on) return;
+      const label = "Layer " + (L.idx + 1) + " " + L.color;
+      s += '  <g id="layer-' + (L.idx + 1) + '" inkscape:groupmode="layer" inkscape:label="' + esc(label) + '">\n';
+      if (L.full) s += '    <rect width="' + res.W + '" height="' + res.H + '" fill="' + L.color + '"/>\n';
+      else if (L.d) s += '    <path fill="' + L.color + '" fill-rule="evenodd" d="' + L.d + '"/>\n';
+      s += "  </g>\n";
+    });
+    return s + "</svg>";
+  }
+
+  function plateSvg(res: Result, L: Layer): string {
+    const body = L.full
+      ? '<rect width="' + res.W + '" height="' + res.H + '" fill="' + L.color + '"/>'
+      : '<path fill="' + L.color + '" fill-rule="evenodd" d="' + L.d + '"/>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + res.W + " " + res.H + '"><rect width="' + res.W + '" height="' + res.H + '" fill="#f3f4f6"/>' + body + "</svg>";
+  }
+
+  /* ---------- Sample image ---------- */
+
+  function makeSample(): HTMLCanvasElement {
+    const c = document.createElement("canvas");
+    c.width = 640;
+    c.height = 420;
+    const x = c.getContext("2d") as CanvasRenderingContext2D;
+    const sky = x.createLinearGradient(0, 0, 0, 280);
+    sky.addColorStop(0, "#1b2a6b");
+    sky.addColorStop(0.55, "#c2457c");
+    sky.addColorStop(1, "#ffb347");
+    x.fillStyle = sky;
+    x.fillRect(0, 0, 640, 420);
+    const sun = x.createRadialGradient(430, 235, 5, 430, 235, 120);
+    sun.addColorStop(0, "#fff7c2");
+    sun.addColorStop(0.35, "#ffd166");
+    sun.addColorStop(1, "rgba(255,170,80,0)");
+    x.fillStyle = sun;
+    x.fillRect(0, 0, 640, 420);
+    x.fillStyle = "#fff3b0";
+    x.beginPath();
+    x.arc(430, 235, 42, 0, Math.PI * 2);
+    x.fill();
+    const ridge = (base: number, amp: number, color: string, seed: number) => {
+      x.fillStyle = color;
+      x.beginPath();
+      x.moveTo(0, 420);
+      for (let px = 0; px <= 640; px += 8) {
+        const y = base + Math.sin(px / 70 + seed) * amp + Math.sin(px / 23 + seed * 2) * amp * 0.35;
+        x.lineTo(px, y);
+      }
+      x.lineTo(640, 420);
+      x.closePath();
+      x.fill();
+    };
+    ridge(255, 26, "#7a3b6e", 1);
+    ridge(300, 22, "#4a2a5e", 2.5);
+    ridge(345, 18, "#241a3d", 4);
+    const lake = x.createLinearGradient(0, 360, 0, 420);
+    lake.addColorStop(0, "#3b2a5a");
+    lake.addColorStop(1, "#120d26");
+    x.fillStyle = lake;
+    x.fillRect(0, 372, 640, 48);
+    return c;
+  }
+
+  /* ---------- Widget ---------- */
+
+  function initPoster(root: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+    const dropEl = $<HTMLElement>("[data-drop]");
+    const fileEl = $<HTMLInputElement>("[data-file]");
+    const errEl = $<HTMLElement>("[data-error]");
+    const el = {
+      n: $<HTMLInputElement>("[data-n]"),
+      mode: $<HTMLSelectElement>("[data-mode]"),
+      light: $<HTMLInputElement>("[data-light]"),
+      dark: $<HTMLInputElement>("[data-dark]"),
+      stacked: $<HTMLSelectElement>("[data-stacked]"),
+      detail: $<HTMLSelectElement>("[data-detail]"),
+      blur: $<HTMLInputElement>("[data-blur]"),
+      clean: $<HTMLInputElement>("[data-clean]"),
+      contrast: $<HTMLInputElement>("[data-contrast]"),
+      tol: $<HTMLInputElement>("[data-tol]"),
+      minarea: $<HTMLInputElement>("[data-minarea]"),
+      curves: $<HTMLInputElement>("[data-curves]"),
+      outw: $<HTMLInputElement>("[data-outw]"),
+    };
+    const nVal = $<HTMLElement>("[data-n-val]");
+    const blurVal = $<HTMLElement>("[data-blur-val]");
+    const cleanVal = $<HTMLElement>("[data-clean-val]");
+    const contrastVal = $<HTMLElement>("[data-contrast-val]");
+    const tolVal = $<HTMLElement>("[data-tol-val]");
+    const statusEl = $<HTMLElement>("[data-status]");
+    const statusText = $<HTMLElement>("[data-status-text]");
+    const resultEl = $<HTMLElement>("[data-result]");
+    const emptyEl = $<HTMLElement>("[data-empty]");
+    const origEl = $<HTMLCanvasElement>("[data-orig]");
+    const posterEl = $<HTMLElement>("[data-poster]");
+    const statsEl = $<HTMLElement>("[data-stats]");
+    const layersEl = $<HTMLElement>("[data-layers]");
+    const platesEl = $<HTMLInputElement>("[data-plates]");
+    const plateGrid = $<HTMLElement>("[data-plategrid]");
+    const forEls = Array.from(root.querySelectorAll<HTMLElement>("[data-for]"));
+    const copyBtn = $<HTMLButtonElement>("[data-copy]");
+    const copyIcon = $<SVGElement>("[data-copy-icon]");
+    const copyDone = $<SVGElement>("[data-copy-done]");
+    const copyLabel = $<HTMLElement>("[data-copy-label]");
+
+    let source: (CanvasImageSource & { width: number; height: number }) | null = null;
+    let res: Result | null = null;
+    let runId = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const num = (e: HTMLInputElement, lo: number, hi: number, fb: number) => {
+      const v = parseFloat(e.value);
+      return clamp(isFinite(v) ? v : fb, lo, hi);
+    };
+    const hexOr = (v: string, fb: string) => (/^#[0-9a-f]{6}$/i.test(v) ? v : fb);
+
+    function setError(m: string) {
+      errEl.textContent = m;
+      errEl.classList.toggle("hidden", !m);
+    }
+    function setBusy(on: boolean, text?: string) {
+      statusEl.classList.toggle("hidden", !on);
+      statusEl.classList.toggle("inline-flex", on);
+      if (text) statusText.textContent = text;
+    }
+    function readOpts(): Opts {
+      return {
+        n: Math.round(num(el.n, 2, 8, 5)),
+        mode: el.mode.value === "ramp" ? "ramp" : "photo",
+        light: hexOr(el.light.value, "#fdf3d8"),
+        dark: hexOr(el.dark.value, "#1d2b53"),
+        contrast: Math.round(num(el.contrast, -60, 60, 0)),
+        blur: Math.round(num(el.blur, 0, 3, 1)),
+        cleanup: Math.round(num(el.clean, 0, 4, 2)),
+        curves: el.curves.checked,
+        tol: num(el.tol, 0.2, 2, 0.8),
+        minArea: num(el.minarea, 0, 500, 12),
+        stacked: el.stacked.value !== "separate",
+      };
+    }
+    function outWidth() {
+      return Math.round(num(el.outw, 50, 8000, 800));
+    }
+
+    function updateLabels() {
+      nVal.textContent = el.n.value;
+      blurVal.textContent = el.blur.value;
+      cleanVal.textContent = el.clean.value;
+      contrastVal.textContent = el.contrast.value;
+      tolVal.textContent = String(Math.round(num(el.tol, 0.2, 2, 0.8) * 10) / 10);
+      forEls.forEach((e) => e.classList.toggle("hidden", (e.dataset.for as string) !== el.mode.value));
+    }
+
+    function renderView() {
+      if (!res) return;
+      posterEl.innerHTML = buildSvg(res, null, null);
+      let nodes = 0;
+      res.layers.forEach((l) => {
+        if (l.on) nodes += l.nodes;
+      });
+      const kb = Math.round(buildSvg(res, outWidth(), null).length / 102.4) / 10;
+      statsEl.textContent = res.layers.length + " colors, " + nodes.toLocaleString() + " points, about " + kb + " KB of SVG.";
+      if (platesEl.checked) {
+        plateGrid.classList.remove("hidden");
+        plateGrid.innerHTML = res.layers
+          .map((l) => '<div class="overflow-hidden rounded-lg border border-gray-200 [&_svg]:block [&_svg]:h-auto [&_svg]:w-full">' + plateSvg(res as Result, l) + "</div>")
+          .join("");
+      } else {
+        plateGrid.classList.add("hidden");
+        plateGrid.innerHTML = "";
+      }
+    }
+
+    function renderLayers() {
+      if (!res) return;
+      layersEl.innerHTML = res.layers
+        .map(
+          (l, i) =>
+            '<div class="flex items-center gap-2 rounded-lg border border-gray-200 p-2">' +
+            '<input type="checkbox" data-on="' + i + '" ' + (l.on ? "checked" : "") + ' aria-label="Use layer ' + (l.idx + 1) + '" class="h-4 w-4 accent-amber-600" />' +
+            '<input type="color" data-color="' + i + '" value="' + l.color + '" aria-label="Color of layer ' + (l.idx + 1) + '" class="h-8 w-10 cursor-pointer rounded border border-gray-200 bg-white p-0.5" />' +
+            '<div class="min-w-0 flex-1 text-xs"><p class="font-medium text-gray-700">' + (l.full ? "Base" : "Layer " + (l.idx + 1)) + '</p><p data-hex="' + i + '" class="text-gray-500">' + l.color + " &middot; " + Math.round(l.share * 100) + '% of image</p></div>' +
+            '<button type="button" data-dl="' + i + '" class="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:border-amber-500 hover:bg-amber-50">SVG</button></div>',
+        )
+        .join("");
+    }
+
+    async function run() {
+      const my = ++runId;
+      setError("");
+      if (!source) {
+        setBusy(false);
+        res = null;
+        resultEl.classList.add("hidden");
+        emptyEl.classList.remove("hidden");
+        return;
+      }
+      setBusy(true, "Working...");
+      await tick();
+      const o = readOpts();
+      const detail = parseInt(el.detail.value, 10) || 400;
+      const sw = source.width, sh = source.height;
+      const s = Math.min(1, detail / Math.max(sw, sh));
+      const W = Math.max(2, Math.round(sw * s));
+      const H = Math.max(2, Math.round(sh * s));
+      const cv = document.createElement("canvas");
+      cv.width = W;
+      cv.height = H;
+      const ctx = cv.getContext("2d", { willReadFrequently: true });
+      if (!ctx) {
+        setBusy(false);
+        setError("Your browser could not prepare the image.");
+        return;
+      }
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, W, H);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(source, 0, 0, W, H);
+      let data: Uint8ClampedArray;
+      try {
+        data = ctx.getImageData(0, 0, W, H).data;
+      } catch {
+        setBusy(false);
+        setError("This image could not be read.");
+        return;
+      }
+      origEl.width = W;
+      origEl.height = H;
+      (origEl.getContext("2d") as CanvasRenderingContext2D).drawImage(cv, 0, 0);
+      try {
+        const out = await posterize(data, W, H, o, (t) => {
+          if (my === runId) statusText.textContent = t;
+        });
+        if (my !== runId) return;
+        res = out;
+        emptyEl.classList.add("hidden");
+        resultEl.classList.remove("hidden");
+        renderLayers();
+        renderView();
+      } catch {
+        if (my !== runId) return;
+        setError("Something went wrong while making the poster. Try a lower detail setting.");
+      }
+      setBusy(false);
+    }
+
+    function schedule() {
+      updateLabels();
+      if (!source) return;
+      setBusy(true, "Working...");
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(run, 350);
+    }
+
+    function loadFile(f: File | undefined) {
+      if (!f) return;
+      if (!f.type.startsWith("image/")) {
+        setError("Please choose an image file.");
+        return;
+      }
+      if (f.size > 25000000) {
+        setError("That image is over 25 MB. Please use a smaller one.");
+        return;
+      }
+      const url = URL.createObjectURL(f);
+      const img = new Image();
+      img.onload = () => {
+        source = Object.assign(img, { width: img.naturalWidth, height: img.naturalHeight }) as HTMLImageElement;
+        URL.revokeObjectURL(url);
+        run();
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setError("That image could not be opened.");
+      };
+      img.src = url;
+    }
+
+    dropEl.addEventListener("click", () => fileEl.click());
+    dropEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fileEl.click();
+      }
+    });
+    fileEl.addEventListener("click", (e) => e.stopPropagation());
+    fileEl.addEventListener("change", () => {
+      loadFile(fileEl.files?.[0]);
+      fileEl.value = "";
+    });
+    dropEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropEl.classList.add("border-amber-500", "bg-amber-50");
+    });
+    dropEl.addEventListener("dragleave", () => dropEl.classList.remove("border-amber-500", "bg-amber-50"));
+    dropEl.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropEl.classList.remove("border-amber-500", "bg-amber-50");
+      loadFile(e.dataTransfer?.files?.[0]);
+    });
+
+    $<HTMLElement>("[data-sample]").addEventListener("click", () => {
+      source = makeSample();
+      run();
+    });
+    $<HTMLElement>("[data-clear]").addEventListener("click", () => {
+      source = null;
+      run();
+    });
+
+    Object.keys(el).forEach((k) => {
+      const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+      e.addEventListener("input", k === "outw" ? () => { if (res) renderView(); } : schedule);
+      e.addEventListener("change", k === "outw" ? () => { if (res) renderView(); } : schedule);
+    });
+
+    platesEl.addEventListener("change", renderView);
+
+    layersEl.addEventListener("input", (e) => {
+      if (!res) return;
+      const t = e.target as HTMLInputElement;
+      if (t.dataset.color !== undefined) {
+        const i = Number(t.dataset.color);
+        res.layers[i].color = hexOr(t.value, res.layers[i].color);
+        const hx = layersEl.querySelector<HTMLElement>('[data-hex="' + i + '"]');
+        if (hx) hx.innerHTML = res.layers[i].color + " &middot; " + Math.round(res.layers[i].share * 100) + "% of image";
+        renderView();
+      }
+    });
+    layersEl.addEventListener("change", (e) => {
+      if (!res) return;
+      const t = e.target as HTMLInputElement;
+      if (t.dataset.on !== undefined) {
+        res.layers[Number(t.dataset.on)].on = t.checked;
+        renderView();
+      }
+    });
+    layersEl.addEventListener("click", (e) => {
+      if (!res) return;
+      const b = (e.target as HTMLElement).closest<HTMLElement>("[data-dl]");
+      if (!b) return;
+      const i = Number(b.dataset.dl);
+      save(buildSvg(res, outWidth(), res.layers[i].idx), "layer-" + (res.layers[i].idx + 1) + ".svg");
+    });
+
+    function save(text: string, name: string) {
+      const url = URL.createObjectURL(new Blob([text], { type: "image/svg+xml" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    $<HTMLElement>("[data-download]").addEventListener("click", () => {
+      if (res) save(buildSvg(res, outWidth(), null), "poster.svg");
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!res) return;
+      const text = buildSvg(res, outWidth(), null);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy SVG code";
+      }, 1500);
+    });
+
+    updateLabels();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-photo-to-layered-color-poster-generator-widget]")
+    .forEach(initPoster);
+</script>

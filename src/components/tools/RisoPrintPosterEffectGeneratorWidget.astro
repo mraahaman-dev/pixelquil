@@ -1,0 +1,716 @@
+<div data-riso-print-poster-effect-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Add a photo</p>
+    <button type="button" data-sample class="rounded-lg border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-pink-500 hover:bg-pink-50">Try a sample</button>
+    <button type="button" data-clear class="ml-auto text-sm text-gray-400 hover:text-red-600">Clear</button>
+  </div>
+  <div data-drop tabindex="0" role="button" class="mt-3 flex min-h-[7rem] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-4 py-5 text-center text-sm text-gray-500 hover:border-pink-500 hover:bg-pink-50">
+    <svg xmlns="http://www.w3.org/2000/svg" class="mb-1 h-6 w-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"></path><path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path></svg>
+    Drop a photo here or click to browse (JPG, PNG or WebP)
+    <input data-file type="file" accept="image/*" class="hidden" />
+  </div>
+  <p data-error class="mt-2 hidden text-xs text-red-600"></p>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Inks</p>
+  <div class="mt-3 flex flex-wrap gap-2">
+    <button type="button" data-look="pink-blue" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-pink-500">Pink + blue</button>
+    <button type="button" data-look="teal-orange" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-pink-500">Teal + orange</button>
+    <button type="button" data-look="pby" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-pink-500">Blue, pink + yellow</button>
+    <button type="button" data-look="green-purple" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-pink-500">Green + purple</button>
+    <button type="button" data-look="red-black" class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:border-pink-500">Red + black</button>
+  </div>
+  <div data-inks class="mt-3 grid gap-3 md:grid-cols-3"></div>
+  <p class="mt-2 text-xs text-gray-500">Ink colors are on-screen approximations of common risograph inks, not exact matches. Real inks vary by brand and batch.</p>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">3. Halftone</p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <label class="block text-sm text-gray-700">
+      Dot size: <span data-cell-val class="font-medium">7</span>
+      <input data-cell type="range" min="4" max="14" step="1" value="7" class="mt-2 w-full accent-pink-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Screen style
+      <select data-style class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500">
+        <option value="dots">Dots</option>
+        <option value="lines">Lines</option>
+      </select>
+    </label>
+    <label class="block text-sm text-gray-700">
+      Ink coverage: <span data-cov-val class="font-medium">100</span>%
+      <input data-cov type="range" min="50" max="150" step="5" value="100" class="mt-2 w-full accent-pink-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Contrast: <span data-contrast-val class="font-medium">10</span>
+      <input data-contrast type="range" min="-50" max="50" step="5" value="10" class="mt-2 w-full accent-pink-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Brightness: <span data-bright-val class="font-medium">0</span>
+      <input data-bright type="range" min="-30" max="30" step="2" value="0" class="mt-2 w-full accent-pink-600" />
+    </label>
+  </div>
+
+  <p class="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Print look</p>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="block text-sm text-gray-700">
+      Misregistration: <span data-misreg-val class="font-medium">2.5</span> px
+      <div class="mt-2 flex items-center gap-2">
+        <input data-misreg type="range" min="0" max="8" step="0.5" value="2.5" class="w-full accent-pink-600" />
+        <button type="button" data-shuffle class="shrink-0 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:border-pink-500 hover:bg-pink-50">Shuffle</button>
+      </div>
+    </div>
+    <label class="block text-sm text-gray-700">
+      Ink grain: <span data-grain-val class="font-medium">0.5</span>
+      <input data-grain type="range" min="0" max="1" step="0.1" value="0.5" class="mt-2 w-full accent-pink-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Ink strength: <span data-strength-val class="font-medium">90</span>%
+      <input data-strength type="range" min="60" max="100" step="5" value="90" class="mt-2 w-full accent-pink-600" />
+    </label>
+    <label class="block text-sm text-gray-700">
+      Paper
+      <select data-paper class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500">
+        <option value="#f4eee0">Warm white</option>
+        <option value="#f6f6f2">Cool white</option>
+        <option value="#efe6cf">Cream</option>
+        <option value="#ddc9a3">Kraft</option>
+      </select>
+    </label>
+    <label class="block text-sm text-gray-700">
+      Image width (px)
+      <input data-outw type="number" min="100" max="6000" step="50" value="1200" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500" />
+    </label>
+  </div>
+
+  <div class="mt-6 flex flex-wrap items-center gap-2">
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">5. Result</p>
+    <span data-status class="hidden items-center gap-1.5 text-xs text-gray-400">
+      <svg class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>
+      Printing...
+    </span>
+  </div>
+  <div data-result class="mt-3 hidden">
+    <div data-poster class="overflow-hidden rounded-xl border border-gray-200 bg-white [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"></div>
+    <p data-stats class="mt-3 text-sm text-gray-600"></p>
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <button type="button" data-download-svg class="rounded-lg bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700">Download SVG</button>
+      <button type="button" data-download-png class="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-pink-500 hover:bg-pink-50">Download PNG</button>
+      <button type="button" data-copy class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-pink-500 hover:bg-pink-50">
+        <svg data-copy-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <svg data-copy-done xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+        <span data-copy-label>Copy SVG code</span>
+      </button>
+    </div>
+    <p class="mt-2 text-xs text-gray-400">Each ink is its own group in the SVG, so you can recolor, move or print the layers separately. The PNG is drawn by your browser, so it can look slightly different from the SVG in other programs.</p>
+  </div>
+  <p data-empty class="mt-3 text-sm text-gray-400">Add a photo, or try the sample, to turn it into an overprinted riso-style poster.</p>
+</div>
+
+<script>
+  type Ink = { color: string; angle: number; on: boolean; preset: string };
+  type Opts = {
+    inks: Ink[]; cell: number; style: "dots" | "lines"; coverage: number; contrast: number; brightness: number;
+    misreg: number; seed: number; grain: number; strength: number; paper: string;
+  };
+  type Layer = { color: string; d: string; count: number; dx: number; dy: number };
+  type Built = { W: number; H: number; layers: Layer[]; paper: string; grain: number; strength: number };
+
+  const INKS: [string, string, string][] = [
+    ["pink", "Fluorescent pink", "#ff48b0"],
+    ["red", "Bright red", "#f15060"],
+    ["orange", "Orange", "#ff6c2f"],
+    ["yellow", "Yellow", "#ffe800"],
+    ["sunflower", "Sunflower", "#ffb511"],
+    ["green", "Green", "#00a95c"],
+    ["mint", "Mint", "#82d8d5"],
+    ["teal", "Teal", "#00838a"],
+    ["sky", "Sky blue", "#4982cf"],
+    ["blue", "Blue", "#0078bf"],
+    ["midblue", "Medium blue", "#3255a4"],
+    ["purple", "Purple", "#765ba7"],
+    ["burgundy", "Burgundy", "#914e72"],
+    ["black", "Black", "#1a1a1a"],
+  ];
+  const LOOKS: Record<string, [string, number][]> = {
+    "pink-blue": [["blue", 75], ["pink", 15]],
+    "teal-orange": [["teal", 75], ["orange", 15]],
+    pby: [["blue", 75], ["pink", 15], ["yellow", 45]],
+    "green-purple": [["purple", 75], ["green", 15]],
+    "red-black": [["black", 75], ["red", 15]],
+  };
+  const MAXSIDE = 600;
+
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+  const num1 = (n: number) => String(Math.round(n * 10) / 10);
+  const tick = () => new Promise<void>((r) => setTimeout(r, 0));
+  const inkHex = (id: string) => (INKS.find((i) => i[0] === id) || INKS[0])[2];
+  const rgb01 = (h: string): [number, number, number] => {
+    const m = /^#([0-9a-f]{6})$/i.exec(h);
+    const v = m ? parseInt(m[1], 16) : 0x808080;
+    return [((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255];
+  };
+
+  function mulberry32(seed: number) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* Solve, for every pixel, how much of each ink to print so that the overprinted
+     result is as close as possible to the photo. Model per channel:
+     result = paper * product(1 - a_i * (1 - ink_i)) */
+  function separate(data: Uint8ClampedArray, sw: number, sh: number, inks: string[], paper: string, contrast: number, brightness: number): Float32Array[] {
+    const K = inks.length;
+    const N = sw * sh;
+    const P = rgb01(paper);
+    const t = inks.map((h) => rgb01(h));
+    const amounts: Float32Array[] = inks.map(() => new Float32Array(N));
+    const cf = contrast === 0 ? 1 : (259 * (contrast + 255)) / (255 * (259 - contrast));
+    const a = new Float64Array(K);
+    const T = [0, 0, 0];
+    for (let p = 0; p < N; p++) {
+      let lum = 0;
+      for (let c = 0; c < 3; c++) {
+        const v = clamp((cf * (data[p * 4 + c] - 128) + 128 + brightness * 2.55) / 255, 0, 1);
+        T[c] = v * P[c];
+        lum += v / 3;
+      }
+      for (let i = 0; i < K; i++) a[i] = (1 - lum) * 0.5;
+      for (let it = 0; it < 14; it++) {
+        for (let i = 0; i < K; i++) {
+          let g = 0, h = 0;
+          for (let c = 0; c < 3; c++) {
+            let ex = P[c];
+            for (let j = 0; j < K; j++) if (j !== i) ex *= 1 - a[j] * (1 - t[j][c]);
+            const fi = 1 - a[i] * (1 - t[i][c]);
+            const r = ex * fi;
+            const dj = ex * (t[i][c] - 1);
+            g += (r - T[c]) * dj;
+            h += dj * dj;
+          }
+          a[i] = clamp(a[i] - (0.85 * g) / (h + 1e-4), 0, 1);
+        }
+      }
+      for (let i = 0; i < K; i++) amounts[i][p] = a[i];
+    }
+    return amounts;
+  }
+
+  function sampleAmount(m: Float32Array, sw: number, sh: number, x: number, y: number, W: number, H: number): number {
+    const u = clamp((x / W) * sw - 0.5, 0, sw - 1);
+    const v = clamp((y / H) * sh - 0.5, 0, sh - 1);
+    const x0 = Math.floor(u), y0 = Math.floor(v);
+    const x1 = Math.min(sw - 1, x0 + 1), y1 = Math.min(sh - 1, y0 + 1);
+    const fx = u - x0, fy = v - y0;
+    return (m[y0 * sw + x0] * (1 - fx) + m[y0 * sw + x1] * fx) * (1 - fy) + (m[y1 * sw + x0] * (1 - fx) + m[y1 * sw + x1] * fx) * fy;
+  }
+
+  function dotRadius(a: number, cell: number): number {
+    if (a < 0.7) return cell * Math.sqrt(a / Math.PI);
+    const r0 = cell * Math.sqrt(0.7 / Math.PI);
+    return r0 + (cell * 0.72 - r0) * ((a - 0.7) / 0.3);
+  }
+
+  function halftone(m: Float32Array, sw: number, sh: number, W: number, H: number, angleDeg: number, cell: number, style: "dots" | "lines", coverage: number): { d: string; count: number } {
+    const th = (angleDeg * Math.PI) / 180;
+    const cs = Math.cos(th), sn = Math.sin(th);
+    const cx = W / 2, cy = H / 2;
+    const D = Math.hypot(W, H) / 2 + cell;
+    const parts: string[] = [];
+    let count = 0;
+    if (style === "dots") {
+      for (let v = -D; v <= D; v += cell) {
+        for (let u = -D; u <= D; u += cell) {
+          const x = cx + u * cs - v * sn;
+          const y = cy + u * sn + v * cs;
+          if (x < -cell || y < -cell || x > W + cell || y > H + cell) continue;
+          const a = clamp(sampleAmount(m, sw, sh, x, y, W, H) * coverage, 0, 1);
+          if (a < 0.04) continue;
+          const r = dotRadius(a, cell);
+          if (r < 0.4) continue;
+          const rr = num1(r), r2 = num1(r * 2);
+          parts.push("M" + num1(x) + " " + num1(y) + "m-" + rr + " 0a" + rr + " " + rr + " 0 1 0 " + r2 + " 0a" + rr + " " + rr + " 0 1 0 -" + r2 + " 0");
+          count++;
+        }
+      }
+    } else {
+      const step = cell * 0.5;
+      for (let v = -D; v <= D; v += cell) {
+        let top: string[] = [];
+        let bot: string[] = [];
+        const flush = () => {
+          if (top.length >= 2) {
+            parts.push("M" + top.join("L") + "L" + bot.reverse().join("L") + "Z");
+            count++;
+          }
+          top = [];
+          bot = [];
+        };
+        for (let u = -D; u <= D; u += step) {
+          const x = cx + u * cs - v * sn;
+          const y = cy + u * sn + v * cs;
+          if (x < -cell || y < -cell || x > W + cell || y > H + cell) {
+            flush();
+            continue;
+          }
+          const a = clamp(sampleAmount(m, sw, sh, x, y, W, H) * coverage, 0, 1);
+          const t = cell * Math.min(1.02, a * 1.05);
+          if (t < 0.5) {
+            flush();
+            continue;
+          }
+          const nx = -sn * (t / 2), ny = cs * (t / 2);
+          top.push(num1(x + nx) + " " + num1(y + ny));
+          bot.push(num1(x - nx) + " " + num1(y - ny));
+        }
+        flush();
+      }
+    }
+    return { d: parts.join(""), count };
+  }
+
+  function buildSvg(b: Built, widthPx: number | null): string {
+    const hh = widthPx ? Math.round((widthPx * b.H) / b.W) : 0;
+    let s =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + b.W + " " + b.H + '"' +
+      (widthPx ? ' width="' + Math.round(widthPx) + '" height="' + hh + '"' : "") +
+      ' style="isolation:isolate">\n  <defs>\n';
+    if (b.grain > 0) {
+      const tl = 0.12 + 0.21 * b.grain;
+      b.layers.forEach((_, i) => {
+        s +=
+          '    <filter id="riso-grain-' + (i + 1) + '" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">' +
+          '<feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="' + (i * 7 + 3) + '" result="n"/>' +
+          '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 12 0 0 0 ' + num1(-12 * tl) + '" result="m"/>' +
+          '<feComposite in="SourceGraphic" in2="m" operator="in"/></filter>\n';
+      });
+      s +=
+        '    <filter id="riso-paper" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="11"/>' +
+        '<feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 ' + (0.05 + 0.12 * b.grain).toFixed(2) + '"/></filter>\n';
+    }
+    s += '  </defs>\n  <rect width="' + b.W + '" height="' + b.H + '" fill="' + b.paper + '"/>\n';
+    if (b.grain > 0) s += '  <rect width="' + b.W + '" height="' + b.H + '" fill="#ffffff" filter="url(#riso-paper)" style="mix-blend-mode:multiply"/>\n';
+    b.layers.forEach((L, i) => {
+      s +=
+        '  <g id="ink-' + (i + 1) + '" style="mix-blend-mode:multiply" opacity="' + (b.strength / 100).toFixed(2) + '"' +
+        (L.dx || L.dy ? ' transform="translate(' + num1(L.dx) + " " + num1(L.dy) + ')"' : "") +
+        (b.grain > 0 ? ' filter="url(#riso-grain-' + (i + 1) + ')"' : "") +
+        '>\n    <path fill="' + L.color + '" d="' + L.d + '"/>\n  </g>\n';
+    });
+    return s + "</svg>";
+  }
+
+  async function printPoster(src: CanvasImageSource & { width: number; height: number }, o: Opts, report: (t: string) => void): Promise<Built> {
+    const sw0 = src.width, sh0 = src.height;
+    const W = sw0 >= sh0 ? MAXSIDE : Math.max(2, Math.round((MAXSIDE * sw0) / sh0));
+    const H = sw0 >= sh0 ? Math.max(2, Math.round((MAXSIDE * sh0) / sw0)) : MAXSIDE;
+    const sw = clamp(Math.round(W / (o.cell * 0.5)), 30, 320);
+    const sh = clamp(Math.round((sw * H) / W), 20, 320);
+    const cv = document.createElement("canvas");
+    cv.width = sw;
+    cv.height = sh;
+    const ctx = cv.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
+    ctx.fillStyle = o.paper;
+    ctx.fillRect(0, 0, sw, sh);
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(src, 0, 0, sw, sh);
+    const data = ctx.getImageData(0, 0, sw, sh).data;
+
+    report("Mixing inks...");
+    await tick();
+    const act = o.inks.filter((i) => i.on);
+    const maps = separate(data, sw, sh, act.map((i) => i.color), o.paper, o.contrast, o.brightness);
+    const rng = mulberry32(o.seed * 7919 + 13);
+    const layers: Layer[] = [];
+    for (let i = 0; i < act.length; i++) {
+      report("Screening ink " + (i + 1) + " of " + act.length + "...");
+      await tick();
+      const h = halftone(maps[i], sw, sh, W, H, act[i].angle, o.cell, o.style, o.coverage);
+      const dx = i === 0 ? 0 : (rng() * 2 - 1) * o.misreg;
+      const dy = i === 0 ? 0 : (rng() * 2 - 1) * o.misreg;
+      layers.push({ color: act[i].color, d: h.d, count: h.count, dx, dy });
+    }
+    return { W, H, layers, paper: o.paper, grain: o.grain, strength: o.strength };
+  }
+
+  function makeSample(): HTMLCanvasElement {
+    const c = document.createElement("canvas");
+    c.width = 640;
+    c.height = 420;
+    const x = c.getContext("2d") as CanvasRenderingContext2D;
+    const sky = x.createLinearGradient(0, 0, 0, 280);
+    sky.addColorStop(0, "#1b2a6b");
+    sky.addColorStop(0.55, "#c2457c");
+    sky.addColorStop(1, "#ffb347");
+    x.fillStyle = sky;
+    x.fillRect(0, 0, 640, 420);
+    const sun = x.createRadialGradient(430, 235, 5, 430, 235, 120);
+    sun.addColorStop(0, "#fff7c2");
+    sun.addColorStop(0.35, "#ffd166");
+    sun.addColorStop(1, "rgba(255,170,80,0)");
+    x.fillStyle = sun;
+    x.fillRect(0, 0, 640, 420);
+    x.fillStyle = "#fff3b0";
+    x.beginPath();
+    x.arc(430, 235, 42, 0, Math.PI * 2);
+    x.fill();
+    const ridge = (base: number, amp: number, color: string, seed: number) => {
+      x.fillStyle = color;
+      x.beginPath();
+      x.moveTo(0, 420);
+      for (let px = 0; px <= 640; px += 8) {
+        x.lineTo(px, base + Math.sin(px / 70 + seed) * amp + Math.sin(px / 23 + seed * 2) * amp * 0.35);
+      }
+      x.lineTo(640, 420);
+      x.closePath();
+      x.fill();
+    };
+    ridge(255, 26, "#7a3b6e", 1);
+    ridge(300, 22, "#4a2a5e", 2.5);
+    ridge(345, 18, "#241a3d", 4);
+    const lake = x.createLinearGradient(0, 360, 0, 420);
+    lake.addColorStop(0, "#3b2a5a");
+    lake.addColorStop(1, "#120d26");
+    x.fillStyle = lake;
+    x.fillRect(0, 372, 640, 48);
+    return c;
+  }
+
+  /* ---------- Widget ---------- */
+
+  function initRiso(root: HTMLElement) {
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel) as T;
+    const dropEl = $<HTMLElement>("[data-drop]");
+    const fileEl = $<HTMLInputElement>("[data-file]");
+    const errEl = $<HTMLElement>("[data-error]");
+    const inksEl = $<HTMLElement>("[data-inks]");
+    const el = {
+      cell: $<HTMLInputElement>("[data-cell]"),
+      style: $<HTMLSelectElement>("[data-style]"),
+      cov: $<HTMLInputElement>("[data-cov]"),
+      contrast: $<HTMLInputElement>("[data-contrast]"),
+      bright: $<HTMLInputElement>("[data-bright]"),
+      misreg: $<HTMLInputElement>("[data-misreg]"),
+      grain: $<HTMLInputElement>("[data-grain]"),
+      strength: $<HTMLInputElement>("[data-strength]"),
+      paper: $<HTMLSelectElement>("[data-paper]"),
+    };
+    const outW = $<HTMLInputElement>("[data-outw]");
+    const vals: [HTMLElement, HTMLInputElement][] = [
+      [$<HTMLElement>("[data-cell-val]"), el.cell],
+      [$<HTMLElement>("[data-cov-val]"), el.cov],
+      [$<HTMLElement>("[data-contrast-val]"), el.contrast],
+      [$<HTMLElement>("[data-bright-val]"), el.bright],
+      [$<HTMLElement>("[data-misreg-val]"), el.misreg],
+      [$<HTMLElement>("[data-grain-val]"), el.grain],
+      [$<HTMLElement>("[data-strength-val]"), el.strength],
+    ];
+    const statusEl = $<HTMLElement>("[data-status]");
+    const resultEl = $<HTMLElement>("[data-result]");
+    const emptyEl = $<HTMLElement>("[data-empty]");
+    const posterEl = $<HTMLElement>("[data-poster]");
+    const statsEl = $<HTMLElement>("[data-stats]");
+    const copyBtn = $<HTMLButtonElement>("[data-copy]");
+    const copyIcon = $<SVGElement>("[data-copy-icon]");
+    const copyDone = $<SVGElement>("[data-copy-done]");
+    const copyLabel = $<HTMLElement>("[data-copy-label]");
+
+    let inks: Ink[] = [
+      { color: inkHex("blue"), angle: 75, on: true, preset: "blue" },
+      { color: inkHex("pink"), angle: 15, on: true, preset: "pink" },
+      { color: inkHex("yellow"), angle: 45, on: false, preset: "yellow" },
+    ];
+    let seed = 1;
+    let built: Built | null = null;
+    let source: (CanvasImageSource & { width: number; height: number }) | null = null;
+    let runId = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const num = (e: HTMLInputElement, lo: number, hi: number, fb: number) => {
+      const v = parseFloat(e.value);
+      return clamp(isFinite(v) ? v : fb, lo, hi);
+    };
+    const width = () => Math.round(num(outW, 100, 6000, 1200));
+
+    function setError(m: string) {
+      errEl.textContent = m;
+      errEl.classList.toggle("hidden", !m);
+    }
+    function setBusy(on: boolean, text?: string) {
+      statusEl.classList.toggle("hidden", !on);
+      statusEl.classList.toggle("inline-flex", on);
+      if (text) (statusEl.lastChild as HTMLElement | null) && ((statusEl.lastChild as HTMLElement).textContent = text);
+    }
+
+    function renderInks() {
+      inksEl.innerHTML = inks
+        .map((k, i) => {
+          const opts = INKS.map((x) => '<option value="' + x[0] + '"' + (k.preset === x[0] ? " selected" : "") + ">" + x[1] + "</option>").join("") +
+            '<option value="custom"' + (k.preset === "custom" ? " selected" : "") + ">Custom color</option>";
+          return (
+            '<div class="rounded-xl border border-gray-200 p-3' + (k.on ? "" : " opacity-60") + '">' +
+            '<div class="flex items-center justify-between"><p class="text-sm font-medium text-gray-700">Ink ' + (i + 1) + "</p>" +
+            (i === 2 ? '<label class="flex items-center gap-1 text-xs text-gray-600"><input type="checkbox" data-on="' + i + '" ' + (k.on ? "checked" : "") + ' class="h-4 w-4 accent-pink-600" /> Use</label>' : "") +
+            '</div><div class="mt-2 flex items-center gap-2">' +
+            '<select data-preset="' + i + '" class="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500">' + opts + "</select>" +
+            '<input type="color" data-color="' + i + '" value="' + k.color + '" aria-label="Color of ink ' + (i + 1) + '" class="h-9 w-10 cursor-pointer rounded border border-gray-200 bg-white p-0.5" /></div>' +
+            '<label class="mt-2 block text-xs text-gray-600">Screen angle: <span data-angle-val="' + i + '" class="font-medium">' + k.angle + '</span>&deg;' +
+            '<input type="range" data-angle="' + i + '" min="0" max="90" step="5" value="' + k.angle + '" class="mt-1 w-full accent-pink-600" /></label></div>'
+          );
+        })
+        .join("");
+    }
+
+    function readOpts(): Opts {
+      return {
+        inks,
+        cell: Math.round(num(el.cell, 4, 14, 7)),
+        style: el.style.value === "lines" ? "lines" : "dots",
+        coverage: num(el.cov, 50, 150, 100) / 100,
+        contrast: num(el.contrast, -50, 50, 10),
+        brightness: num(el.bright, -30, 30, 0),
+        misreg: num(el.misreg, 0, 8, 2.5),
+        seed,
+        grain: num(el.grain, 0, 1, 0.5),
+        strength: num(el.strength, 60, 100, 90),
+        paper: el.paper.value,
+      };
+    }
+
+    function updateVals() {
+      vals.forEach(([s, i]) => (s.textContent = i.value));
+    }
+
+    function renderView() {
+      if (!built) return;
+      posterEl.innerHTML = buildSvg(built, null);
+      const count = built.layers.reduce((n, l) => n + l.count, 0);
+      const kb = Math.round(buildSvg(built, width()).length / 102.4) / 10;
+      statsEl.textContent = built.layers.length + " inks, " + count.toLocaleString() + (el.style.value === "lines" ? " lines" : " dots") + ", about " + kb + " KB of SVG." + (kb > 2500 ? " This is large. A bigger dot size makes a lighter file." : "");
+    }
+
+    async function run() {
+      const my = ++runId;
+      setError("");
+      if (!source) {
+        setBusy(false);
+        built = null;
+        resultEl.classList.add("hidden");
+        emptyEl.classList.remove("hidden");
+        return;
+      }
+      setBusy(true);
+      await tick();
+      try {
+        const out = await printPoster(source, readOpts(), (t) => {
+          if (my === runId) setBusy(true, t);
+        });
+        if (my !== runId) return;
+        built = out;
+        emptyEl.classList.add("hidden");
+        resultEl.classList.remove("hidden");
+        renderView();
+      } catch {
+        if (my !== runId) return;
+        setError("Something went wrong while printing the poster. Try a larger dot size.");
+      }
+      setBusy(false);
+    }
+
+    function schedule() {
+      updateVals();
+      if (!source) return;
+      setBusy(true, "Printing...");
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(run, 400);
+    }
+
+    function loadFile(f: File | undefined) {
+      if (!f) return;
+      if (!f.type.startsWith("image/")) {
+        setError("Please choose an image file.");
+        return;
+      }
+      if (f.size > 25000000) {
+        setError("That image is over 25 MB. Please use a smaller one.");
+        return;
+      }
+      const url = URL.createObjectURL(f);
+      const img = new Image();
+      img.onload = () => {
+        source = Object.assign(img, { width: img.naturalWidth, height: img.naturalHeight }) as HTMLImageElement;
+        URL.revokeObjectURL(url);
+        run();
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setError("That image could not be opened.");
+      };
+      img.src = url;
+    }
+
+    dropEl.addEventListener("click", () => fileEl.click());
+    dropEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fileEl.click();
+      }
+    });
+    fileEl.addEventListener("click", (e) => e.stopPropagation());
+    fileEl.addEventListener("change", () => {
+      loadFile(fileEl.files?.[0]);
+      fileEl.value = "";
+    });
+    dropEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropEl.classList.add("border-pink-500", "bg-pink-50");
+    });
+    dropEl.addEventListener("dragleave", () => dropEl.classList.remove("border-pink-500", "bg-pink-50"));
+    dropEl.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropEl.classList.remove("border-pink-500", "bg-pink-50");
+      loadFile(e.dataTransfer?.files?.[0]);
+    });
+
+    $<HTMLElement>("[data-sample]").addEventListener("click", () => {
+      source = makeSample();
+      run();
+    });
+    $<HTMLElement>("[data-clear]").addEventListener("click", () => {
+      source = null;
+      run();
+    });
+
+    Object.keys(el).forEach((k) => {
+      const e = (el as Record<string, HTMLInputElement | HTMLSelectElement>)[k];
+      e.addEventListener("input", schedule);
+      e.addEventListener("change", schedule);
+    });
+    outW.addEventListener("input", () => {
+      if (built) renderView();
+    });
+
+    $<HTMLElement>("[data-shuffle]").addEventListener("click", () => {
+      seed++;
+      schedule();
+    });
+
+    root.querySelectorAll<HTMLElement>("[data-look]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const look = LOOKS[b.dataset.look as string];
+        if (!look) return;
+        inks = inks.map((k, i) => {
+          if (i < look.length) return { color: inkHex(look[i][0]), angle: look[i][1], on: true, preset: look[i][0] };
+          return { ...k, on: false };
+        });
+        renderInks();
+        schedule();
+      }),
+    );
+
+    inksEl.addEventListener("change", (e) => {
+      const t = e.target as HTMLInputElement | HTMLSelectElement;
+      if (t.dataset.preset !== undefined) {
+        const i = Number(t.dataset.preset);
+        if (t.value !== "custom") {
+          inks[i].preset = t.value;
+          inks[i].color = inkHex(t.value);
+        } else inks[i].preset = "custom";
+        renderInks();
+        schedule();
+      } else if (t.dataset.on !== undefined) {
+        inks[Number(t.dataset.on)].on = (t as HTMLInputElement).checked;
+        renderInks();
+        schedule();
+      }
+    });
+    inksEl.addEventListener("input", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.dataset.color !== undefined) {
+        const i = Number(t.dataset.color);
+        inks[i].color = /^#[0-9a-f]{6}$/i.test(t.value) ? t.value : inks[i].color;
+        inks[i].preset = "custom";
+        const sel = inksEl.querySelector<HTMLSelectElement>('[data-preset="' + i + '"]');
+        if (sel) sel.value = "custom";
+        schedule();
+      } else if (t.dataset.angle !== undefined) {
+        const i = Number(t.dataset.angle);
+        inks[i].angle = parseInt(t.value, 10) || 0;
+        const lbl = inksEl.querySelector<HTMLElement>('[data-angle-val="' + i + '"]');
+        if (lbl) lbl.textContent = String(inks[i].angle);
+        schedule();
+      }
+    });
+
+    function save(blob: Blob, name: string) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    $<HTMLElement>("[data-download-svg]").addEventListener("click", () => {
+      if (built) save(new Blob([buildSvg(built, width())], { type: "image/svg+xml" }), "riso-poster.svg");
+    });
+
+    $<HTMLElement>("[data-download-png]").addEventListener("click", () => {
+      if (!built) return;
+      const w = width();
+      const h = Math.round((w * built.H) / built.W);
+      const svg = buildSvg(built, w);
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = w;
+        c.height = h;
+        const x = c.getContext("2d");
+        if (!x) return;
+        x.drawImage(img, 0, 0, w, h);
+        c.toBlob((b) => {
+          if (b) save(b, "riso-poster.png");
+        }, "image/png");
+      };
+      img.onerror = () => setError("Your browser could not draw the PNG. Download the SVG instead.");
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!built) return;
+      const text = buildSvg(built, width());
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy SVG code";
+      }, 1500);
+    });
+
+    renderInks();
+    updateVals();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-riso-print-poster-effect-generator-widget]")
+    .forEach(initRiso);
+</script>

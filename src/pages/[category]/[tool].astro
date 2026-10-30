@@ -98,6 +98,12 @@ import AvatarStackGeneratorWidget from "../../components/tools/AvatarStackGenera
 import NotificationBadgeGeneratorWidget from "../../components/tools/NotificationBadgeGeneratorWidget.astro";
 import MultiShapeMorphSequenceGeneratorWidget from "../../components/tools/MultiShapeMorphSequenceGeneratorWidget.astro";
 import IconSetStrokeWidthNormalizerWidget from "../../components/tools/IconSetStrokeWidthNormalizerWidget.astro";
+import PhotoToLayeredColorPosterGeneratorWidget from "../../components/tools/PhotoToLayeredColorPosterGeneratorWidget.astro";
+import CustomCursorSetGeneratorWidget from "../../components/tools/CustomCursorSetGeneratorWidget.astro";
+import RisoPrintPosterEffectGeneratorWidget from "../../components/tools/RisoPrintPosterEffectGeneratorWidget.astro";
+import MultiStateIconTogglePreviewerWidget from "../../components/tools/MultiStateIconTogglePreviewerWidget.astro";
+import SvgPathDirectionReverserWidget from "../../components/tools/SvgPathDirectionReverserWidget.astro";
+import BlueprintStyleTechnicalDrawingGeneratorWidget from "../../components/tools/BlueprintStyleTechnicalDrawingGeneratorWidget.astro";
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -207,6 +213,12 @@ const widgets: Record<string, any> = {
     "notification-badge-generator": NotificationBadgeGeneratorWidget,
     "multi-shape-morph-sequence-generator": MultiShapeMorphSequenceGeneratorWidget,
     "icon-set-stroke-width-normalizer": IconSetStrokeWidthNormalizerWidget,
+    "photo-to-layered-color-poster-generator": PhotoToLayeredColorPosterGeneratorWidget,
+   "custom-cursor-set-generator": CustomCursorSetGeneratorWidget,
+   "riso-print-poster-effect-generator": RisoPrintPosterEffectGeneratorWidget,
+   "multi-state-icon-toggle-previewer": MultiStateIconTogglePreviewerWidget,
+   "svg-path-direction-reverser": SvgPathDirectionReverserWidget,
+   "blueprint-style-technical-drawing-generator": BlueprintStyleTechnicalDrawingGeneratorWidget,
     
 };
 

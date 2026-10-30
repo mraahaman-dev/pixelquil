@@ -1,0 +1,599 @@
+---
+// Blueprint Style Technical Drawing Generator widget. Fully client-side.
+---
+
+<div data-blueprint-style-technical-drawing-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid gap-6 lg:grid-cols-[300px_1fr]">
+    <!-- Controls -->
+    <div class="space-y-6">
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Part</p>
+        <select data-shape class="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="plate" selected>Plate with four holes</option>
+          <option value="rect">Rectangle</option>
+          <option value="rounded">Rounded rectangle</option>
+          <option value="circle">Circle</option>
+          <option value="lbracket">L bracket</option>
+        </select>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <label data-wrap="w" class="block text-xs text-gray-600"><span data-label-w>Width</span>
+            <input type="number" data-f="w" min="1" step="any" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+          <label data-wrap="h" class="block text-xs text-gray-600">Height
+            <input type="number" data-f="h" min="1" step="any" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+          <label data-wrap="r" class="block text-xs text-gray-600">Corner radius
+            <input type="number" data-f="r" min="0" step="any" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+          <label data-wrap="t" class="block text-xs text-gray-600">Leg thickness
+            <input type="number" data-f="t" min="1" step="any" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+          <label data-wrap="hd" class="block text-xs text-gray-600">Hole diameter
+            <input type="number" data-f="hd" min="1" step="any" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+          <label data-wrap="m" class="block text-xs text-gray-600">Hole inset
+            <input type="number" data-f="m" min="1" step="any" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+        </div>
+        <p data-warn class="mt-2 hidden rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800"></p>
+      </div>
+
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Units and labels</p>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block text-xs text-gray-600">Units
+            <select data-unit class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-800">
+              <option value="mm" selected>mm</option>
+              <option value="cm">cm</option>
+              <option value="in">in</option>
+              <option value="px">px</option>
+            </select>
+          </label>
+          <label class="block text-xs text-gray-600">Decimals
+            <select data-dec class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-800">
+              <option value="0">0</option>
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </label>
+        </div>
+        <label class="mt-3 flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" data-show-units class="h-4 w-4 rounded border-gray-300 accent-indigo-600" /> Show units on every dimension</label>
+      </div>
+
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">3. Style</p>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block text-xs text-gray-600">Theme
+            <select data-theme class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-800">
+              <option value="classic" selected>Classic blueprint</option>
+              <option value="cyan">Cyanotype</option>
+              <option value="paper">Paper</option>
+              <option value="graphite">Graphite</option>
+            </select>
+          </label>
+          <label class="block text-xs text-gray-600">Arrowheads
+            <select data-arrow class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-800">
+              <option value="filled" selected>Filled</option>
+              <option value="open">Open</option>
+              <option value="tick">Ticks</option>
+            </select>
+          </label>
+        </div>
+        <label class="mt-3 block text-xs text-gray-600">Line weight: <span data-lw-label class="font-medium text-gray-900">2</span>
+          <input type="range" data-lw min="1" max="4" step="0.5" value="2" class="mt-1 w-full accent-indigo-600" />
+        </label>
+        <label class="mt-3 block text-xs text-gray-600">Grid size: <span data-grid-label class="font-medium text-gray-900">20</span> px
+          <input type="range" data-grid min="10" max="40" step="5" value="20" class="mt-1 w-full accent-indigo-600" />
+        </label>
+        <div class="mt-3 space-y-2 text-sm text-gray-700">
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-dashed checked class="h-4 w-4 rounded border-gray-300 accent-indigo-600" /> Dashed dimension lines</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-grid checked class="h-4 w-4 rounded border-gray-300 accent-indigo-600" /> Grid</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-center checked class="h-4 w-4 rounded border-gray-300 accent-indigo-600" /> Center lines</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-hatch class="h-4 w-4 rounded border-gray-300 accent-indigo-600" /> Hatch fill</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-frame checked class="h-4 w-4 rounded border-gray-300 accent-indigo-600" /> Border and title block</label>
+        </div>
+      </div>
+
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Notes and title block</p>
+        <div class="space-y-3">
+          <label class="block text-xs text-gray-600">Title
+            <input type="text" data-title maxlength="32" value="MOUNTING PLATE" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="block text-xs text-gray-600">Scale
+              <input type="text" data-scale maxlength="10" value="1:2" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800" />
+            </label>
+            <label class="block text-xs text-gray-600">Date
+              <input type="text" data-date maxlength="12" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800" />
+            </label>
+          </div>
+          <label class="block text-xs text-gray-600">Note 1
+            <input type="text" data-note1 maxlength="30" value="MATERIAL: ALUMINIUM 6061" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+          <label class="block text-xs text-gray-600">Note 2
+            <input type="text" data-note2 maxlength="30" value="DEBURR ALL EDGES" class="mt-1 block w-full rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div>
+      <div data-preview class="overflow-hidden rounded-xl border border-gray-200"></div>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button type="button" data-download-svg class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Download SVG</button>
+        <button type="button" data-download-png class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Download PNG</button>
+        <button type="button" data-copy class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>Copy SVG</span>
+        </button>
+        <button type="button" data-reset class="ml-auto text-sm text-gray-400 hover:text-red-600">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Theme = { bg: string; line: string; dim: string; text: string; grid: string; gridMajor: string };
+
+  const THEMES: Record<string, Theme> = {
+    classic: { bg: "#0b4a9e", line: "#ffffff", dim: "#cfe3ff", text: "#ffffff", grid: "rgba(255,255,255,0.14)", gridMajor: "rgba(255,255,255,0.3)" },
+    cyan: { bg: "#0d3a5a", line: "#c4ecff", dim: "#7fd3f7", text: "#e6f7ff", grid: "rgba(150,220,255,0.14)", gridMajor: "rgba(150,220,255,0.3)" },
+    paper: { bg: "#f8fafc", line: "#1e3a8a", dim: "#2563eb", text: "#1e3a8a", grid: "rgba(30,58,138,0.10)", gridMajor: "rgba(30,58,138,0.24)" },
+    graphite: { bg: "#111827", line: "#e5e7eb", dim: "#22d3ee", text: "#f3f4f6", grid: "rgba(255,255,255,0.08)", gridMajor: "rgba(255,255,255,0.2)" },
+  };
+
+  type Vals = { w: number; h: number; r: number; t: number; hd: number; m: number };
+
+  const DEFAULTS: Record<string, Vals & { title: string }> = {
+    plate: { w: 120, h: 80, r: 0, t: 0, hd: 10, m: 15, title: "MOUNTING PLATE" },
+    rect: { w: 120, h: 80, r: 0, t: 0, hd: 0, m: 0, title: "BASE PLATE" },
+    rounded: { w: 120, h: 80, r: 12, t: 0, hd: 0, m: 0, title: "COVER PLATE" },
+    circle: { w: 80, h: 80, r: 0, t: 0, hd: 0, m: 0, title: "DISC" },
+    lbracket: { w: 100, h: 100, r: 0, t: 20, hd: 0, m: 0, title: "L BRACKET" },
+  };
+
+  const VISIBLE: Record<string, string[]> = {
+    plate: ["w", "h", "hd", "m"],
+    rect: ["w", "h"],
+    rounded: ["w", "h", "r"],
+    circle: ["w"],
+    lbracket: ["w", "h", "t"],
+  };
+
+  const FONT = "ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace";
+  const CW = 800;
+  const CH = 560;
+
+  const f2 = (n: number) => String(Math.round(n * 100) / 100);
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  function initBlueprint(root: HTMLElement) {
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const shapeEl = q<HTMLSelectElement>("[data-shape]");
+    const fields: Record<string, HTMLInputElement> = {};
+    root.querySelectorAll<HTMLInputElement>("[data-f]").forEach((el) => (fields[el.dataset.f!] = el));
+    const wraps: Record<string, HTMLElement> = {};
+    root.querySelectorAll<HTMLElement>("[data-wrap]").forEach((el) => (wraps[el.dataset.wrap!] = el));
+    const labelW = q<HTMLElement>("[data-label-w]");
+    const warnEl = q<HTMLElement>("[data-warn]");
+    const unitEl = q<HTMLSelectElement>("[data-unit]");
+    const decEl = q<HTMLSelectElement>("[data-dec]");
+    const showUnitsEl = q<HTMLInputElement>("[data-show-units]");
+    const themeEl = q<HTMLSelectElement>("[data-theme]");
+    const arrowEl = q<HTMLSelectElement>("[data-arrow]");
+    const lwEl = q<HTMLInputElement>("[data-lw]");
+    const lwLabel = q<HTMLElement>("[data-lw-label]");
+    const gridEl = q<HTMLInputElement>("[data-grid]");
+    const gridLabel = q<HTMLElement>("[data-grid-label]");
+    const optDashed = q<HTMLInputElement>("[data-opt-dashed]");
+    const optGrid = q<HTMLInputElement>("[data-opt-grid]");
+    const optCenter = q<HTMLInputElement>("[data-opt-center]");
+    const optHatch = q<HTMLInputElement>("[data-opt-hatch]");
+    const optFrame = q<HTMLInputElement>("[data-opt-frame]");
+    const titleEl = q<HTMLInputElement>("[data-title]");
+    const scaleEl = q<HTMLInputElement>("[data-scale]");
+    const dateEl = q<HTMLInputElement>("[data-date]");
+    const note1El = q<HTMLInputElement>("[data-note1]");
+    const note2El = q<HTMLInputElement>("[data-note2]");
+    const preview = q<HTMLElement>("[data-preview]");
+    const copyBtn = q<HTMLButtonElement>("[data-copy]");
+    const copyIcon = q<SVGElement>("[data-copy-icon]");
+    const copyDone = q<SVGElement>("[data-copy-done]");
+    const copyLabel = q<HTMLElement>("[data-copy-label]");
+
+    dateEl.value = new Date().toISOString().slice(0, 10);
+
+    function applyShape(resetValues: boolean) {
+      const s = shapeEl.value;
+      const d = DEFAULTS[s];
+      if (resetValues) {
+        (Object.keys(fields) as (keyof Vals)[]).forEach((k) => {
+          fields[k].value = String(d[k]);
+        });
+        titleEl.value = d.title;
+      }
+      Object.keys(wraps).forEach((k) => wraps[k].classList.toggle("hidden", !VISIBLE[s].includes(k)));
+      labelW.textContent = s === "circle" ? "Diameter" : "Width";
+    }
+
+    function readValues(): { v: Vals; warn: string } {
+      const s = shapeEl.value;
+      let warn = "";
+      const num = (k: string, min: number) => {
+        let x = parseFloat(fields[k].value);
+        if (!isFinite(x) || x < min) x = Math.max(min, isFinite(x) ? x : min);
+        return Math.min(x, 100000);
+      };
+      const v: Vals = { w: num("w", 1), h: num("h", 1), r: num("r", 0), t: num("t", 1), hd: num("hd", 1), m: num("m", 1) };
+      if (s === "circle") v.h = v.w;
+      const small = Math.min(v.w, v.h);
+      if (s === "rounded" && v.r > small / 2) {
+        v.r = small / 2;
+        warn = "Corner radius was reduced to fit the part.";
+      }
+      if (s === "lbracket" && v.t > small * 0.8) {
+        v.t = small * 0.8;
+        warn = "Leg thickness was reduced to fit the part.";
+      }
+      if (s === "plate") {
+        if (v.hd > small / 3) {
+          v.hd = small / 3;
+          warn = "Hole diameter was reduced to fit the plate.";
+        }
+        const mMax = Math.min((v.w - v.hd) / 2, (v.h - v.hd) / 2);
+        const mMin = v.hd / 2 + 0.5;
+        const m2 = Math.min(Math.max(v.m, mMin), mMax);
+        if (m2 !== v.m) warn = "Hole inset was adjusted so the holes stay inside the plate.";
+        v.m = m2;
+      }
+      return { v, warn };
+    }
+
+    function build(): string {
+      const { v, warn } = readValues();
+      warnEl.textContent = warn;
+      warnEl.classList.toggle("hidden", !warn);
+
+      const shape = shapeEl.value;
+      const th = THEMES[themeEl.value];
+      const lw = parseFloat(lwEl.value);
+      const dw = Math.max(0.8, lw * 0.55);
+      const dec = parseInt(decEl.value, 10);
+      const unit = unitEl.value;
+      const showUnits = showUnitsEl.checked;
+      const dashed = optDashed.checked;
+      const arrowStyle = arrowEl.value;
+      const hatch = optHatch.checked;
+      const frame = optFrame.checked;
+
+      const label = (n: number) => parseFloat(n.toFixed(dec)).toString() + (showUnits ? " " + unit : "");
+
+      const s = Math.min(550 / v.w, 280 / v.h);
+      const w = v.w * s;
+      const h = v.h * s;
+      const ox = 90 + (550 - w) / 2;
+      const oy = 100 + (280 - h) / 2;
+      const OFF_IN = 34;
+      const OFF_OUT = 70;
+      const OFF_ONE = 38;
+
+      // Text is drawn twice (background halo, then fill) so it stays readable over the grid in every viewer
+      const T = (attrs: string, content: string) =>
+        `<text ${attrs} font-family="${FONT}" fill="none" stroke="${th.bg}" stroke-width="3.5" stroke-linejoin="round">${content}</text><text ${attrs} font-family="${FONT}" fill="${th.text}">${content}</text>`;
+
+      const arrow = (x: number, y: number, ang: number) => {
+        if (arrowStyle === "tick") {
+          return `<line x1="${f2(x - 4)}" y1="${f2(y + 4)}" x2="${f2(x + 4)}" y2="${f2(y - 4)}" stroke="${th.dim}" stroke-width="${dw}"/>`;
+        }
+        const L = 9;
+        const hw = 2.8;
+        const ca = Math.cos(ang);
+        const sa = Math.sin(ang);
+        const bx = x - L * ca;
+        const by = y - L * sa;
+        const p1 = `${f2(bx - hw * sa)},${f2(by + hw * ca)}`;
+        const p2 = `${f2(bx + hw * sa)},${f2(by - hw * ca)}`;
+        if (arrowStyle === "open") {
+          return `<polyline points="${p1} ${f2(x)},${f2(y)} ${p2}" fill="none" stroke="${th.dim}" stroke-width="${dw}" stroke-linejoin="round"/>`;
+        }
+        return `<polygon points="${f2(x)},${f2(y)} ${p1} ${p2}" fill="${th.dim}"/>`;
+      };
+
+      const dimLineAttr = `stroke="${th.dim}" stroke-width="${dw}"${dashed ? ' stroke-dasharray="7 4"' : ""}`;
+      const extAttr = `stroke="${th.dim}" stroke-width="${f2(dw * 0.7)}"`;
+
+      const hDim = (xa: number, xb: number, y: number, fyA: number, fyB: number, text: string) => {
+        const sg = Math.sign(y - fyA) || 1;
+        let o = `<line x1="${f2(xa)}" y1="${f2(fyA + 3 * sg)}" x2="${f2(xa)}" y2="${f2(y + 6 * sg)}" ${extAttr}/>`;
+        o += `<line x1="${f2(xb)}" y1="${f2(fyB + 3 * sg)}" x2="${f2(xb)}" y2="${f2(y + 6 * sg)}" ${extAttr}/>`;
+        o += `<line x1="${f2(xa)}" y1="${f2(y)}" x2="${f2(xb)}" y2="${f2(y)}" ${dimLineAttr}/>`;
+        o += arrow(xa, y, Math.PI) + arrow(xb, y, 0);
+        o += T(`x="${f2((xa + xb) / 2)}" y="${f2(y - 5)}" text-anchor="middle" font-size="11"`, esc(text));
+        return o;
+      };
+
+      const vDim = (ya: number, yb: number, x: number, fxA: number, fxB: number, text: string) => {
+        const sg = Math.sign(x - fxA) || 1;
+        let o = `<line x1="${f2(fxA + 3 * sg)}" y1="${f2(ya)}" x2="${f2(x + 6 * sg)}" y2="${f2(ya)}" ${extAttr}/>`;
+        o += `<line x1="${f2(fxB + 3 * sg)}" y1="${f2(yb)}" x2="${f2(x + 6 * sg)}" y2="${f2(yb)}" ${extAttr}/>`;
+        o += `<line x1="${f2(x)}" y1="${f2(ya)}" x2="${f2(x)}" y2="${f2(yb)}" ${dimLineAttr}/>`;
+        o += arrow(x, ya, -Math.PI / 2) + arrow(x, yb, Math.PI / 2);
+        o += T(`transform="translate(${f2(x - 5)} ${f2((ya + yb) / 2)}) rotate(-90)" text-anchor="middle" font-size="11"`, esc(text));
+        return o;
+      };
+
+      // Boundary height at a given x (relative to the part's left edge), used for leader anchors
+      const topY = (xr: number): number => {
+        if (shape === "circle") {
+          const r = w / 2;
+          const dx = xr - r;
+          return r - Math.sqrt(Math.max(0, r * r - dx * dx));
+        }
+        if (shape === "rounded") {
+          const rp = v.r * s;
+          if (rp > 0 && xr < rp) return rp - Math.sqrt(Math.max(0, rp * rp - (xr - rp) * (xr - rp)));
+          if (rp > 0 && xr > w - rp) return rp - Math.sqrt(Math.max(0, rp * rp - (xr - (w - rp)) * (xr - (w - rp))));
+          return 0;
+        }
+        if (shape === "lbracket") return xr <= v.t * s ? 0 : h - v.t * s;
+        return 0;
+      };
+
+      const out: string[] = [];
+      out.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${CW}" height="${CH}" viewBox="0 0 ${CW} ${CH}">`);
+      out.push(
+        `<defs><pattern id="bp-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="${th.line}" stroke-width="1" opacity="0.45"/></pattern></defs>`
+      );
+      out.push(`<rect width="${CW}" height="${CH}" fill="${th.bg}"/>`);
+
+      // Grid
+      if (optGrid.checked) {
+        const g = parseInt(gridEl.value, 10);
+        let minor = "";
+        let major = "";
+        let idx = 0;
+        for (let x = 14; x <= CW - 14; x += g, idx++) {
+          const seg = `<line x1="${x}" y1="14" x2="${x}" y2="${CH - 14}"/>`;
+          if (idx % 5 === 0) major += seg;
+          else minor += seg;
+        }
+        idx = 0;
+        for (let y = 14; y <= CH - 14; y += g, idx++) {
+          const seg = `<line x1="14" y1="${y}" x2="${CW - 14}" y2="${y}"/>`;
+          if (idx % 5 === 0) major += seg;
+          else minor += seg;
+        }
+        out.push(`<g stroke="${th.grid}" stroke-width="1">${minor}</g><g stroke="${th.gridMajor}" stroke-width="1">${major}</g>`);
+      }
+
+      // Frame and title block
+      if (frame) {
+        out.push(`<rect x="8" y="8" width="${CW - 16}" height="${CH - 16}" fill="none" stroke="${th.line}" stroke-width="${lw}"/>`);
+        out.push(`<rect x="14" y="14" width="${CW - 28}" height="${CH - 28}" fill="none" stroke="${th.line}" stroke-width="1"/>`);
+        const bx = 536, by = 486, bw = 250, bh = 60;
+        out.push(`<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="${th.bg}" stroke="${th.line}" stroke-width="${Math.max(1, lw * 0.75)}"/>`);
+        out.push(`<line x1="${bx}" y1="${by + 28}" x2="${bx + bw}" y2="${by + 28}" stroke="${th.line}" stroke-width="1"/>`);
+        out.push(`<line x1="${bx + 83}" y1="${by + 28}" x2="${bx + 83}" y2="${by + bh}" stroke="${th.line}" stroke-width="1"/>`);
+        out.push(`<line x1="${bx + 166}" y1="${by + 28}" x2="${bx + 166}" y2="${by + bh}" stroke="${th.line}" stroke-width="1"/>`);
+        out.push(`<text x="${bx + bw / 2}" y="${by + 19}" text-anchor="middle" font-size="15" font-weight="bold" font-family="${FONT}" fill="${th.text}">${esc(titleEl.value || "UNTITLED")}</text>`);
+        const cells = [
+          ["SCALE", scaleEl.value],
+          ["UNITS", unit.toUpperCase()],
+          ["DATE", dateEl.value],
+        ];
+        cells.forEach((c, i) => {
+          const cx = bx + i * 83;
+          out.push(`<text x="${cx + 5}" y="${by + 38}" font-size="7" font-family="${FONT}" fill="${th.dim}">${c[0]}</text>`);
+          out.push(`<text x="${cx + 5}" y="${by + 52}" font-size="11" font-family="${FONT}" fill="${th.text}">${esc(c[1])}</text>`);
+        });
+      }
+
+      // Part
+      const fill = hatch ? "url(#bp-hatch)" : "none";
+      const stroke = `stroke="${th.line}" stroke-width="${lw}" stroke-linejoin="round"`;
+      const holeFill = hatch ? th.bg : "none";
+      const hr = (v.hd * s) / 2;
+      const mp = v.m * s;
+      const holes: [number, number][] = [
+        [ox + mp, oy + mp],
+        [ox + w - mp, oy + mp],
+        [ox + mp, oy + h - mp],
+        [ox + w - mp, oy + h - mp],
+      ];
+
+      if (shape === "rect") {
+        out.push(`<rect x="${f2(ox)}" y="${f2(oy)}" width="${f2(w)}" height="${f2(h)}" fill="${fill}" ${stroke}/>`);
+      } else if (shape === "rounded") {
+        out.push(`<rect x="${f2(ox)}" y="${f2(oy)}" width="${f2(w)}" height="${f2(h)}" rx="${f2(v.r * s)}" fill="${fill}" ${stroke}/>`);
+      } else if (shape === "circle") {
+        out.push(`<circle cx="${f2(ox + w / 2)}" cy="${f2(oy + h / 2)}" r="${f2(w / 2)}" fill="${fill}" ${stroke}/>`);
+      } else if (shape === "lbracket") {
+        const t = v.t * s;
+        const pts = [[0, 0], [t, 0], [t, h - t], [w, h - t], [w, h], [0, h]].map((p) => `${f2(ox + p[0])},${f2(oy + p[1])}`).join(" ");
+        out.push(`<polygon points="${pts}" fill="${fill}" ${stroke}/>`);
+      } else {
+        out.push(`<rect x="${f2(ox)}" y="${f2(oy)}" width="${f2(w)}" height="${f2(h)}" fill="${fill}" ${stroke}/>`);
+        holes.forEach((p) => out.push(`<circle cx="${f2(p[0])}" cy="${f2(p[1])}" r="${f2(hr)}" fill="${holeFill}" ${stroke}/>`));
+      }
+
+      // Center lines
+      if (optCenter.checked && shape !== "lbracket") {
+        const cx = ox + w / 2;
+        const cy = oy + h / 2;
+        const cl = `stroke="${th.dim}" stroke-width="${f2(dw * 0.8)}" stroke-dasharray="12 3 2 3"`;
+        out.push(`<line x1="${f2(cx)}" y1="${f2(oy - 12)}" x2="${f2(cx)}" y2="${f2(oy + h + 12)}" ${cl}/>`);
+        out.push(`<line x1="${f2(ox - 12)}" y1="${f2(cy)}" x2="${f2(ox + w + 12)}" y2="${f2(cy)}" ${cl}/>`);
+        if (shape === "plate") {
+          holes.forEach((p) => {
+            const e = hr + 6;
+            out.push(`<line x1="${f2(p[0] - e)}" y1="${f2(p[1])}" x2="${f2(p[0] + e)}" y2="${f2(p[1])}" ${cl}/>`);
+            out.push(`<line x1="${f2(p[0])}" y1="${f2(p[1] - e)}" x2="${f2(p[0])}" y2="${f2(p[1] + e)}" ${cl}/>`);
+          });
+        }
+      }
+
+      // Dimensions
+      const dims: string[] = [];
+      const bottom = oy + h;
+      const right = ox + w;
+      if (shape === "rect" || shape === "rounded") {
+        dims.push(hDim(ox, right, bottom + OFF_ONE, bottom, bottom, label(v.w)));
+        dims.push(vDim(oy, bottom, right + OFF_ONE, right, right, label(v.h)));
+      } else if (shape === "circle") {
+        const cy = oy + h / 2;
+        dims.push(hDim(ox, right, bottom + OFF_ONE, cy, cy, "\u00D8 " + label(v.w)));
+      } else if (shape === "lbracket") {
+        const t = v.t * s;
+        dims.push(hDim(ox, right, bottom + OFF_ONE, bottom, bottom, label(v.w)));
+        dims.push(vDim(oy, bottom, right + OFF_OUT, ox + t, right, label(v.h)));
+        dims.push(vDim(bottom - t, bottom, right + OFF_IN, right, right, label(v.t)));
+      } else {
+        const hy = oy + mp;
+        const hx = ox + mp;
+        dims.push(hDim(ox, right, bottom + OFF_OUT, bottom, bottom, label(v.w)));
+        dims.push(hDim(ox + mp, right - mp, bottom + OFF_IN, bottom - mp, bottom - mp, label(v.w - 2 * v.m)));
+        dims.push(vDim(oy, bottom, right + OFF_OUT, right, right, label(v.h)));
+        dims.push(vDim(oy + mp, bottom - mp, right + OFF_IN, right - mp, right - mp, label(v.h - 2 * v.m)));
+        void hy;
+        void hx;
+      }
+      out.push(`<g>${dims.join("")}</g>`);
+
+      // Callouts
+      const callout = (text: string, side: "left" | "right", row: number, ax: number, ay: number) => {
+        if (!text.trim()) return "";
+        const tw = text.length * 7.2 + 10;
+        const y = 44 + row * 26;
+        const x0 = side === "left" ? 30 : CW - 30 - tw;
+        const x1 = x0 + tw;
+        const lx = side === "left" ? x1 : x0;
+        let o = `<line x1="${f2(x0)}" y1="${y}" x2="${f2(x1)}" y2="${y}" stroke="${th.line}" stroke-width="${f2(dw)}"/>`;
+        o += `<line x1="${f2(lx)}" y1="${y}" x2="${f2(ax)}" y2="${f2(ay)}" stroke="${th.line}" stroke-width="${f2(dw)}"/>`;
+        o += `<circle cx="${f2(ax)}" cy="${f2(ay)}" r="2.6" fill="${th.line}"/>`;
+        o += T(`x="${f2(x0 + 4)}" y="${y - 6}" font-size="12"`, esc(text.toUpperCase()));
+        return o;
+      };
+      // L brackets keep their anchors on the top of the upright leg so leaders never cross the part
+      const n1 = shape === "lbracket" ? v.t * s * 0.3 : w * 0.25;
+      const n2 = shape === "lbracket" ? v.t * s * 0.7 : w * 0.5;
+      const notes: string[] = [];
+      notes.push(callout(note1El.value, "left", 0, ox + n1, oy + topY(n1)));
+      notes.push(callout(note2El.value, "left", 1, ox + n2, oy + topY(n2)));
+      if (shape === "plate") {
+        notes.push(callout("4X \u00D8 " + label(v.hd), "right", 0, ox + w - mp, oy + mp - hr));
+      } else if (shape === "rounded" && v.r > 0) {
+        const xr = w - v.r * s * 0.3;
+        notes.push(callout("R " + label(v.r), "right", 0, ox + xr, oy + topY(xr)));
+      } else if (shape === "circle") {
+        notes.push(callout("DIA " + label(v.w), "right", 0, ox + w * 0.8, oy + topY(w * 0.8)));
+      }
+      out.push(`<g>${notes.join("")}</g>`);
+      out.push("</svg>");
+      return out.join("");
+    }
+
+    function render() {
+      const svg = build();
+      preview.innerHTML = svg.replace(`width="${CW}" height="${CH}"`, 'style="display:block;width:100%;height:auto"');
+    }
+
+    function download(blob: Blob, name: string) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // Events
+    shapeEl.addEventListener("change", () => {
+      applyShape(true);
+      render();
+    });
+    root.querySelectorAll<HTMLInputElement | HTMLSelectElement>("input, select").forEach((el) => {
+      if (el === shapeEl) return;
+      el.addEventListener("input", render);
+      el.addEventListener("change", render);
+    });
+    lwEl.addEventListener("input", () => (lwLabel.textContent = lwEl.value));
+    gridEl.addEventListener("input", () => (gridLabel.textContent = gridEl.value));
+
+    q<HTMLButtonElement>("[data-download-svg]").addEventListener("click", () => {
+      download(new Blob([build()], { type: "image/svg+xml;charset=utf-8" }), "blueprint-drawing.svg");
+    });
+    q<HTMLButtonElement>("[data-download-png]").addEventListener("click", () => {
+      const blob = new Blob([build()], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = CW * 2;
+        canvas.height = CH * 2;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((b) => {
+          if (b) download(b, "blueprint-drawing.png");
+        }, "image/png");
+      };
+      img.src = url;
+    });
+    copyBtn.addEventListener("click", async () => {
+      const text = build();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+      copyIcon.classList.add("hidden");
+      copyDone.classList.remove("hidden");
+      copyLabel.textContent = "Copied";
+      setTimeout(() => {
+        copyIcon.classList.remove("hidden");
+        copyDone.classList.add("hidden");
+        copyLabel.textContent = "Copy SVG";
+      }, 1500);
+    });
+
+    q<HTMLButtonElement>("[data-reset]").addEventListener("click", () => {
+      shapeEl.value = "plate";
+      unitEl.value = "mm";
+      decEl.value = "1";
+      showUnitsEl.checked = false;
+      themeEl.value = "classic";
+      arrowEl.value = "filled";
+      lwEl.value = "2";
+      lwLabel.textContent = "2";
+      gridEl.value = "20";
+      gridLabel.textContent = "20";
+      optDashed.checked = true;
+      optGrid.checked = true;
+      optCenter.checked = true;
+      optHatch.checked = false;
+      optFrame.checked = true;
+      scaleEl.value = "1:2";
+      note1El.value = "MATERIAL: ALUMINIUM 6061";
+      note2El.value = "DEBURR ALL EDGES";
+      dateEl.value = new Date().toISOString().slice(0, 10);
+      applyShape(true);
+      render();
+    });
+
+    applyShape(true);
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-blueprint-style-technical-drawing-generator-widget]").forEach(initBlueprint);
+</script>

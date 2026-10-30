@@ -1,0 +1,584 @@
+---
+// Multi State Icon Toggle Previewer widget. Fully client-side.
+---
+
+<div data-multi-state-icon-toggle-previewer-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <!-- Left: preview -->
+    <div>
+      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">1. Preview</p>
+      <div data-stage class="relative flex h-64 items-center justify-center rounded-xl border border-gray-200 bg-gray-50">
+        <button type="button" data-toggle aria-label="Toggle icon state" class="flex h-32 w-32 items-center justify-center rounded-2xl text-gray-900 hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+          <svg data-main width="96" height="96" viewBox="0 0 24 24" fill="none"></svg>
+        </button>
+        <span data-state-label class="absolute bottom-3 left-4 text-xs text-gray-500">State A</span>
+        <span class="absolute bottom-3 right-4 text-xs text-gray-400">Click the icon to toggle</span>
+      </div>
+
+      <div class="mt-4 flex items-center gap-4">
+        <label class="flex flex-1 items-center gap-3 text-xs text-gray-600">
+          Scrub
+          <input type="range" data-scrub min="0" max="1" step="0.01" value="0" class="w-full accent-cyan-600" />
+        </label>
+        <label class="flex items-center gap-2 text-xs text-gray-600">
+          <input type="checkbox" data-loop class="h-4 w-4 rounded border-gray-300 accent-cyan-600" />
+          Auto loop
+        </label>
+      </div>
+
+      <div class="mt-5 grid grid-cols-3 gap-3 text-center text-xs text-gray-500">
+        <div class="rounded-xl border border-gray-200 p-3">
+          <div data-thumb-a-wrap class="flex h-14 items-center justify-center rounded-lg bg-gray-50 text-gray-900">
+            <svg data-thumb-a width="32" height="32" viewBox="0 0 24 24" fill="none"></svg>
+          </div>
+          <p class="mt-2">State A</p>
+        </div>
+        <div class="rounded-xl border border-gray-200 p-3">
+          <div data-thumb-mid-wrap class="flex h-14 items-center justify-center rounded-lg bg-gray-50 text-gray-900">
+            <svg data-thumb-mid width="32" height="32" viewBox="0 0 24 24" fill="none"></svg>
+          </div>
+          <p class="mt-2">Halfway</p>
+        </div>
+        <div class="rounded-xl border border-gray-200 p-3">
+          <div data-thumb-b-wrap class="flex h-14 items-center justify-center rounded-lg bg-gray-50 text-gray-900">
+            <svg data-thumb-b width="32" height="32" viewBox="0 0 24 24" fill="none"></svg>
+          </div>
+          <p class="mt-2">State B</p>
+        </div>
+      </div>
+
+      <p class="mb-3 mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Export</p>
+      <div class="flex flex-wrap items-center gap-3">
+        <button type="button" data-copy="a" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>SVG state A</span>
+        </button>
+        <button type="button" data-copy="b" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>SVG state B</span>
+        </button>
+        <button type="button" data-copy="css" class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2">
+          <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>HTML + CSS toggle</span>
+        </button>
+        <button type="button" data-reset class="ml-auto text-sm text-gray-400 hover:text-red-600">Reset</button>
+      </div>
+      <p class="mt-2 text-xs text-gray-500">The CSS version uses the d property, which works in Chrome, Edge and Firefox. Safari does not animate it yet, so it shows a clean jump instead.</p>
+    </div>
+
+    <!-- Right: controls -->
+    <div class="space-y-6">
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Icon pair</p>
+        <select data-preset class="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"></select>
+        <label class="mt-3 block text-xs text-gray-600">
+          State A path (d attribute)
+          <textarea data-path-a rows="2" spellcheck="false" class="mt-1 block w-full rounded-lg border border-gray-200 p-2 font-mono text-xs text-gray-800 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+        </label>
+        <label class="mt-3 block text-xs text-gray-600">
+          State B path (d attribute)
+          <textarea data-path-b rows="2" spellcheck="false" class="mt-1 block w-full rounded-lg border border-gray-200 p-2 font-mono text-xs text-gray-800 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+        </label>
+        <label class="mt-3 block text-xs text-gray-600">
+          Grid size (viewBox)
+          <input type="number" data-grid min="8" max="128" value="24" class="mt-1 block w-24 rounded-lg border border-gray-200 px-2 py-1 text-sm text-gray-800" />
+        </label>
+        <p data-error class="mt-3 hidden rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700"></p>
+      </div>
+
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">3. Style and motion</p>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block text-xs text-gray-600">
+            Color
+            <input type="color" data-color value="#111827" class="mt-1 block h-9 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1" />
+          </label>
+          <label class="block text-xs text-gray-600">
+            Stage
+            <select data-bg class="mt-1 block h-9 w-full rounded-lg border border-gray-200 bg-white px-2 text-sm text-gray-800">
+              <option value="light" selected>Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+        </div>
+        <label class="mt-3 block text-xs text-gray-600">
+          Stroke width: <span data-sw-label class="font-medium text-gray-900">2</span>
+          <input type="range" data-sw min="0.5" max="4" step="0.25" value="2" class="mt-1 w-full accent-cyan-600" />
+        </label>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <label class="block text-xs text-gray-600">
+            Line cap
+            <select data-cap class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-800">
+              <option value="round" selected>Round</option>
+              <option value="butt">Butt</option>
+              <option value="square">Square</option>
+            </select>
+          </label>
+          <label class="block text-xs text-gray-600">
+            Line join
+            <select data-join class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-800">
+              <option value="round" selected>Round</option>
+              <option value="miter">Miter</option>
+              <option value="bevel">Bevel</option>
+            </select>
+          </label>
+        </div>
+        <label class="mt-3 block text-xs text-gray-600">
+          Duration: <span data-dur-label class="font-medium text-gray-900">350</span> ms
+          <input type="range" data-dur min="100" max="1500" step="50" value="350" class="mt-1 w-full accent-cyan-600" />
+        </label>
+        <label class="mt-3 block text-xs text-gray-600">
+          Easing
+          <select data-ease class="mt-1 block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-800">
+            <option value="inout" selected>Ease in out</option>
+            <option value="linear">Linear</option>
+            <option value="snappy">Snappy</option>
+            <option value="overshoot">Overshoot</option>
+          </select>
+        </label>
+        <label class="mt-3 block text-xs text-gray-600">
+          Extra spin: <span data-rot-label class="font-medium text-gray-900">0</span> degrees
+          <input type="range" data-rot min="-180" max="180" step="15" value="0" class="mt-1 w-full accent-cyan-600" />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Cmd = { c: string; n: number[] };
+  type Sub = { cmds: Cmd[]; deg: boolean };
+  type Pair = { a: Sub; b: Sub };
+
+  const ARITY: Record<string, number> = { m: 2, l: 2, h: 1, v: 1, c: 6, s: 4, q: 4, t: 2, z: 0 };
+
+  const PRESETS: { id: string; label: string; a: string; b: string; grid: number; rot?: number }[] = [
+    { id: "hamburger-close", label: "Hamburger to close", a: "M4 6L20 6M4 12L20 12M4 18L20 18", b: "M6 6L18 18M12 12L12 12M6 18L18 6", grid: 24 },
+    { id: "hamburger-back", label: "Hamburger to back arrow", a: "M4 6L20 6M4 12L20 12M4 18L20 18", b: "M5 12L11 6M5 12L19 12M5 12L11 18", grid: 24 },
+    { id: "plus-minus", label: "Plus to minus", a: "M12 5L12 19M5 12L19 12", b: "M12 12L12 12M5 12L19 12", grid: 24 },
+    { id: "plus-close", label: "Plus to close", a: "M12 5L12 19M5 12L19 12", b: "M6 6L18 18M6 18L18 6", grid: 24 },
+    { id: "chevron", label: "Chevron down to up", a: "M6 9L12 15L18 9", b: "M6 15L12 9L18 15", grid: 24 },
+    { id: "arrow", label: "Arrow right to down", a: "M5 12L19 12M13 6L19 12L13 18", b: "M12 5L12 19M6 13L12 19L18 13", grid: 24 },
+  ];
+
+  function round3(x: number) {
+    return Math.round(x * 1000) / 1000;
+  }
+
+  function parsePath(d: string): { subs: Sub[] } | { error: string } {
+    const src = d.trim();
+    if (!src) return { error: "Path is empty." };
+    const re = /[a-zA-Z]|[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
+    const tokens = src.match(re) || [];
+    if (src.replace(re, "").replace(/[\s,]/g, "") !== "") return { error: "The path contains characters that are not valid in a d attribute." };
+
+    const cmds: Cmd[] = [];
+    let i = 0;
+    let cur = "";
+    while (i < tokens.length) {
+      const t = tokens[i];
+      if (/^[a-zA-Z]$/.test(t)) {
+        const lc = t.toLowerCase();
+        if (lc === "a") return { error: "Arc commands (A and a) cannot be morphed. Convert arcs to curves first." };
+        if (!(lc in ARITY)) return { error: "Unknown path command: " + t };
+        cur = t;
+        i++;
+        if (ARITY[lc] === 0) {
+          cmds.push({ c: cur, n: [] });
+          continue;
+        }
+        if (i >= tokens.length || /^[a-zA-Z]$/.test(tokens[i])) return { error: "Command " + t + " has no numbers after it." };
+      } else if (!cur) {
+        return { error: "The path must start with a command such as M." };
+      } else if (ARITY[cur.toLowerCase()] === 0) {
+        return { error: "Unexpected number after " + cur + "." };
+      }
+      const lc = cur.toLowerCase();
+      const k = ARITY[lc];
+      while (i < tokens.length && !/^[a-zA-Z]$/.test(tokens[i])) {
+        if (i + k > tokens.length || tokens.slice(i, i + k).some((x) => /^[a-zA-Z]$/.test(x))) {
+          return { error: "Command " + cur + " needs " + k + " numbers per segment." };
+        }
+        cmds.push({ c: cur, n: tokens.slice(i, i + k).map(Number) });
+        i += k;
+        if (lc === "m") cur = cur === "M" ? "L" : "l";
+        if (cur.toLowerCase() !== lc) break;
+      }
+    }
+    if (!cmds.length || cmds[0].c.toLowerCase() !== "m") return { error: "The path must start with M." };
+
+    const subs: Sub[] = [];
+    let cx = 0, cy = 0, sx = 0, sy = 0;
+    let pts: number[][] = [];
+    let list: Cmd[] = [];
+    const flush = () => {
+      if (!list.length) return;
+      const xs = pts.map((p) => p[0]);
+      const ys = pts.map((p) => p[1]);
+      const deg = Math.max(...xs) - Math.min(...xs) < 0.01 && Math.max(...ys) - Math.min(...ys) < 0.01;
+      subs.push({ cmds: list, deg });
+    };
+    for (const cmd of cmds) {
+      const lc = cmd.c.toLowerCase();
+      const rel = cmd.c === lc;
+      const n = cmd.n;
+      if (lc === "m") {
+        flush();
+        list = [];
+        pts = [];
+      }
+      list.push(cmd);
+      const ox = rel ? cx : 0;
+      const oy = rel ? cy : 0;
+      if (lc === "m" || lc === "l" || lc === "t") {
+        cx = n[0] + ox;
+        cy = n[1] + oy;
+        pts.push([cx, cy]);
+        if (lc === "m") { sx = cx; sy = cy; }
+      } else if (lc === "h") {
+        cx = n[0] + ox;
+        pts.push([cx, cy]);
+      } else if (lc === "v") {
+        cy = n[0] + oy;
+        pts.push([cx, cy]);
+      } else if (lc === "c" || lc === "s" || lc === "q") {
+        for (let k = 0; k < n.length; k += 2) pts.push([n[k] + ox, n[k + 1] + oy]);
+        cx = n[n.length - 2] + ox;
+        cy = n[n.length - 1] + oy;
+      } else if (lc === "z") {
+        cx = sx;
+        cy = sy;
+        pts.push([cx, cy]);
+      }
+    }
+    flush();
+    return { subs };
+  }
+
+  function sig(s: Sub) {
+    return s.cmds.map((c) => c.c).join("");
+  }
+
+  function lerpD(a: Sub, b: Sub, t: number): string {
+    let out = "";
+    for (let i = 0; i < a.cmds.length; i++) {
+      const ca = a.cmds[i];
+      const cb = b.cmds[i];
+      out += ca.c + ca.n.map((v, k) => round3(v + (cb.n[k] - v) * t)).join(" ");
+    }
+    return out;
+  }
+
+  function fade(p: Pair, t: number): number {
+    if (p.a.deg && p.b.deg) return 0;
+    if (p.a.deg) return Math.max(0, Math.min(1, t));
+    if (p.b.deg) return Math.max(0, Math.min(1, 1 - t));
+    return 1;
+  }
+
+  const EASE: Record<string, (t: number) => number> = {
+    linear: (t) => t,
+    inout: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+    snappy: (t) => 1 - Math.pow(1 - t, 4),
+    overshoot: (t) => {
+      const c1 = 1.4;
+      const c3 = c1 + 1;
+      return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+    },
+  };
+  const CSS_EASE: Record<string, string> = {
+    linear: "linear",
+    inout: "ease-in-out",
+    snappy: "cubic-bezier(0.22, 1, 0.36, 1)",
+    overshoot: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+  };
+
+  function initIconToggle(root: HTMLElement) {
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const stage = q<HTMLElement>("[data-stage]");
+    const toggleBtn = q<HTMLButtonElement>("[data-toggle]");
+    const mainSvg = q<SVGSVGElement>("[data-main]");
+    const thumbA = q<SVGSVGElement>("[data-thumb-a]");
+    const thumbMid = q<SVGSVGElement>("[data-thumb-mid]");
+    const thumbB = q<SVGSVGElement>("[data-thumb-b]");
+    const stateLabel = q<HTMLElement>("[data-state-label]");
+    const scrub = q<HTMLInputElement>("[data-scrub]");
+    const loopEl = q<HTMLInputElement>("[data-loop]");
+    const presetEl = q<HTMLSelectElement>("[data-preset]");
+    const pathA = q<HTMLTextAreaElement>("[data-path-a]");
+    const pathB = q<HTMLTextAreaElement>("[data-path-b]");
+    const gridEl = q<HTMLInputElement>("[data-grid]");
+    const errorEl = q<HTMLElement>("[data-error]");
+    const colorEl = q<HTMLInputElement>("[data-color]");
+    const bgEl = q<HTMLSelectElement>("[data-bg]");
+    const swEl = q<HTMLInputElement>("[data-sw]");
+    const swLabel = q<HTMLElement>("[data-sw-label]");
+    const capEl = q<HTMLSelectElement>("[data-cap]");
+    const joinEl = q<HTMLSelectElement>("[data-join]");
+    const durEl = q<HTMLInputElement>("[data-dur]");
+    const durLabel = q<HTMLElement>("[data-dur-label]");
+    const easeEl = q<HTMLSelectElement>("[data-ease]");
+    const rotEl = q<HTMLInputElement>("[data-rot]");
+    const rotLabel = q<HTMLElement>("[data-rot-label]");
+
+    PRESETS.forEach((p) => {
+      const o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.label;
+      presetEl.appendChild(o);
+    });
+    const customOpt = document.createElement("option");
+    customOpt.value = "custom";
+    customOpt.textContent = "Custom paths";
+    presetEl.appendChild(customOpt);
+
+    let pairs: Pair[] | null = null;
+    let value = 0;
+    let atB = false;
+    let anim: { from: number; to: number; start: number; dur: number } | null = null;
+    let raf = 0;
+    let loopTimer = 0;
+
+    function compile(): boolean {
+      const ra = parsePath(pathA.value);
+      const rb = parsePath(pathB.value);
+      let err = "";
+      if ("error" in ra) err = "State A: " + ra.error;
+      else if ("error" in rb) err = "State B: " + rb.error;
+      else if (ra.subs.length !== rb.subs.length) {
+        err = "State A has " + ra.subs.length + " separate shape(s) and state B has " + rb.subs.length + ". Both need the same number so each can morph into its partner.";
+      } else {
+        for (let i = 0; i < ra.subs.length; i++) {
+          if (sig(ra.subs[i]) !== sig(rb.subs[i])) {
+            err = "Shape " + (i + 1) + " uses different commands in A (" + sig(ra.subs[i]) + ") and B (" + sig(rb.subs[i]) + "). Use the same command letters in the same order.";
+            break;
+          }
+        }
+      }
+      if (err) {
+        errorEl.textContent = err;
+        errorEl.classList.remove("hidden");
+        pairs = null;
+        return false;
+      }
+      errorEl.classList.add("hidden");
+      const sa = (ra as { subs: Sub[] }).subs;
+      const sb = (rb as { subs: Sub[] }).subs;
+      pairs = sa.map((a, i) => ({ a, b: sb[i] }));
+      return true;
+    }
+
+    function styleSvg(svg: SVGSVGElement) {
+      const g = Math.max(8, parseInt(gridEl.value, 10) || 24);
+      svg.setAttribute("viewBox", `0 0 ${g} ${g}`);
+      svg.setAttribute("stroke", colorEl.value);
+      svg.setAttribute("stroke-width", swEl.value);
+      svg.setAttribute("stroke-linecap", capEl.value);
+      svg.setAttribute("stroke-linejoin", joinEl.value);
+      svg.style.color = colorEl.value;
+    }
+
+    function paint(svg: SVGSVGElement, v: number, withRot: boolean) {
+      if (!pairs) return;
+      while (svg.childNodes.length > pairs.length) svg.removeChild(svg.lastChild!);
+      while (svg.childNodes.length < pairs.length) svg.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "path"));
+      pairs.forEach((p, i) => {
+        const el = svg.childNodes[i] as SVGPathElement;
+        el.setAttribute("d", lerpD(p.a, p.b, v));
+        el.setAttribute("opacity", String(round3(fade(p, v))));
+      });
+      const rot = parseFloat(rotEl.value) || 0;
+      svg.style.transform = withRot ? `rotate(${round3(rot * v)}deg)` : "";
+    }
+
+    function renderAll() {
+      [mainSvg, thumbA, thumbMid, thumbB].forEach(styleSvg);
+      paint(mainSvg, value, true);
+      paint(thumbA, 0, false);
+      paint(thumbMid, 0.5, false);
+      paint(thumbB, 1, false);
+      stateLabel.textContent = value < 0.02 ? "State A" : value > 0.98 ? "State B" : "In between";
+      const dark = bgEl.value === "dark";
+      stage.className = "relative flex h-64 items-center justify-center rounded-xl border " + (dark ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-gray-50");
+      stateLabel.className = "absolute bottom-3 left-4 text-xs " + (dark ? "text-gray-400" : "text-gray-500");
+    }
+
+    function recompile() {
+      if (compile()) renderAll();
+    }
+
+    function stop() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      anim = null;
+    }
+
+    function frame(now: number) {
+      if (!anim) return;
+      const t = Math.min(1, (now - anim.start) / anim.dur);
+      value = anim.from + (anim.to - anim.from) * EASE[easeEl.value](t);
+      scrub.value = String(Math.max(0, Math.min(1, value)));
+      renderAll();
+      if (t < 1) {
+        raf = requestAnimationFrame(frame);
+      } else {
+        value = anim.to;
+        scrub.value = String(value);
+        anim = null;
+        raf = 0;
+        renderAll();
+      }
+    }
+
+    function go(to: number) {
+      stop();
+      anim = { from: value, to, start: performance.now(), dur: Math.max(50, parseInt(durEl.value, 10) || 350) };
+      raf = requestAnimationFrame(frame);
+    }
+
+    function toggle() {
+      if (!pairs) return;
+      atB = !atB;
+      go(atB ? 1 : 0);
+    }
+
+    function setLoop() {
+      clearInterval(loopTimer);
+      if (loopEl.checked) {
+        loopTimer = window.setInterval(toggle, (parseInt(durEl.value, 10) || 350) + 700);
+      }
+    }
+
+    function loadPreset(id: string) {
+      const p = PRESETS.find((x) => x.id === id);
+      if (!p) return;
+      pathA.value = p.a;
+      pathB.value = p.b;
+      gridEl.value = String(p.grid);
+      stop();
+      value = 0;
+      atB = false;
+      scrub.value = "0";
+      recompile();
+    }
+
+    // Events
+    toggleBtn.addEventListener("click", toggle);
+    scrub.addEventListener("input", () => {
+      stop();
+      value = parseFloat(scrub.value);
+      atB = value > 0.5;
+      renderAll();
+    });
+    loopEl.addEventListener("change", setLoop);
+    presetEl.addEventListener("change", () => {
+      if (presetEl.value !== "custom") loadPreset(presetEl.value);
+    });
+    [pathA, pathB, gridEl].forEach((el) =>
+      el.addEventListener("input", () => {
+        if (el !== gridEl) presetEl.value = "custom";
+        recompile();
+      })
+    );
+    [colorEl, bgEl, capEl, joinEl, easeEl].forEach((el) => el.addEventListener("input", renderAll));
+    swEl.addEventListener("input", () => {
+      swLabel.textContent = swEl.value;
+      renderAll();
+    });
+    rotEl.addEventListener("input", () => {
+      rotLabel.textContent = rotEl.value;
+      renderAll();
+    });
+    durEl.addEventListener("input", () => {
+      durLabel.textContent = durEl.value;
+      setLoop();
+    });
+
+    // Export
+    function svgMarkup(v: number): string {
+      const g = Math.max(8, parseInt(gridEl.value, 10) || 24);
+      const paths = pairs!
+        .map((p) => {
+          const o = fade(p, v);
+          return `  <path d="${lerpD(p.a, p.b, v)}"${o < 1 ? ` opacity="${o}"` : ""}/>`;
+        })
+        .join("\n");
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 ${g} ${g}" fill="none" stroke="${colorEl.value}" stroke-width="${swEl.value}" stroke-linecap="${capEl.value}" stroke-linejoin="${joinEl.value}">\n${paths}\n</svg>`;
+    }
+
+    function cssMarkup(): string {
+      const g = Math.max(8, parseInt(gridEl.value, 10) || 24);
+      const dur = parseInt(durEl.value, 10) || 350;
+      const ease = CSS_EASE[easeEl.value];
+      const rot = parseFloat(rotEl.value) || 0;
+      const paths = pairs!.map((p) => `  <path d="${lerpD(p.a, p.b, 0)}"${fade(p, 0) < 1 ? ` opacity="${fade(p, 0)}"` : ""}/>`).join("\n");
+      const html = `<button class="icon-toggle-btn" aria-label="Toggle menu" aria-pressed="false">\n<svg class="icon-toggle" width="24" height="24" viewBox="0 0 ${g} ${g}" fill="none" stroke="${colorEl.value}" stroke-width="${swEl.value}" stroke-linecap="${capEl.value}" stroke-linejoin="${joinEl.value}">\n${paths}\n</svg>\n</button>`;
+      let css = `.icon-toggle-btn { background: none; border: 0; padding: 8px; cursor: pointer; }\n`;
+      css += `.icon-toggle { transition: transform ${dur}ms ${ease}; }\n`;
+      css += `.icon-toggle path { transition: d ${dur}ms ${ease}, opacity ${dur}ms ${ease}; }\n`;
+      pairs!.forEach((p, i) => {
+        const o = fade(p, 1);
+        css += `.icon-toggle.is-on path:nth-child(${i + 1}) { d: path("${lerpD(p.a, p.b, 1)}");${o < 1 ? ` opacity: ${o};` : ""} }\n`;
+      });
+      if (rot) css += `.icon-toggle.is-on { transform: rotate(${rot}deg); }\n`;
+      const js = `document.querySelector(".icon-toggle-btn").addEventListener("click", (e) => {\n  const btn = e.currentTarget;\n  const on = btn.querySelector(".icon-toggle").classList.toggle("is-on");\n  btn.setAttribute("aria-pressed", on);\n});`;
+      return `<!-- HTML -->\n${html}\n\n/* CSS */\n${css}\n// JavaScript\n${js}\n`;
+    }
+
+    root.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
+      const icon = btn.querySelector<SVGElement>("[data-copy-icon]")!;
+      const done = btn.querySelector<SVGElement>("[data-copy-done]")!;
+      const label = btn.querySelector<HTMLElement>("[data-copy-label]")!;
+      const original = label.textContent || "";
+      btn.addEventListener("click", async () => {
+        if (!pairs) return;
+        const kind = btn.dataset.copy;
+        const text = kind === "a" ? svgMarkup(0) : kind === "b" ? svgMarkup(1) : cssMarkup();
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        icon.classList.add("hidden");
+        done.classList.remove("hidden");
+        label.textContent = "Copied";
+        setTimeout(() => {
+          icon.classList.remove("hidden");
+          done.classList.add("hidden");
+          label.textContent = original;
+        }, 1500);
+      });
+    });
+
+    q<HTMLButtonElement>("[data-reset]").addEventListener("click", () => {
+      colorEl.value = "#111827";
+      bgEl.value = "light";
+      swEl.value = "2";
+      swLabel.textContent = "2";
+      capEl.value = "round";
+      joinEl.value = "round";
+      durEl.value = "350";
+      durLabel.textContent = "350";
+      easeEl.value = "inout";
+      rotEl.value = "0";
+      rotLabel.textContent = "0";
+      loopEl.checked = false;
+      setLoop();
+      presetEl.value = PRESETS[0].id;
+      loadPreset(PRESETS[0].id);
+    });
+
+    presetEl.value = PRESETS[0].id;
+    loadPreset(PRESETS[0].id);
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-multi-state-icon-toggle-previewer-widget]").forEach(initIconToggle);
+</script>

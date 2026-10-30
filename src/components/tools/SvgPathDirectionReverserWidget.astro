@@ -1,0 +1,575 @@
+---
+// SVG Path Direction Reverser widget. Fully client-side.
+---
+
+<div data-svg-path-direction-reverser-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Input + options -->
+    <div class="space-y-5">
+      <div>
+        <div class="mb-3 flex items-center justify-between">
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Input</p>
+          <div class="flex gap-3 text-xs">
+            <button type="button" data-sample="wave" class="text-gray-500 hover:text-purple-600">Wave</button>
+            <button type="button" data-sample="heart" class="text-gray-500 hover:text-purple-600">Heart</button>
+            <button type="button" data-sample="arcs" class="text-gray-500 hover:text-purple-600">Arcs</button>
+          </div>
+        </div>
+        <textarea data-input rows="6" spellcheck="false" placeholder="Paste a path d value, or a full path element or SVG" class="block w-full rounded-lg border border-gray-200 p-3 font-mono text-xs text-gray-800 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+        <p data-error class="mt-2 hidden rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700"></p>
+      </div>
+
+      <div>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">2. Options</p>
+        <div class="space-y-2 text-sm text-gray-700">
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-order checked class="h-4 w-4 rounded border-gray-300 accent-purple-600" /> Also reverse the order of subpaths</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-hv checked class="h-4 w-4 rounded border-gray-300 accent-purple-600" /> Shorten straight lines to H and V</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-opt-compact class="h-4 w-4 rounded border-gray-300 accent-purple-600" /> Compact output (no extra spaces)</label>
+        </div>
+        <label class="mt-3 block text-xs text-gray-600">
+          Decimal places: <span data-prec-label class="font-medium text-gray-900">3</span>
+          <input type="range" data-prec min="0" max="6" step="1" value="3" class="mt-1 w-full accent-purple-600" />
+        </label>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div>
+      <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">4. Output</p>
+      <textarea data-output rows="6" readonly spellcheck="false" class="block w-full rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-800 focus:outline-none"></textarea>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <button type="button" data-copy="out" class="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+          <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>Copy output</span>
+        </button>
+        <button type="button" data-copy="anim" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <svg data-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <svg data-copy-done class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          <span data-copy-label>Copy draw animation</span>
+        </button>
+        <button type="button" data-use-output class="text-sm text-gray-500 hover:text-purple-600">Use output as input</button>
+        <button type="button" data-clear class="ml-auto text-sm text-gray-400 hover:text-red-600">Clear</button>
+      </div>
+      <p data-stats class="mt-3 text-xs text-gray-500"></p>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="mt-6 border-t border-gray-100 pt-5">
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Draw direction preview</p>
+      <div class="flex items-center gap-4 text-xs text-gray-600">
+        <label class="flex items-center gap-2">
+          Duration
+          <input type="range" data-speed min="1" max="6" step="0.5" value="2.5" class="w-24 accent-purple-600" />
+          <span data-speed-label class="w-8 font-medium text-gray-900">2.5s</span>
+        </label>
+        <label class="flex items-center gap-2">
+          Thickness
+          <input type="range" data-thick min="1" max="10" step="0.5" value="3" class="w-20 accent-purple-600" />
+        </label>
+        <button type="button" data-play class="rounded-lg border border-gray-200 px-3 py-1 font-medium text-gray-700 hover:bg-gray-50">Pause</button>
+      </div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="rounded-xl border border-gray-200 p-3">
+        <p class="mb-2 text-xs font-medium text-gray-600">Original</p>
+        <svg data-prev-a class="block h-56 w-full rounded-lg bg-gray-50" fill="none">
+          <path data-path-a stroke="#374151" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle data-start-a r="1" fill="#16a34a"></circle>
+          <circle data-end-a r="1" fill="#ffffff" stroke="#dc2626"></circle>
+        </svg>
+      </div>
+      <div class="rounded-xl border border-gray-200 p-3">
+        <p class="mb-2 text-xs font-medium text-gray-600">Reversed</p>
+        <svg data-prev-b class="block h-56 w-full rounded-lg bg-gray-50" fill="none">
+          <path data-path-b stroke="#9333ea" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle data-start-b r="1" fill="#16a34a"></circle>
+          <circle data-end-b r="1" fill="#ffffff" stroke="#dc2626"></circle>
+        </svg>
+      </div>
+    </div>
+    <p class="mt-3 text-xs text-gray-500">The green dot marks where each path starts and the red ring marks where it ends. The line draws from the green dot toward the red ring, exactly like a stroke dash animation.</p>
+  </div>
+</div>
+
+<script>
+  type Pt = [number, number];
+  type Seg = {
+    t: "L" | "C" | "Q" | "A";
+    p: Pt;
+    c1?: Pt;
+    c2?: Pt;
+    rx?: number;
+    ry?: number;
+    rot?: number;
+    large?: number;
+    sweep?: number;
+  };
+  type Sub = { start: Pt; segs: Seg[]; closed: boolean };
+
+  const SAMPLES: Record<string, string> = {
+    wave: "M10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80",
+    heart: "M100 170 C20 110 20 50 70 50 C85 50 95 60 100 70 C105 60 115 50 130 50 C180 50 180 110 100 170Z",
+    arcs: "M20 100 a40 40 0 0 1 80 0 a40 40 0 0 0 80 0 l0 60 h-160 z M60 120 h40 v20",
+  };
+
+  const ARITY: Record<string, number> = { m: 2, l: 2, h: 1, v: 1, c: 6, s: 4, q: 4, t: 2, a: 7, z: 0 };
+  const EPS = 1e-9;
+
+  function parseSubpaths(d: string): Sub[] {
+    let i = 0;
+    const n = d.length;
+    const numRe = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/y;
+
+    const skip = () => {
+      while (i < n && /[\s,]/.test(d[i])) i++;
+    };
+    const readNum = (): number => {
+      skip();
+      numRe.lastIndex = i;
+      const m = numRe.exec(d);
+      if (!m) throw new Error("Expected a number at position " + i + ".");
+      i = numRe.lastIndex;
+      return parseFloat(m[0]);
+    };
+    const readFlag = (): number => {
+      skip();
+      const ch = d[i];
+      if (ch !== "0" && ch !== "1") throw new Error("Expected an arc flag (0 or 1) at position " + i + ".");
+      i++;
+      return ch === "1" ? 1 : 0;
+    };
+    const atNumber = () => {
+      skip();
+      if (i >= n) return false;
+      return /[-+.\d]/.test(d[i]);
+    };
+
+    const subs: Sub[] = [];
+    let cur: Sub | null = null;
+    let cx = 0, cy = 0, sx = 0, sy = 0;
+    let lastC2: Pt | null = null;
+    let lastQ: Pt | null = null;
+    let cmd = "";
+
+    const ensure = () => {
+      if (!cur) {
+        cur = { start: [cx, cy], segs: [], closed: false };
+        sx = cx;
+        sy = cy;
+        subs.push(cur);
+      }
+      return cur;
+    };
+
+    skip();
+    if (i >= n) throw new Error("The path is empty.");
+
+    while (true) {
+      skip();
+      if (i >= n) break;
+      const ch = d[i];
+      if (/[a-zA-Z]/.test(ch)) {
+        if (!(ch.toLowerCase() in ARITY)) throw new Error("Unknown path command: " + ch);
+        cmd = ch;
+        i++;
+        if (subs.length === 0 && cmd.toLowerCase() !== "m") throw new Error("The path must start with M.");
+      } else if (!cmd || ARITY[cmd.toLowerCase()] === 0) {
+        throw new Error("Unexpected character at position " + i + ".");
+      }
+      const lc = cmd.toLowerCase();
+      const rel = cmd === lc;
+      const ox = () => (rel ? cx : 0);
+      const oy = () => (rel ? cy : 0);
+
+      if (lc === "z") {
+        if (cur) (cur as Sub).closed = true;
+        cx = sx;
+        cy = sy;
+        cur = null;
+        lastC2 = null;
+        lastQ = null;
+        continue;
+      }
+      if (!atNumber()) throw new Error("Command " + cmd + " is missing its numbers.");
+
+      while (atNumber()) {
+        if (lc === "m") {
+          const x = readNum() + ox();
+          const y = readNum() + oy();
+          cx = x;
+          cy = y;
+          sx = x;
+          sy = y;
+          cur = { start: [x, y], segs: [], closed: false };
+          subs.push(cur);
+          cmd = rel ? "l" : "L";
+          lastC2 = null;
+          lastQ = null;
+          break;
+        }
+        const sub = ensure();
+        if (lc === "l") {
+          const x = readNum() + ox();
+          const y = readNum() + oy();
+          sub.segs.push({ t: "L", p: [x, y] });
+          cx = x; cy = y; lastC2 = null; lastQ = null;
+        } else if (lc === "h") {
+          const x = readNum() + ox();
+          sub.segs.push({ t: "L", p: [x, cy] });
+          cx = x; lastC2 = null; lastQ = null;
+        } else if (lc === "v") {
+          const y = readNum() + oy();
+          sub.segs.push({ t: "L", p: [cx, y] });
+          cy = y; lastC2 = null; lastQ = null;
+        } else if (lc === "c") {
+          const ax = ox(), ay = oy();
+          const c1: Pt = [readNum() + ax, readNum() + ay];
+          const c2: Pt = [readNum() + ax, readNum() + ay];
+          const p: Pt = [readNum() + ax, readNum() + ay];
+          sub.segs.push({ t: "C", c1, c2, p });
+          cx = p[0]; cy = p[1]; lastC2 = c2; lastQ = null;
+        } else if (lc === "s") {
+          const ax = ox(), ay = oy();
+          const c1: Pt = lastC2 ? [2 * cx - lastC2[0], 2 * cy - lastC2[1]] : [cx, cy];
+          const c2: Pt = [readNum() + ax, readNum() + ay];
+          const p: Pt = [readNum() + ax, readNum() + ay];
+          sub.segs.push({ t: "C", c1, c2, p });
+          cx = p[0]; cy = p[1]; lastC2 = c2; lastQ = null;
+        } else if (lc === "q") {
+          const ax = ox(), ay = oy();
+          const c1: Pt = [readNum() + ax, readNum() + ay];
+          const p: Pt = [readNum() + ax, readNum() + ay];
+          sub.segs.push({ t: "Q", c1, p });
+          cx = p[0]; cy = p[1]; lastQ = c1; lastC2 = null;
+        } else if (lc === "t") {
+          const ax = ox(), ay = oy();
+          const c1: Pt = lastQ ? [2 * cx - lastQ[0], 2 * cy - lastQ[1]] : [cx, cy];
+          const p: Pt = [readNum() + ax, readNum() + ay];
+          sub.segs.push({ t: "Q", c1, p });
+          cx = p[0]; cy = p[1]; lastQ = c1; lastC2 = null;
+        } else if (lc === "a") {
+          const rx = readNum();
+          const ry = readNum();
+          const rot = readNum();
+          const large = readFlag();
+          const sweep = readFlag();
+          const x = readNum() + ox();
+          const y = readNum() + oy();
+          sub.segs.push({ t: "A", p: [x, y], rx, ry, rot, large, sweep });
+          cx = x; cy = y; lastC2 = null; lastQ = null;
+        }
+      }
+    }
+    return subs;
+  }
+
+  function dist(a: Pt, b: Pt) {
+    return Math.hypot(a[0] - b[0], a[1] - b[1]);
+  }
+
+  function reverseSub(s: Sub): Sub {
+    const pts: Pt[] = [s.start, ...s.segs.map((g) => g.p)];
+    const segs = s.segs.slice();
+    if (s.closed && segs.length && dist(pts[pts.length - 1], s.start) > EPS) {
+      segs.push({ t: "L", p: s.start });
+      pts.push(s.start);
+    }
+    const count = segs.length;
+    const out: Seg[] = [];
+    for (let k = count - 1; k >= 0; k--) {
+      const g = segs[k];
+      const end = pts[k];
+      if (g.t === "L") out.push({ t: "L", p: end });
+      else if (g.t === "C") out.push({ t: "C", c1: g.c2, c2: g.c1, p: end });
+      else if (g.t === "Q") out.push({ t: "Q", c1: g.c1, p: end });
+      else out.push({ ...g, p: end, sweep: g.sweep ? 0 : 1 });
+    }
+    const start = pts[count];
+    if (s.closed && out.length) {
+      const last = out[out.length - 1];
+      if (last.t === "L" && dist(last.p, start) < EPS) out.pop();
+    }
+    return { start, segs: out, closed: s.closed };
+  }
+
+  type Opts = { order: boolean; hv: boolean; compact: boolean; prec: number; oneLine: boolean };
+
+  function serialize(subs: Sub[], o: Opts): string {
+    const f = (v: number) => {
+      const r = parseFloat(v.toFixed(o.prec));
+      return String(r === 0 ? 0 : r);
+    };
+    const cmd = (c: string, nums: string[]) => (o.compact ? c + nums.join(" ") : c + " " + nums.join(" "));
+    const parts: string[] = [];
+    for (const s of subs) {
+      const seg: string[] = [cmd("M", [f(s.start[0]), f(s.start[1])])];
+      let cx = s.start[0];
+      let cy = s.start[1];
+      for (const g of s.segs) {
+        if (g.t === "L") {
+          if (o.hv && Math.abs(g.p[1] - cy) < EPS) seg.push(cmd("H", [f(g.p[0])]));
+          else if (o.hv && Math.abs(g.p[0] - cx) < EPS) seg.push(cmd("V", [f(g.p[1])]));
+          else seg.push(cmd("L", [f(g.p[0]), f(g.p[1])]));
+        } else if (g.t === "C") {
+          seg.push(cmd("C", [f(g.c1![0]), f(g.c1![1]), f(g.c2![0]), f(g.c2![1]), f(g.p[0]), f(g.p[1])]));
+        } else if (g.t === "Q") {
+          seg.push(cmd("Q", [f(g.c1![0]), f(g.c1![1]), f(g.p[0]), f(g.p[1])]));
+        } else {
+          seg.push(cmd("A", [f(g.rx!), f(g.ry!), f(g.rot!), String(g.large), String(g.sweep), f(g.p[0]), f(g.p[1])]));
+        }
+        cx = g.p[0];
+        cy = g.p[1];
+      }
+      if (s.closed) seg.push("Z");
+      parts.push(seg.join(o.compact ? "" : " "));
+    }
+    return parts.join(o.compact ? "" : o.oneLine ? " " : "\n");
+  }
+
+  function reversePath(d: string, o: Opts): { out: string; segCount: number; subCount: number } {
+    const subs = parseSubpaths(d);
+    let rev = subs.map(reverseSub);
+    if (o.order) rev = rev.reverse();
+    return {
+      out: serialize(rev, o),
+      segCount: subs.reduce((a, s) => a + s.segs.length, 0),
+      subCount: subs.length,
+    };
+  }
+
+  function initReverser(root: HTMLElement) {
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const input = q<HTMLTextAreaElement>("[data-input]");
+    const output = q<HTMLTextAreaElement>("[data-output]");
+    const errorEl = q<HTMLElement>("[data-error]");
+    const statsEl = q<HTMLElement>("[data-stats]");
+    const optOrder = q<HTMLInputElement>("[data-opt-order]");
+    const optHv = q<HTMLInputElement>("[data-opt-hv]");
+    const optCompact = q<HTMLInputElement>("[data-opt-compact]");
+    const prec = q<HTMLInputElement>("[data-prec]");
+    const precLabel = q<HTMLElement>("[data-prec-label]");
+    const speed = q<HTMLInputElement>("[data-speed]");
+    const speedLabel = q<HTMLElement>("[data-speed-label]");
+    const thick = q<HTMLInputElement>("[data-thick]");
+    const playBtn = q<HTMLButtonElement>("[data-play]");
+    const prevA = q<SVGSVGElement>("[data-prev-a]");
+    const prevB = q<SVGSVGElement>("[data-prev-b]");
+    const pathA = q<SVGPathElement>("[data-path-a]");
+    const pathB = q<SVGPathElement>("[data-path-b]");
+    const startA = q<SVGCircleElement>("[data-start-a]");
+    const endA = q<SVGCircleElement>("[data-end-a]");
+    const startB = q<SVGCircleElement>("[data-start-b]");
+    const endB = q<SVGCircleElement>("[data-end-b]");
+
+    let firstIn = "";
+    let firstOut = "";
+    let viewBox = "0 0 100 100";
+    let lenA = 0;
+    let lenB = 0;
+    let playing = true;
+    let t0 = performance.now();
+    let pausedAt = 0;
+    let raf = 0;
+
+    function opts(oneLine: boolean): Opts {
+      return { order: optOrder.checked, hv: optHv.checked, compact: optCompact.checked, prec: parseInt(prec.value, 10), oneLine };
+    }
+
+    function showError(msg: string) {
+      errorEl.textContent = msg;
+      errorEl.classList.remove("hidden");
+    }
+
+    function clearPreview() {
+      [pathA, pathB].forEach((p) => p.removeAttribute("d"));
+      [startA, endA, startB, endB].forEach((c) => c.setAttribute("r", "0"));
+      lenA = lenB = 0;
+    }
+
+    function process() {
+      errorEl.classList.add("hidden");
+      const text = input.value.trim();
+      if (!text) {
+        output.value = "";
+        statsEl.textContent = "";
+        firstIn = firstOut = "";
+        clearPreview();
+        return;
+      }
+      try {
+        const isMarkup = /<path\b/i.test(text);
+        if (isMarkup) {
+          let count = 0;
+          let firstSeen = false;
+          let segTotal = 0;
+          const o = opts(true);
+          const replaced = text.replace(/<path\b[^>]*>/gi, (tag) =>
+            tag.replace(/(\sd\s*=\s*)(["'])([\s\S]*?)\2/i, (_m, pre: string, quote: string, dv: string) => {
+              const r = reversePath(dv, o);
+              count++;
+              segTotal += r.segCount;
+              if (!firstSeen) {
+                firstSeen = true;
+                firstIn = dv;
+                firstOut = r.out;
+              }
+              return pre + quote + r.out + quote;
+            })
+          );
+          if (!count) throw new Error("No path with a d attribute was found in the markup.");
+          output.value = replaced;
+          statsEl.textContent = `${count} path${count === 1 ? "" : "s"} reversed, ${segTotal} segments. The preview shows the first path.`;
+        } else {
+          const r = reversePath(text, opts(false));
+          firstIn = text;
+          firstOut = r.out;
+          output.value = r.out;
+          statsEl.textContent = `${r.subCount} subpath${r.subCount === 1 ? "" : "s"}, ${r.segCount} segments reversed.`;
+        }
+        updatePreview();
+      } catch (e) {
+        output.value = "";
+        statsEl.textContent = "";
+        showError(e instanceof Error ? e.message : "Could not read this path.");
+        clearPreview();
+      }
+    }
+
+    function updatePreview() {
+      pathA.setAttribute("d", firstIn);
+      pathB.setAttribute("d", firstOut.replace(/\n/g, " "));
+      let box: DOMRect;
+      try {
+        box = pathA.getBBox();
+      } catch {
+        return;
+      }
+      const size = Math.max(box.width, box.height, 1);
+      const pad = size * 0.14;
+      viewBox = `${box.x - pad} ${box.y - pad} ${box.width + pad * 2} ${box.height + pad * 2}`;
+      const sw = size * 0.01 * parseFloat(thick.value);
+      [prevA, prevB].forEach((s) => s.setAttribute("viewBox", viewBox));
+      [pathA, pathB].forEach((p) => p.setAttribute("stroke-width", String(sw)));
+      lenA = pathA.getTotalLength();
+      lenB = pathB.getTotalLength();
+      const rr = sw * 1.8;
+      const sA = pathA.getPointAtLength(0);
+      const eA = pathA.getPointAtLength(lenA);
+      const sB = pathB.getPointAtLength(0);
+      const eB = pathB.getPointAtLength(lenB);
+      const place = (c: SVGCircleElement, p: DOMPoint, r: number) => {
+        c.setAttribute("cx", String(p.x));
+        c.setAttribute("cy", String(p.y));
+        c.setAttribute("r", String(r));
+        c.setAttribute("stroke-width", String(sw * 0.6));
+      };
+      place(startA, sA, rr);
+      place(endA, eA, rr);
+      place(startB, sB, rr);
+      place(endB, eB, rr);
+    }
+
+    function frame(now: number) {
+      const dur = parseFloat(speed.value) * 1000;
+      const hold = 700;
+      const elapsed = playing ? now - t0 : pausedAt;
+      const cycle = (elapsed % (dur + hold)) / dur;
+      const p = Math.min(1, cycle);
+      if (lenA) {
+        pathA.setAttribute("stroke-dasharray", `${lenA} ${lenA}`);
+        pathA.setAttribute("stroke-dashoffset", String(lenA * (1 - p)));
+      }
+      if (lenB) {
+        pathB.setAttribute("stroke-dasharray", `${lenB} ${lenB}`);
+        pathB.setAttribute("stroke-dashoffset", String(lenB * (1 - p)));
+      }
+      raf = requestAnimationFrame(frame);
+    }
+
+    // Events
+    input.addEventListener("input", process);
+    [optOrder, optHv, optCompact].forEach((el) => el.addEventListener("change", process));
+    prec.addEventListener("input", () => {
+      precLabel.textContent = prec.value;
+      process();
+    });
+    speed.addEventListener("input", () => {
+      speedLabel.textContent = speed.value + "s";
+    });
+    thick.addEventListener("input", () => {
+      if (firstIn) updatePreview();
+    });
+    playBtn.addEventListener("click", () => {
+      const now = performance.now();
+      if (playing) {
+        pausedAt = now - t0;
+        playing = false;
+        playBtn.textContent = "Play";
+      } else {
+        t0 = now - pausedAt;
+        playing = true;
+        playBtn.textContent = "Pause";
+      }
+    });
+
+    root.querySelectorAll<HTMLButtonElement>("[data-sample]").forEach((b) =>
+      b.addEventListener("click", () => {
+        input.value = SAMPLES[b.dataset.sample || "wave"];
+        t0 = performance.now();
+        process();
+      })
+    );
+    q<HTMLButtonElement>("[data-clear]").addEventListener("click", () => {
+      input.value = "";
+      process();
+    });
+    q<HTMLButtonElement>("[data-use-output]").addEventListener("click", () => {
+      if (!output.value) return;
+      input.value = output.value;
+      process();
+    });
+
+    // Copy buttons
+    function animSnippet(): string {
+      const d = firstOut.replace(/\n/g, " ");
+      return `<svg viewBox="${viewBox}" width="240" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">\n  <path d="${d}" pathLength="1" style="stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2s ease forwards;"/>\n</svg>\n\n<style>\n  @keyframes draw { to { stroke-dashoffset: 0; } }\n</style>`;
+    }
+    root.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
+      const icon = btn.querySelector<SVGElement>("[data-copy-icon]")!;
+      const done = btn.querySelector<SVGElement>("[data-copy-done]")!;
+      const label = btn.querySelector<HTMLElement>("[data-copy-label]")!;
+      const original = label.textContent || "";
+      btn.addEventListener("click", async () => {
+        const text = btn.dataset.copy === "anim" ? (firstOut ? animSnippet() : "") : output.value;
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        icon.classList.add("hidden");
+        done.classList.remove("hidden");
+        label.textContent = "Copied";
+        setTimeout(() => {
+          icon.classList.remove("hidden");
+          done.classList.add("hidden");
+          label.textContent = original;
+        }, 1500);
+      });
+    });
+
+    input.value = SAMPLES.wave;
+    process();
+    raf = requestAnimationFrame(frame);
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-svg-path-direction-reverser-widget]").forEach(initReverser);
+</script>
