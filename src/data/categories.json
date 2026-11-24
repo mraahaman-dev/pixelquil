@@ -53,5 +53,18 @@
         "<h3 class=\"mt-8 text-lg font-semibold text-slate-900\">No dev store, no deploy step</h3><p class=\"mt-2 leading-relaxed text-slate-600\">Unlike most Shopify learning resources, nothing here requires a dev store, a paid theme, or a deploy step. Mock product, cart, and collection data stands in for a real store, so you can see exactly how a piece of Liquid behaves in seconds rather than minutes.</p>",
         "<h3 class=\"mt-8 text-lg font-semibold text-slate-900\">Privacy first, every time</h3><p class=\"mt-2 leading-relaxed text-slate-600\">As with every tool on Pixelquil, everything runs client-side: no signup, no uploads, and nothing about what you write is stored or sent to a server.</p>"
       ]
-    }
+    },
+    {
+  "slug": "pixel-art-tools",
+  "title": "Pixel Art & Game Tools",
+  "description": "Generate game graphics, retro props and character assets.",
+  "metaTitle": "Pixel Art & Game Tools, Free Online Generators | Pixelquil",
+  "metaDescription": "Free pixel art and game tools. Generate retro props, game graphics and character assets right in your browser. No signup required.",
+  "badgeColor": "violet",
+  "iconPath": "M4 4h4v4H4z M12 4h4v4h-4z M8 8h4v4H8z M16 8h4v4h-4z M4 12h4v4H4z M12 12h4v4h-4z M8 16h4v4H8z",
+  "intro": [
+    "<h3 class=\"text-lg font-semibold text-slate-900\">Game graphics without the heavy software</h3><p class=\"mt-2 leading-relaxed text-slate-600\">Fan art, game mods, stream overlays and indie prototypes all need small pieces of art: a glowing license plate, a character sprite, a retro prop. Opening a full design suite for each one is slow, and many online generators upload your work to a server or hide the download behind a signup.</p>",
+    "<h3 class=\"mt-8 text-lg font-semibold text-slate-900\">What this collection will cover</h3><p class=\"mt-2 leading-relaxed text-slate-600\">Tools here generate game-style graphics directly in your browser and export them as SVG or PNG, with new generators added as they are built. For vector clean-up and conversion, see our <a href=\"/svg-tools/\" class=\"text-brand-600 hover:underline\">SVG & Design Tools</a>.</p>"
+  ]
+}
 ]

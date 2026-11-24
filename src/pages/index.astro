@@ -82,6 +82,13 @@ const categories = [
     badgeColor: "emerald",
     iconPath: "M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0",
   },
+  {
+    title: "Pixel Art & Game Tools",
+    description: "Generate game graphics, retro props and character assets.",
+    href: "/pixel-art-tools/",
+    badgeColor: "violet",
+    iconPath: "M4 4h4v4H4z M12 4h4v4h-4z M8 8h4v4H8z M16 8h4v4h-4z M4 12h4v4H4z M12 12h4v4h-4z M8 16h4v4H8z",
+  },
 ];
 
 // Literal class names only (Tailwind v4 needs them written out in full).
@@ -98,6 +105,8 @@ const tones: Record<string, { tile: string; glow: string; mark: string }> = {
   red: { tile: "bg-red-50 text-red-600 ring-red-100", glow: "bg-red-200/60", mark: "text-red-600" },
   rose: { tile: "bg-rose-50 text-rose-600 ring-rose-100", glow: "bg-rose-200/60", mark: "text-rose-600" },
   lime: { tile: "bg-lime-50 text-lime-600 ring-lime-100", glow: "bg-lime-200/60", mark: "text-lime-600" },
+  violet: { tile: "bg-violet-50 text-violet-600 ring-violet-100", glow: "bg-violet-200/60", mark: "text-violet-600" },
+  fuchsia: { tile: "bg-fuchsia-50 text-fuchsia-600 ring-fuchsia-100", glow: "bg-fuchsia-200/60", mark: "text-fuchsia-600" },
 };
 const fallbackTone = { tile: "bg-slate-50 text-slate-600 ring-slate-100", glow: "bg-slate-200/60", mark: "text-slate-600" };
 const toneFor = (c: string) => tones[c] ?? fallbackTone;
@@ -215,7 +224,7 @@ const dotGrid =
       </p>
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {categories.map((category) => (
         <a
           href={category.href}

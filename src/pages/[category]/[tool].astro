@@ -104,6 +104,10 @@ import RisoPrintPosterEffectGeneratorWidget from "../../components/tools/RisoPri
 import MultiStateIconTogglePreviewerWidget from "../../components/tools/MultiStateIconTogglePreviewerWidget.astro";
 import SvgPathDirectionReverserWidget from "../../components/tools/SvgPathDirectionReverserWidget.astro";
 import BlueprintStyleTechnicalDrawingGeneratorWidget from "../../components/tools/BlueprintStyleTechnicalDrawingGeneratorWidget.astro";
+import NeonLicensePlateGeneratorWidget from "../../components/tools/NeonLicensePlateGeneratorWidget.astro";
+import WantedPosterMakerWidget from "../../components/tools/WantedPosterMakerWidget.astro";
+import PixelAvatarWidget from "../../components/tools/PixelAvatarWidget.astro";
+import PixelArtConverterWidget from "../../components/tools/PixelArtConverterWidget.astro";
 
 export function getStaticPaths() {
   return toolsData.map((tool) => ({
@@ -219,6 +223,10 @@ const widgets: Record<string, any> = {
    "multi-state-icon-toggle-previewer": MultiStateIconTogglePreviewerWidget,
    "svg-path-direction-reverser": SvgPathDirectionReverserWidget,
    "blueprint-style-technical-drawing-generator": BlueprintStyleTechnicalDrawingGeneratorWidget,
+   "neon-license-plate-generator": NeonLicensePlateGeneratorWidget,
+   "wanted-poster-maker": WantedPosterMakerWidget,
+  "photo-to-pixel-avatar": PixelAvatarWidget,
+  "image-to-pixel-art-converter": PixelArtConverterWidget,
     
 };
 

@@ -1,0 +1,456 @@
+<div data-neon-license-plate-generator-widget class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+  <div class="grid gap-6 lg:grid-cols-5">
+    <!-- Controls -->
+    <div class="space-y-5 lg:col-span-2">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">1. Start from a preset</p>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <button type="button" data-np-preset="night-city" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-fuchsia-300 hover:bg-fuchsia-50">Night City</button>
+          <button type="button" data-np-preset="sunset" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-fuchsia-300 hover:bg-fuchsia-50">Sunset</button>
+          <button type="button" data-np-preset="ocean-drive" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-fuchsia-300 hover:bg-fuchsia-50">Ocean Drive</button>
+          <button type="button" data-np-preset="palm-city" class="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-fuchsia-300 hover:bg-fuchsia-50">Palm City</button>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">2. Plate text</p>
+        <div class="mt-2 space-y-3">
+          <label class="block text-sm font-medium text-gray-700">Top line (city or state)
+            <input type="text" data-np-text data-np-header maxlength="16" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm uppercase focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30" />
+          </label>
+          <label class="block text-sm font-medium text-gray-700">Plate number (up to 8 characters)
+            <div class="mt-1 flex gap-2">
+              <input type="text" data-np-text data-np-plate maxlength="8" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm uppercase focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30" />
+              <button type="button" data-np-random class="shrink-0 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Random</button>
+            </div>
+          </label>
+          <label class="block text-sm font-medium text-gray-700">Slogan
+            <input type="text" data-np-text data-np-slogan maxlength="22" class="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm uppercase focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30" />
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">3. Neon style</p>
+        <div class="mt-2 grid grid-cols-2 gap-3">
+          <label class="block text-sm font-medium text-gray-700">Plate number color
+            <input type="color" data-np-c1 value="#22d3ee" class="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1" />
+          </label>
+          <label class="block text-sm font-medium text-gray-700">Border and top line color
+            <input type="color" data-np-c2 value="#e879f9" class="mt-1 h-10 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-1" />
+          </label>
+        </div>
+        <label class="mt-3 block text-sm font-medium text-gray-700">Glow strength
+          <input type="range" min="1" max="10" step="1" value="6" data-np-glow class="mt-2 w-full accent-fuchsia-600" />
+        </label>
+        <div class="mt-3 grid grid-cols-3 gap-3">
+          <label class="block text-sm font-medium text-gray-700">Background
+            <select data-np-bg class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30">
+              <option value="midnight">Midnight</option>
+              <option value="sunset">Sunset</option>
+              <option value="grid">Retro grid</option>
+              <option value="black">Black</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium text-gray-700">Border
+            <select data-np-border class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30">
+              <option value="single">Single</option>
+              <option value="double">Double</option>
+              <option value="none">None</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium text-gray-700">Lettering
+            <select data-np-font class="mt-1 w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/30">
+              <option value="condensed">Condensed</option>
+              <option value="wide">Wide</option>
+              <option value="mono">Mono</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">4. Options</p>
+        <div class="mt-2 space-y-2 text-sm text-gray-700">
+          <label class="flex items-center gap-2"><input type="checkbox" data-np-holes checked class="h-4 w-4 accent-fuchsia-600" /> Screw holes</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-np-backdrop checked class="h-4 w-4 accent-fuchsia-600" /> Dark backdrop behind the plate</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-np-crop class="h-4 w-4 accent-fuchsia-600" /> Crop to the plate edges (exact 2:1)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" data-np-flicker class="h-4 w-4 accent-fuchsia-600" /> Flicker in the preview (not exported)</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview + actions -->
+    <div class="lg:col-span-3">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Preview</p>
+      <div data-np-preview role="img" class="mt-2 overflow-hidden rounded-xl bg-slate-950 p-3 sm:p-4"></div>
+      <p class="mt-2 text-xs text-gray-500">Lettering uses fonts installed on your device. The PNG locks in exactly what you see here; an SVG opened on another device may use a different fallback font.</p>
+
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <button type="button" data-np-download-svg class="rounded-lg bg-fuchsia-600 px-4 py-2 text-sm font-semibold text-white hover:bg-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-2">Download SVG</button>
+        <button type="button" data-np-download-png class="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">Download PNG</button>
+        <select data-np-scale aria-label="PNG size" class="rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-700">
+          <option value="1">1x</option>
+          <option value="2" selected>2x</option>
+          <option value="3">3x</option>
+          <option value="4">4x</option>
+        </select>
+        <button type="button" data-np-copy class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <svg data-np-copy-icon class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <svg data-np-check-icon class="hidden h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span data-np-copy-label>Copy SVG</span>
+        </button>
+        <button type="button" data-np-reset class="ml-auto text-sm text-gray-400 hover:text-red-600">Reset</button>
+      </div>
+      <p data-np-status aria-live="polite" class="mt-2 min-h-5 text-sm text-gray-500"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Preset = {
+    header: string;
+    plate: string;
+    slogan: string;
+    c1: string;
+    c2: string;
+    bg: string;
+    border: string;
+    font: string;
+  };
+
+  const PRESETS: Record<string, Preset> = {
+    "night-city": { header: "NIGHT CITY", plate: "NIGHT 88", slogan: "AFTER DARK", c1: "#22d3ee", c2: "#e879f9", bg: "grid", border: "single", font: "condensed" },
+    "sunset": { header: "SUNSET", plate: "SUNSET 1", slogan: "GOLDEN HOUR", c1: "#fb923c", c2: "#f472b6", bg: "sunset", border: "single", font: "condensed" },
+    "ocean-drive": { header: "OCEAN DRIVE", plate: "OCEAN 84", slogan: "SEA BREEZE", c1: "#2dd4bf", c2: "#38bdf8", bg: "midnight", border: "double", font: "condensed" },
+    "palm-city": { header: "PALM CITY", plate: "PALM 777", slogan: "ISLAND LIFE", c1: "#4ade80", c2: "#f472b6", bg: "sunset", border: "single", font: "wide" },
+  };
+
+  // w = rough average glyph width as a fraction of font size, used to auto-fit text
+  const FONTS: Record<string, { stack: string; w: number }> = {
+    condensed: { stack: "Impact, 'Arial Narrow', Haettenschweiler, sans-serif", w: 0.52 },
+    wide: { stack: "'Arial Black', 'Helvetica Neue', Arial, sans-serif", w: 0.78 },
+    mono: { stack: "'Courier New', Courier, monospace", w: 0.62 },
+  };
+
+  // Plate geometry (US 2:1 proportion) inside a 640 x 340 canvas that leaves room for the glow
+  const PX = 20;
+  const PY = 20;
+  const PW = 600;
+  const PH = 300;
+  const CX = PX + PW / 2;
+
+  function esc(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function clamp(v: number, lo: number, hi: number): number {
+    return Math.max(lo, Math.min(hi, v));
+  }
+
+  function mix(a: string, b: string, t: number): string {
+    const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
+    const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
+    const out = pa.map((v, i) => Math.round(v * (1 - t) + pb[i] * t));
+    return "#" + out.map((v) => v.toString(16).padStart(2, "0")).join("");
+  }
+
+  function initNeonPlate(root: HTMLElement) {
+    const q = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+
+    const header = q<HTMLInputElement>("[data-np-header]");
+    const plate = q<HTMLInputElement>("[data-np-plate]");
+    const slogan = q<HTMLInputElement>("[data-np-slogan]");
+    const c1 = q<HTMLInputElement>("[data-np-c1]");
+    const c2 = q<HTMLInputElement>("[data-np-c2]");
+    const glow = q<HTMLInputElement>("[data-np-glow]");
+    const bgSel = q<HTMLSelectElement>("[data-np-bg]");
+    const borderSel = q<HTMLSelectElement>("[data-np-border]");
+    const fontSel = q<HTMLSelectElement>("[data-np-font]");
+    const holes = q<HTMLInputElement>("[data-np-holes]");
+    const backdrop = q<HTMLInputElement>("[data-np-backdrop]");
+    const crop = q<HTMLInputElement>("[data-np-crop]");
+    const flicker = q<HTMLInputElement>("[data-np-flicker]");
+    const preview = q<HTMLElement>("[data-np-preview]");
+    const scaleSel = q<HTMLSelectElement>("[data-np-scale]");
+    const status = q<HTMLElement>("[data-np-status]");
+    const copyBtn = q<HTMLButtonElement>("[data-np-copy]");
+    const copyIcon = q<SVGElement>("[data-np-copy-icon]");
+    const checkIcon = q<SVGElement>("[data-np-check-icon]");
+    const copyLabel = q<HTMLElement>("[data-np-copy-label]");
+    const presetBtns = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-np-preset]"));
+
+    const ACTIVE = ["border-fuchsia-500", "bg-fuchsia-50", "text-fuchsia-700"];
+    const IDLE = ["border-gray-200", "text-gray-700"];
+
+    function setActive(key: string | null) {
+      presetBtns.forEach((b) => {
+        const on = b.dataset.npPreset === key;
+        ACTIVE.forEach((c) => b.classList.toggle(c, on));
+        IDLE.forEach((c) => b.classList.toggle(c, !on));
+      });
+    }
+
+    function applyPreset(key: string) {
+      const p = PRESETS[key];
+      header.value = p.header;
+      plate.value = p.plate;
+      slogan.value = p.slogan;
+      c1.value = p.c1;
+      c2.value = p.c2;
+      bgSel.value = p.bg;
+      borderSel.value = p.border;
+      fontSel.value = p.font;
+      setActive(key);
+      render();
+    }
+
+    function state() {
+      return {
+        header: header.value.toUpperCase().trim().slice(0, 16),
+        plate: plate.value.toUpperCase().slice(0, 8),
+        slogan: slogan.value.toUpperCase().trim().slice(0, 22),
+        c1: c1.value,
+        c2: c2.value,
+        glow: Number(glow.value),
+        bg: bgSel.value,
+        border: borderSel.value,
+        font: fontSel.value in FONTS ? fontSel.value : "condensed",
+        holes: holes.checked,
+        backdrop: backdrop.checked,
+        crop: crop.checked,
+      };
+    }
+
+    function neonText(
+      text: string,
+      y: number,
+      fs: number,
+      color: string,
+      core: string,
+      stack: string,
+      forPreview: boolean
+    ): string {
+      if (!text) return "";
+      const ls = fs * 0.1;
+      const attrs =
+        'x="' + (CX + ls / 2).toFixed(1) + '" y="' + y + '" text-anchor="middle" font-family="' + stack +
+        '" font-size="' + fs.toFixed(1) + '" font-weight="700" letter-spacing="' + ls.toFixed(1) + '"';
+      const tag = forPreview ? " data-np-flicker-target" : "";
+      return (
+        "<g" + tag + ">" +
+        '<text ' + attrs + ' fill="' + color + '" stroke="' + color + '" stroke-width="' + (fs * 0.05).toFixed(1) + '" filter="url(#np-glow)">' + esc(text) + "</text>" +
+        '<text ' + attrs + ' fill="' + core + '">' + esc(text) + "</text>" +
+        "</g>"
+      );
+    }
+
+    function buildSvg(forPreview: boolean, scale: number): string {
+      const s = state();
+      const f = FONTS[s.font];
+      const vb = s.crop ? [PX, PY, PW, PH] : [0, 0, 640, 340];
+      const sizeAttrs = forPreview
+        ? 'width="100%" style="display:block;height:auto"'
+        : 'width="' + Math.round(vb[2] * scale) + '" height="' + Math.round(vb[3] * scale) + '"';
+
+      const g1 = (s.glow * 0.55).toFixed(2);
+      const g2 = (s.glow * 1.7).toFixed(2);
+      const core1 = mix(s.c1, "#ffffff", 0.78);
+      const core2 = mix(s.c2, "#ffffff", 0.7);
+
+      let defs =
+        '<filter id="np-glow" x="-30%" y="-60%" width="160%" height="220%" color-interpolation-filters="sRGB">' +
+        '<feGaussianBlur in="SourceGraphic" stdDeviation="' + g1 + '" result="b1"/>' +
+        '<feGaussianBlur in="SourceGraphic" stdDeviation="' + g2 + '" result="b2"/>' +
+        '<feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+        '<clipPath id="np-clip"><rect x="' + PX + '" y="' + PY + '" width="' + PW + '" height="' + PH + '" rx="26"/></clipPath>';
+
+      let plateFill = "#07070d";
+      let extra = "";
+      if (s.bg === "midnight") {
+        defs += '<linearGradient id="np-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16162e"/><stop offset="1" stop-color="#05050a"/></linearGradient>';
+        plateFill = "url(#np-bg)";
+      } else if (s.bg === "sunset") {
+        defs +=
+          '<linearGradient id="np-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d0820"/>' +
+          '<stop offset="0.6" stop-color="' + mix(s.c2, "#0d0820", 0.78) + '"/>' +
+          '<stop offset="1" stop-color="' + mix(s.c2, "#07070d", 0.55) + '"/></linearGradient>';
+        plateFill = "url(#np-bg)";
+        extra = '<circle cx="' + CX + '" cy="214" r="96" fill="' + s.c2 + '" fill-opacity="0.2" clip-path="url(#np-clip)"/>';
+      } else if (s.bg === "grid") {
+        let lines = "";
+        const hy = 190;
+        for (let i = 1; i <= 7; i++) {
+          const y = (hy + i * i * 2.6).toFixed(1);
+          lines += '<line x1="' + PX + '" x2="' + (PX + PW) + '" y1="' + y + '" y2="' + y + '"/>';
+        }
+        for (let j = -9; j <= 9; j++) {
+          lines += '<line x1="' + (CX + j * 18) + '" y1="' + hy + '" x2="' + (CX + j * 110) + '" y2="' + (PY + PH) + '"/>';
+        }
+        extra = '<g stroke="' + s.c1 + '" stroke-opacity="0.28" stroke-width="1.2" clip-path="url(#np-clip)">' + lines + "</g>";
+      } else {
+        plateFill = "#000000";
+      }
+
+      let border = "";
+      if (s.border !== "none") {
+        border +=
+          '<rect x="40" y="40" width="560" height="260" rx="18" fill="none" stroke="' + s.c2 + '" stroke-width="4" filter="url(#np-glow)"/>' +
+          '<rect x="40" y="40" width="560" height="260" rx="18" fill="none" stroke="' + core2 + '" stroke-width="1.5"/>';
+      }
+      if (s.border === "double") {
+        border +=
+          '<rect x="52" y="52" width="536" height="236" rx="10" fill="none" stroke="' + s.c2 + '" stroke-width="2.5" filter="url(#np-glow)"/>' +
+          '<rect x="52" y="52" width="536" height="236" rx="10" fill="none" stroke="' + core2 + '" stroke-width="1"/>';
+      }
+
+      const holeSvg = s.holes
+        ? '<circle cx="70" cy="30" r="6" fill="#07070d" stroke="#94a3b8" stroke-width="2"/><circle cx="570" cy="30" r="6" fill="#07070d" stroke="#94a3b8" stroke-width="2"/>'
+        : "";
+
+      const hFs = clamp(440 / (Math.max(s.header.length, 1) * (f.w + 0.14)), 16, 38);
+      const pFs = clamp(520 / (Math.max(s.plate.length, 1) * (f.w + 0.1)), 48, 130);
+      const sFs = clamp(430 / (Math.max(s.slogan.length, 1) * (f.w + 0.2)), 12, 20);
+
+      const backdropSvg = s.backdrop && !s.crop ? '<rect width="640" height="340" fill="#05050a"/>' : "";
+
+      return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + vb.join(" ") + '" ' + sizeAttrs + ">" +
+        "<defs>" + defs + "</defs>" +
+        backdropSvg +
+        '<rect x="' + PX + '" y="' + PY + '" width="' + PW + '" height="' + PH + '" rx="26" fill="' + plateFill + '" stroke="#94a3b8" stroke-width="3"/>' +
+        extra +
+        border +
+        holeSvg +
+        neonText(s.header, 98, hFs, s.c2, core2, f.stack, forPreview) +
+        neonText(s.plate, 212, pFs, s.c1, core1, f.stack, forPreview) +
+        neonText(s.slogan, 272, sFs, s.c2, core2, f.stack, forPreview) +
+        "</svg>"
+      );
+    }
+
+    function render() {
+      const s = state();
+      preview.innerHTML = buildSvg(true, 1);
+      preview.setAttribute("aria-label", "Neon license plate reading " + (s.plate || "blank"));
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (flicker.checked && !reduce) {
+        preview.querySelectorAll<SVGGElement>("[data-np-flicker-target]").forEach((el, i) => {
+          if (typeof el.animate === "function") {
+            el.animate(
+              [{ opacity: 1 }, { opacity: 1 }, { opacity: 0.55 }, { opacity: 1 }, { opacity: 0.8 }, { opacity: 1 }],
+              { duration: 3200 + i * 700, iterations: Infinity }
+            );
+          }
+        });
+      }
+    }
+
+    function fileBase(): string {
+      const base = plate.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      return "neon-plate-" + (base || "plate");
+    }
+
+    function saveBlob(name: string, blob: Blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function say(msg: string) {
+      status.textContent = msg;
+      if (msg) setTimeout(() => { if (status.textContent === msg) status.textContent = ""; }, 4000);
+    }
+
+    q<HTMLButtonElement>("[data-np-download-svg]").addEventListener("click", () => {
+      const svg = buildSvg(false, Number(scaleSel.value));
+      saveBlob(fileBase() + ".svg", new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+      say("SVG downloaded.");
+    });
+
+    q<HTMLButtonElement>("[data-np-download-png]").addEventListener("click", async () => {
+      const scale = Number(scaleSel.value);
+      const svg = buildSvg(false, scale);
+      const vbW = crop.checked ? PW : 640;
+      const vbH = crop.checked ? PH : 340;
+      const img = new Image();
+      try {
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error("render"));
+          img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+        });
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(vbW * scale);
+        canvas.height = Math.round(vbH * scale);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("canvas");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((b) => {
+          if (b) {
+            saveBlob(fileBase() + ".png", b);
+            say("PNG downloaded (" + canvas.width + " x " + canvas.height + " px).");
+          } else {
+            say("PNG export failed in this browser. Try the SVG download.");
+          }
+        }, "image/png");
+      } catch {
+        say("PNG export failed in this browser. Try the SVG download.");
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(buildSvg(false, Number(scaleSel.value)));
+        copyIcon.classList.add("hidden");
+        checkIcon.classList.remove("hidden");
+        copyLabel.textContent = "Copied";
+        setTimeout(() => {
+          copyIcon.classList.remove("hidden");
+          checkIcon.classList.add("hidden");
+          copyLabel.textContent = "Copy SVG";
+        }, 1500);
+      } catch {
+        say("Could not copy. Your browser blocked clipboard access.");
+      }
+    });
+
+    q<HTMLButtonElement>("[data-np-random]").addEventListener("click", () => {
+      const letters = "ABCDEFGHJKLMNPRSTUVWXYZ";
+      let out = "";
+      for (let i = 0; i < 3; i++) out += letters[Math.floor(Math.random() * letters.length)];
+      out += " " + String(Math.floor(Math.random() * 900) + 100);
+      plate.value = out;
+      setActive(null);
+      render();
+    });
+
+    q<HTMLButtonElement>("[data-np-reset]").addEventListener("click", () => {
+      glow.value = "6";
+      holes.checked = true;
+      backdrop.checked = true;
+      crop.checked = false;
+      flicker.checked = false;
+      scaleSel.value = "2";
+      applyPreset("night-city");
+    });
+
+    presetBtns.forEach((b) => b.addEventListener("click", () => applyPreset(b.dataset.npPreset || "night-city")));
+
+    root.addEventListener("input", (e) => {
+      const t = e.target as HTMLElement;
+      if (t.hasAttribute("data-np-text")) setActive(null);
+      render();
+    });
+    root.addEventListener("change", render);
+
+    applyPreset("night-city");
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-neon-license-plate-generator-widget]").forEach(initNeonPlate);
+</script>
